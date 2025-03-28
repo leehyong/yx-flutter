@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:toastification/toastification.dart';
 import 'package:yx/api/user_provider.dart';
 import 'package:yx/config.dart';
 import 'package:yx/services/auth_service.dart';
+import 'package:yx/utils/toast.dart';
 import 'package:yx/vo/common_vo.dart';
 
 import 'codes.dart';
@@ -30,7 +29,7 @@ class GlobalProvider extends GetConnect {
           await Future.delayed(Duration(milliseconds: 100));
         // }
       }
-      request.headers[accessTokenStr] = authService.accessToken.value;
+      request.headers[accessTokenStr] = authService.accessToken;
       // Set the header
       return request;
     });
@@ -40,7 +39,7 @@ class GlobalProvider extends GetConnect {
         isJwtCodeRefreshing = true;
         // 刷新token
         final success = await UserProvider.instance.refreshAccessToken(
-          AuthService.to.accessToken.value,
+          AuthService.to.accessToken,
         );
         isJwtCodeRefreshing = false;
         if (success) {
@@ -71,11 +70,7 @@ class GlobalProvider extends GetConnect {
     var errMsg = '';
     if (err) {
       errMsg = res.body?.message ?? res.statusText ?? defaultMsg;
-      toastification.show(
-        type: ToastificationType.error,
-        title: Text(errMsg),
-        autoCloseDuration: const Duration(seconds: 3),
-      );
+      errToast(errMsg);
     }
     return errMsg;
   }

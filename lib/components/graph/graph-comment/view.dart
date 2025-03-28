@@ -1,15 +1,15 @@
 import 'package:comment_tree/widgets/comment_tree_widget.dart';
 import 'package:comment_tree/widgets/tree_theme_data.dart';
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
-import 'package:yx/config.dart';
-import 'package:yx/utils/common_widget.dart';
-import 'package:yx/vo/comment_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/types.dart';
+import 'package:yx/utils/common_widget.dart';
+import 'package:yx/vo/comment_vo.dart';
 
 import 'controller.dart';
 
@@ -127,7 +127,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         height: 40,
         child: LoadingIndicator(
           indicatorType: Indicator.ballGridPulse,
-
           /// Required, The loading type of the widget
           colors: loadingColors,
           strokeWidth: 3,

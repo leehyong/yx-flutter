@@ -107,8 +107,8 @@ class LoginView extends GetView<LoginController> {
                 ),
               ],
               views: [
-                PhoneLoginView(),
                 UserLoginView(),
+                PhoneLoginView(),
               ],
             ),
           ),

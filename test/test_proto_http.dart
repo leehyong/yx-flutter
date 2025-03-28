@@ -36,7 +36,7 @@ void main() {
     assert(res.isEmpty);
     assert(AuthService.to.refreshToken.isNotEmpty);
     assert(AuthService.to.accessToken.isNotEmpty);
-    assert(AuthService.to.user.value == user);
+    assert(AuthService.to.user == user);
     // 证明已经正确获取到了提交的参数
   });
 

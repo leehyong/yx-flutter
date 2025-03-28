@@ -4,37 +4,84 @@ import 'package:yx/api/user_provider.dart';
 import 'package:yx/types.dart';
 
 class UserLoginController extends GetxController {
-  var  user = ''.obs;
-  var pwd = ''.obs;
-  var showPwd = false.obs;
-  var captcha = ''.obs;
-  var sentCaptcha = false.obs;
-
+  // var user = ''.obs;
+  // var pwd = ''.obs;
+  final showPwd = false.obs;
+  final enablePwdInput = false.obs;
+  final captcha = ''.obs;
+  final sendingCaptcha = DataLoadingStatus.none.obs;
   static RegExp pwdReg = RegExp(
     // r'^(?![0-9]+$)(?!a-zA-Z]+$)[A-Za-z\\W]{"+2+","+10+"}$'
-      r'\d{6,}'
+    r'\d{6,}',
     // r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~@#$%\*-\+=:,\\?\[\]\{}]).{6,16}$'
   );
+
+  final pwdEditingController = TextEditingController();
+  final userEditingController = TextEditingController();
+  final captchaEditingController = TextEditingController();
+  final userFocusNode = FocusNode();
+  final GlobalKey userFieldKey = GlobalKey<FormFieldState<String>>();
   final GlobalKey formKey = GlobalKey<FormState>();
-  static RegExp userReg = RegExp(
-      r"^[a-zA-Z][a-zA-Z0-9_\-@#]{4,}"
-  );
+  static RegExp userReg = RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#]{4,}");
   final UserProvider _provider = Get.find();
 
-  static String userRegErrorTxt = "请输入不包括中文的至少5个字符的用户名：首字只能为大小写字母、其它字符包括特殊字符（-、_、@、#）";
+  static String userRegErrorTxt =
+      "请输入不包括中文的至少5个字符的用户名：首字只能为大小写字母、其它字符包括特殊字符（-、_、@、#）";
+
   // static String pwdRegErrorTxt = "请输入至少6个字符的密码";
   static String pwdRegErrorTxt = "请输入至少6为字符的密码";
+
   static UserLoginController get to => Get.find();
 
-  Future<String> sendCaptchaAction() async {
-    var res =  await _provider.getCaptchaCode(user.value, userCaptchaCode);
-    sentCaptcha.value = res.isEmpty;
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   // 只执行一次自动获取验证码， 后续验证码获取需要手动点击获取
+  //   once(
+  //     captcha,
+  //     (event) {
+  //       sendCaptchaAction();
+  //     },
+  //     condition:
+  //         userEditingController.text.isNotEmpty &&
+  //         pwdEditingController.text.isNotEmpty &&
+  //         captcha.value.isEmpty,
+  //   );
+  // }
+
+  sendCaptchaAction() async {
+    captcha.value = '';
+    sendingCaptcha.value = DataLoadingStatus.loading;
+    var res = await _provider.getCaptchaCode(
+      userEditingController.text,
+      userCaptchaCode,
+    );
+    sendingCaptcha.value = DataLoadingStatus.loaded;
+    if (res.isNotEmpty) {
+      final parts = res.split("::");
+      final cap = parts.length == 2 ? parts[1] : parts[0];
+      captcha.value = cap.split(",")[1];
+    }
     // sendingCaptcha.value = false;
-    return res;
   }
 
-  Future<String> login() async =>
-      _provider.login('', pwd.value, captcha.value);
+  Future<String> login() async => _provider.login(
+    userEditingController.text,
+    pwdEditingController.text,
+    captchaEditingController.text,
+  );
 
-  get canSendCaptcha => false;
+  @override
+  void onClose(){
+    super.onClose();
+    userEditingController.dispose();
+    pwdEditingController.dispose();
+    captchaEditingController.dispose();
+    userFocusNode.dispose();
+  }
+
+  bool get isValidInput {
+    final state = formKey.currentState as FormState;
+    return state.validate();
+  }
 }

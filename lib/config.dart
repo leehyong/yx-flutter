@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/get_utils.dart';
 
 const publicKey =
     '046fa99b946d5ae8559287057264385b957218ceb09bc3dbff89c0d8fa1c84a73748c9969f2626e8434772972e7188c1aea2db6ed545f3ad0361242e3805141622';
 // const apiServer = "https://flybook.gzdx.com.cn:30666";
-const apiServer = "http://127.0.0.1:18012";
+final apiServer = GetPlatform.isWeb? "http://127.0.0.1:18012": "http://10.0.2.2:18012";
 
 const xxCusHeaderOfAccessToken = 'xx-cus-token';
 const accessTokenStr = 'access-token';
 
-
-const loadingColors = [
-  Colors.red,
-  Colors.orange,
-  Colors.yellow,
-  Colors.green,
-  Colors.blue,
-  Colors.indigo,
-  Colors.purple,
-];
 
 List<BoxShadow> getNodeBgColor(String? typ) {
   switch (typ) {

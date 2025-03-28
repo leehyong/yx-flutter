@@ -5,22 +5,23 @@ import 'package:toastification/toastification.dart';
 
 import 'routes/app_pages.dart';
 import 'services/auth_service.dart';
+import 'types.dart';
 
 void main() async {
   // await LoggerManager().initLogger();
-  await GetStorage.init();
+  await GetStorage.init(userStorage);
   return runApp(
     ToastificationWrapper(
       child: GetMaterialApp(
         enableLog: true,
-        title: "Application",
+        title: "悦享管",
         theme: ThemeData(),
         useInheritedMediaQuery: true,
         initialBinding: BindingsBuilder(() {
           Get.put(AuthService());
         }),
         getPages: AppPages.routes,
-        initialRoute: Routes.login,
+        initialRoute: Routes.app,
         onGenerateRoute: (RouteSettings settings) {
           // 重新设置密码
           if (settings.name == '/') {
