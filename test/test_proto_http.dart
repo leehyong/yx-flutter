@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:yx/api/user_provider.dart';
+import 'package:yx/errors.dart';
 import 'package:yx/services/auth_service.dart';
 import 'package:yx/types.dart';
 
@@ -21,7 +22,7 @@ void main() {
     assert(!res.isOk);
     assert(res.status.code == 401);
     // 证明已经正确获取到了提交的参数
-    assert(res.body == '验证码已过期');
+    assert(res.body == captchaExpired);
   });
 
   test("user login with captcha", () async {

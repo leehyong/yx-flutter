@@ -1,0 +1,1 @@
+const captchaExpired = "验证码已过期";

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:toastification/toastification.dart';
 
 import 'routes/app_pages.dart';
 import 'services/auth_service.dart';
-import 'package:toastification/toastification.dart';
 
-void main() {
+void main() async {
   // await LoggerManager().initLogger();
+  await GetStorage.init();
   return runApp(
     ToastificationWrapper(
       child: GetMaterialApp(
