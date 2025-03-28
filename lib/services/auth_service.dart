@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:yx/routes/app_pages.dart';
 
 import '../types.dart';
 
@@ -70,5 +71,6 @@ class AuthService extends GetxService {
     _storage.remove(userStorageKey);
     _storage.remove(accessStorageKey);
     _storage.remove(refreshStorageKey);
+    Get.offAndToNamed(Routes.login);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/services/auth_service.dart';
 
 import '../controllers/profile_controller.dart';
 
@@ -24,14 +25,10 @@ class ProfileView extends GetView<ProfileController> {
             },
           ),
           MaterialButton(
-            child: const Text('Show a test dialog in Home router outlet'),
+            child: const Text('退出'),
             onPressed: () {
               //shows a dialog
-              Get.defaultDialog(
-                title: 'Test Dialog In Home Outlet !!',
-                barrierDismissible: true,
-                // navigatorKey: Get.nestedKey(Routes.HOME),
-              );
+              AuthService.to.logout();
             },
           ),
         ],
