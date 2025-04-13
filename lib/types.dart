@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 
 enum DataLoadingStatus { none, loading, loaded }
 
@@ -20,8 +21,12 @@ const loadingColors = [
   Colors.purple,
 ];
 
+final defaultTitleStyle = TextStyle(
+  color: Colors.red,
+  fontWeight: FontWeight.w300,
+);
 final defaultDtStyle = TextStyle(color: Colors.purpleAccent, fontSize: 12);
-final  defaultNumberStyle = TextStyle(
+final defaultNumberStyle = TextStyle(
   color: Colors.red,
   fontSize: 14,
   fontWeight: FontWeight.bold,
@@ -61,7 +66,7 @@ extension TaskListCategoryExtension on TaskListCategory {
     }
   }
 
-  static List<TaskListCategory>  get hallTaskList => [
+  static List<TaskListCategory> get hallTaskList => [
     TaskListCategory.allPublished,
     TaskListCategory.myPublished,
     TaskListCategory.myManuscript,
@@ -74,4 +79,71 @@ extension TaskListCategoryExtension on TaskListCategory {
     TaskListCategory.delegatedToMe,
     TaskListCategory.myPublished,
   ];
+}
+
+enum TaskOperationCategory { detailTask, publishTask, submitTask }
+
+extension TaskOperationCategoryExtension on TaskOperationCategory {
+  String get i18name {
+    switch (this) {
+      case TaskOperationCategory.detailTask:
+        return '任务详情';
+      case TaskOperationCategory.publishTask:
+        return '发布任务';
+      case TaskOperationCategory.submitTask:
+        return '填报任务';
+    }
+  }
+}
+
+enum TaskAttributeCategory { basic, submitItem, parentTask, childrenTask }
+
+extension TaskAttributeCategoryExtension on TaskAttributeCategory {
+  String get i18name {
+    switch (this) {
+      case TaskAttributeCategory.basic:
+        return '基础项';
+      case TaskAttributeCategory.submitItem:
+        return '填报项';
+      case TaskAttributeCategory.parentTask:
+        return '父任务';
+      case TaskAttributeCategory.childrenTask:
+        return '子任务';
+    }
+  }
+}
+
+enum ReceiveTaskStrategy { freeSelection, forceDelegation, twoWaySelection }
+
+extension ReceiveTaskStrategyExtension on ReceiveTaskStrategy {
+  String get i18name {
+    switch (this) {
+      case ReceiveTaskStrategy.freeSelection:
+        return '自由选择';
+      case ReceiveTaskStrategy.forceDelegation:
+        return '强制委派';
+      case ReceiveTaskStrategy.twoWaySelection:
+        return '双向选择';
+    }
+  }
+}
+
+enum TaskCreditStrategy { latest, first }
+
+extension TaskCreditStrategyExtension on TaskCreditStrategy {
+  String get i18name {
+    switch (this) {
+      case TaskCreditStrategy.latest:
+        return '最新值';
+      case TaskCreditStrategy.first:
+        return '首次值';
+    }
+  }
+}
+
+class HallPublishTaskParams{
+  const HallPublishTaskParams(this.parentId, this.routeId, this.task);
+  final int parentId;
+  final int routeId;
+  final WorkTask? task;
 }

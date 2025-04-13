@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yx/components/hall/task_hall_view.dart';
 import 'package:yx/components/task/bindings/task_creation_binding.dart';
 import 'package:yx/components/task/views/detail3.dart';
+import 'package:yx/components/work-task/task-info/view.dart';
+import 'package:yx/components/work-task/task_hall_view.dart';
 import 'package:yx/root/nest_nav_key.dart';
 
-import '../../components/hall/hall_binding.dart';
 import '../../components/task/bindings/task_binding.dart';
-import '../../components/task/views/task_creation_view.dart';
+import '../../components/work-task/hall_binding.dart';
+import '../../types.dart';
 
 class HallView extends GetView {
   const HallView({super.key});
@@ -33,11 +34,12 @@ class HallView extends GetView {
             page: () => const TaskDetailView3(),
             transition: Transition.fadeIn,
           );
-        } else if (settings.name == '/hall_create') {
+        } else if (settings.name == '/hall/task/publish') {
+          final params = settings.arguments! as HallPublishTaskParams;
           return GetPageRoute(
             settings: settings,
             bindings: [TaskCreationBinding()],
-            page: () => const TaskCreationView(),
+            page: () => TaskInfoView(publishTaskParams: params),
             transition: Transition.fadeIn,
           );
         }

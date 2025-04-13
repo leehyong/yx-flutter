@@ -4,7 +4,7 @@ import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 
 import 'hall_controller.dart';
-import 'task-list/task_list_view.dart';
+import 'task-list/view.dart';
 
 class TaskHallView extends GetView<TaskHallController> {
   const TaskHallView({super.key});
@@ -13,12 +13,21 @@ class TaskHallView extends GetView<TaskHallController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("任务大厅", style: TextStyle(color: Colors.red, fontWeight: FontWeight.w300)),
+        title: Text("任务大厅", style: defaultTitleStyle),
         actions: [
           ElevatedButton(
             onPressed: () {
               debugPrint("发布了");
-              Get.toNamed('/hall_create', id: NestedNavigatorKeyId.hallId);
+              Get.toNamed(
+                '/hall/task/publish',
+                id: NestedNavigatorKeyId.hallId,
+
+                arguments: const HallPublishTaskParams(
+                  0,
+                  NestedNavigatorKeyId.hallId,
+                  null,
+                ),
+              );
             },
             child: Row(children: [const Text('发布'), Icon(Icons.add)]),
           ),

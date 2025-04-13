@@ -5,7 +5,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 
-import 'task_list_controller.dart';
+import 'controller.dart';
 
 class TaskListView extends StatelessWidget {
   const TaskListView({
