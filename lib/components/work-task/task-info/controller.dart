@@ -16,7 +16,7 @@ class PublishTaskController extends GetxController {
   final taskReceiveStrategy = ReceiveTaskStrategy.twoWaySelection.obs;
   final taskCreditStrategy = TaskCreditStrategy.latest.obs;
   final selectedAttrSet = {TaskAttributeCategory.basic}.obs;
-  final   selectedPersons = <String>[].obs;
+  final   selectedPersons = <String>["1恶趣味", "恶趣味www", "恶趣味", "2dad服"].obs;
   PublishTaskController() {
   }
 

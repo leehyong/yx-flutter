@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/root/nest_nav_key.dart';
@@ -59,7 +61,6 @@ class TaskInfoView extends StatelessWidget {
   }
 }
 
-
 class _PublishTaskView extends GetView<PublishTaskController> {
   _PublishTaskView(this.parentId) {
     Get.put(PublishTaskController());
@@ -81,17 +82,6 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           ],
         ),
       );
-      // return ConstrainedBox(
-      //   constraints: BoxConstraints.expand(),
-      //   child: Form(
-      //     key: controller.formKey,
-      //     autovalidateMode: AutovalidateMode.onUserInteraction,
-      //     child: Column(
-      //       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //       children: children,
-      //     ),
-      //   ),
-      // );
     });
   }
 
@@ -168,24 +158,71 @@ class _PublishTaskView extends GetView<PublishTaskController> {
       ),
       child: Column(
         children: [
-          Text(
-            "112233",
-            style: TextStyle(fontSize: 18),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            spacing: 10,
+            children: [
+              const Icon(Icons.table_bar),
+              Expanded(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "名称",
+                      style: TextStyle(
+                        color: Colors.pinkAccent,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.pinkAccent,
+                      ),
+                    ),
+                    const Text(
+                      "1122",
+                      style: TextStyle(fontSize: 16),
+                      maxLines: 10,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Text(
-            "31312444",
-            style: TextStyle(fontSize: 12),
-            maxLines: 5,
-            overflow: TextOverflow.ellipsis,
+          SizedBox(height: 16),
+          Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Icon(Icons.text_snippet_outlined),
+              Expanded(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "内容",
+                      style: TextStyle(
+                        color: Colors.pinkAccent,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.pinkAccent,
+                      ),
+                    ),
+                    const Text(
+                      "2244",
+                      style: TextStyle(fontSize: 16),
+                      maxLines: 10,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
-  
-  Widget _publishTaskParentInfoView(BuildContext context){
+
+  Widget _publishTaskParentInfoView(BuildContext context) {
     return Column(
       children: [
         Align(
@@ -200,10 +237,10 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             onPressed: () {
               debugPrint("选择父任务成功");
             },
-            child: const Text("请选择父任务"),
+            child: const Text("选择"),
           ),
         ),
-        _buildOneTaskProfileInfo(context),
+        Row(children: [Expanded(child: _buildOneTaskProfileInfo(context))]),
       ],
     );
   }
@@ -214,7 +251,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
       children: [const Text("删除"), const Text("修改")],
     );
   }
-  Widget _publishTaskChildrenInfoView(BuildContext context){
+
+  Widget _publishTaskChildrenInfoView(BuildContext context) {
     return Column(
       children: [
         Align(
@@ -229,10 +267,10 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             onPressed: () {
               debugPrint("选择子任务成功");
             },
-            child: const Text("请选择子任务"),
+            child: const Text("选择"),
           ),
         ),
-        SingleChildScrollView(
+        Expanded(
           child: ListView.builder(
             itemCount: 10,
             itemBuilder: (context, idx) {
@@ -243,35 +281,48 @@ class _PublishTaskView extends GetView<PublishTaskController> {
       ],
     );
   }
-  
-  Widget _publishTaskSubmitItemView(BuildContext context){
+
+  Widget _publishTaskSubmitItemView(BuildContext context) {
     return Column(
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade50, // 背景色
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.all(4),
-              // 文字颜色
-            ),
-            onPressed: () {
-              debugPrint("选择任务项成功");
-            },
-            child: const Text("请选择任务项"),
-          ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: ListView.builder(
-              itemCount: 20,
-              itemBuilder: (context, idx) {
-                return Text("data $idx");
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          spacing: 10,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade50, // 背景色
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.all(4),
+                // 文字颜色
+              ),
+              onPressed: () {
+                debugPrint("选择任务项成功");
               },
+              child: const Text("选择"),
             ),
-          ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade50, // 背景色
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.all(4),
+                // 文字颜色
+              ),
+              onPressed: () {
+                debugPrint("新增任务项成功");
+              },
+              child: const Text("新增"),
+            ),
+          ],
         ),
+        // Expanded(
+        //     child: ListView.builder(
+        //       itemCount: 20,
+        //       itemBuilder: (context, idx) {
+        //         return Text("data $idx");
+        //       },
+        //     ),
+        // ),
         Table(
           border: TableBorder.all(color: Colors.grey), // 边框样式
           columnWidths: {
@@ -304,7 +355,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     return TextFormField(
       keyboardType: TextInputType.text,
       autofocus: true,
-      maxLines: 1,
+      maxLines: 2,
       controller: controller.taskNameController,
       decoration: const InputDecoration(
         labelText: '名称',
@@ -321,8 +372,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     return TextFormField(
       keyboardType: TextInputType.text,
       autofocus: true,
-      minLines: 3,
-      maxLines: 5,
+      minLines: 5,
+      maxLines: 10,
       // 固定显示 5 行
       expands: false,
       // 禁止无限扩展
@@ -384,14 +435,14 @@ class _PublishTaskView extends GetView<PublishTaskController> {
               icon: Icon(Icons.gas_meter),
             ),
             items:
-            TaskCreditStrategy.values
-                .map(
-                  (item) => DropdownMenuItem(
-                value: item,
-                child: Text(item.i18name),
-              ),
-            )
-                .toList(),
+                TaskCreditStrategy.values
+                    .map(
+                      (item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(item.i18name),
+                      ),
+                    )
+                    .toList(),
             onChanged: (v) {
               controller.taskCreditStrategy.value = v!;
             },
@@ -434,44 +485,65 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   Widget _buildTaskReceivers(BuildContext context) {
     final List<Widget> children = [];
     if (controller.selectedPersons.value.isNotEmpty) {
-      children.add(
-        Text(
-          controller.selectedPersons.value.first,
-          style: TextStyle(color: Colors.purpleAccent),
+      const maxCnt = 3;
+      final cnt = controller.selectedPersons.value.length;
+      final persons = controller.selectedPersons.value.sublist(
+        0,
+        min(maxCnt, cnt),
+      );
+      children.add(const Text("已选择"));
+      children.addAll(
+        persons.map(
+          (p) => Container(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: Colors.blue.shade400,
+            ),
+            child: Tooltip(
+              message: p,
+              triggerMode: GetPlatform.isMobile ? TooltipTriggerMode.tap : null,
+              preferBelow: false,
+              child: Text(
+                p.substring(0, min(5, p.length)),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ),
       );
-      if (controller.selectedPersons.value.length > 1) {
-        children.addAll([
-          const Text("等"),
-          Text(
-            controller.selectedPersons.value.length.toString(),
-            style: TextStyle(color: Colors.red, fontSize: 16),
-          ),
-          const Text("人"),
-        ]);
-      }
+      children.add(
+        Row(
+          children: [
+            Text(cnt > maxCnt ? "等" : "共"),
+            Text(
+              controller.selectedPersons.value.length.toString(),
+              style: TextStyle(color: Colors.red, fontSize: 16),
+            ),
+            const Text("人"),
+          ],
+        ),
+      );
     }
     return Row(
+      spacing: 14,
       children: [
-        IconButton(
-          onPressed: () {
-            debugPrint("选择人员");
-          },
-          icon: Container(
-            decoration: BoxDecoration(
-              color: Colors.blue.shade300,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              spacing: 4,
-              children: [
-                const Text("选择人员", style: TextStyle(color: Colors.white)),
-                Icon(Icons.people, color: Colors.white),
-              ],
-            ),
+        Icon(Icons.people),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade50, // 背景色
+            foregroundColor: Colors.black,
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            // 文字颜色
           ),
+          onPressed: () {},
+          child: const Text("选择人员"),
         ),
-        if (children.isNotEmpty) Expanded(child: Row(children: children)),
+        if (children.isNotEmpty)
+          Expanded(child: Row(spacing: 4, children: children)),
       ],
     );
   }
@@ -487,14 +559,14 @@ class _PublishTaskView extends GetView<PublishTaskController> {
               icon: Icon(Icons.gas_meter),
             ),
             items:
-            ReceiveTaskStrategy.values
-                .map(
-                  (item) => DropdownMenuItem(
-                value: item,
-                child: Text(item.i18name),
-              ),
-            )
-                .toList(),
+                ReceiveTaskStrategy.values
+                    .map(
+                      (item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(item.i18name),
+                      ),
+                    )
+                    .toList(),
             onChanged: (v) {
               controller.taskReceiveStrategy.value = v!;
             },
@@ -558,7 +630,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
       ],
     );
   }
-  Widget _publishTaskBasicInfoView(BuildContext context){
+
+  Widget _publishTaskBasicInfoView(BuildContext context) {
     final widgets = [
       _buildTaskName(context),
       _buildTaskContent(context),
