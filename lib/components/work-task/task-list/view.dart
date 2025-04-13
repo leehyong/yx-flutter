@@ -421,6 +421,9 @@ class OneTaskView extends GetView<OneTaskController> {
           ),
         ];
         break;
+      case TaskListCategory.parentTaskInfo:
+      case TaskListCategory.childrenTaskInfo:
+        return SizedBox.shrink();
     }
     return Container(
       decoration: BoxDecoration(

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 
+import '../task-list/view.dart';
 import 'controller.dart';
 
 class TaskInfoView extends StatelessWidget {
@@ -147,81 +148,6 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     );
   }
 
-  Widget _buildOneTaskProfileInfo(BuildContext context) {
-    return Card(
-      color: Colors.blueGrey.shade50,
-      // 设置卡片的阴影高度
-      elevation: 6.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-        side: BorderSide(color: Colors.blue.shade300, width: 1.0),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 10,
-            children: [
-              const Icon(Icons.table_bar),
-              Expanded(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "名称",
-                      style: TextStyle(
-                        color: Colors.pinkAccent,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.pinkAccent,
-                      ),
-                    ),
-                    const Text(
-                      "1122",
-                      style: TextStyle(fontSize: 16),
-                      maxLines: 10,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Row(
-            spacing: 10,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Icon(Icons.text_snippet_outlined),
-              Expanded(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "内容",
-                      style: TextStyle(
-                        color: Colors.pinkAccent,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.pinkAccent,
-                      ),
-                    ),
-                    const Text(
-                      "2244",
-                      style: TextStyle(fontSize: 16),
-                      maxLines: 10,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _publishTaskParentInfoView(BuildContext context) {
     return Column(
       children: [
@@ -240,7 +166,18 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             child: const Text("选择"),
           ),
         ),
-        Row(children: [Expanded(child: _buildOneTaskProfileInfo(context))]),
+        Row(
+          children: [
+            Expanded(
+              child: TaskListView(
+                tasks: [controller.parentTask.value],
+                taskCategory: TaskListCategory.parentTaskInfo,
+                routeId: NestedNavigatorKeyId.hallId,
+                isLoading: false,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -271,11 +208,11 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: 10,
-            itemBuilder: (context, idx) {
-              return _buildOneTaskProfileInfo(context);
-            },
+          child: TaskListView(
+            tasks: controller.childrenTask.value,
+            taskCategory: TaskListCategory.childrenTaskInfo,
+            routeId: NestedNavigatorKeyId.hallId,
+            isLoading: false,
           ),
         ),
       ],
