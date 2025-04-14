@@ -16,6 +16,7 @@ class PublishTaskController extends GetxController {
   final taskContactPhoneController = TextEditingController();
   final taskCreditsController = TextEditingController();
   final taskReceiveStrategy = ReceiveTaskStrategy.twoWaySelection.obs;
+  final taskSubmitCycleStrategy = TaskSubmitCycleStrategy.week.obs;
   final taskCreditStrategy = TaskCreditStrategy.latest.obs;
   final selectedAttrSet = {TaskAttributeCategory.basic}.obs;
   final selectedPersons = <String>["1恶趣味", "恶趣味www", "恶趣味", "2dad服"].obs;

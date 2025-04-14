@@ -392,6 +392,35 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     );
   }
 
+  Widget _buildTaskSubmitCycleCredits(BuildContext context) {
+    return DropdownButtonFormField(
+      value: controller.taskSubmitCycleStrategy.value,
+      decoration: const InputDecoration(
+        label: Row(
+          spacing: 4,
+          children: [
+            Text('任务填报方式'),
+            Text(
+              '*',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        icon: Icon(Icons.gas_meter),
+      ),
+      items:
+          TaskSubmitCycleStrategy.values
+              .map(
+                (item) =>
+                    DropdownMenuItem(value: item, child: Text(item.i18name)),
+              )
+              .toList(),
+      onChanged: (v) {
+        controller.taskSubmitCycleStrategy.value = v!;
+      },
+    );
+  }
+
   Widget _buildTaskCredits(BuildContext context) {
     return Row(
       children: [
@@ -634,6 +663,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     final widgets = [
       _buildTaskName(context),
       _buildTaskContent(context),
+      _buildTaskSubmitCycleCredits(context),
       _buildTaskContacts(context),
       _buildPlanDt(context),
       _buildReceiveTask(context),

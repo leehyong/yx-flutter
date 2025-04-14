@@ -147,9 +147,44 @@ extension TaskCreditStrategyExtension on TaskCreditStrategy {
   }
 }
 
-class HallPublishTaskParams{
+class HallPublishTaskParams {
   const HallPublishTaskParams(this.parentId, this.routeId, this.task);
+
   final int parentId;
   final int routeId;
   final WorkTask? task;
+}
+
+enum TaskSubmitCycleStrategy {
+  week,
+  year,
+  month,
+  halfMonth,
+  day,
+  halfDay,
+  hour,
+  halfHour,
+}
+
+extension TaskSubmitCycleStrategyExtension on TaskSubmitCycleStrategy {
+  String get i18name {
+    switch (this) {
+      case TaskSubmitCycleStrategy.week:
+        return '每周';
+      case TaskSubmitCycleStrategy.year:
+        return '每年';
+      case TaskSubmitCycleStrategy.month:
+        return '每月';
+      case TaskSubmitCycleStrategy.halfMonth:
+        return '每半月';
+      case TaskSubmitCycleStrategy.day:
+        return '每天';
+      case TaskSubmitCycleStrategy.halfDay:
+        return '每12小时';
+      case TaskSubmitCycleStrategy.hour:
+        return '每小时';
+      case TaskSubmitCycleStrategy.halfHour:
+        return '每30分钟';
+    }
+  }
 }
