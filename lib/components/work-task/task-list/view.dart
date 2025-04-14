@@ -255,7 +255,9 @@ class OneTaskView extends GetView<OneTaskController> {
   Widget _buildTaskLeft(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 4, right: 4),
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16.0),
+          color: Colors.white),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
