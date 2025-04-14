@@ -297,15 +297,27 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   Widget _buildTaskName(BuildContext context) {
     return TextFormField(
       keyboardType: TextInputType.text,
-      autofocus: true,
       maxLines: 2,
       controller: controller.taskNameController,
       decoration: const InputDecoration(
-        labelText: '名称',
+        label: Row(
+          spacing: 4,
+          children: [
+            const Text('名称'),
+            const Text(
+              '*',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
         icon: Icon(Icons.table_bar),
       ),
+      autovalidateMode: AutovalidateMode.onUnfocus,
       validator: (v) {
         // todo 查询数据库看看名称是否重复了
+        if (v!.trim().isEmpty) {
+          return '名称不能为空';
+        }
         return null;
       },
     );
@@ -321,12 +333,25 @@ class _PublishTaskView extends GetView<PublishTaskController> {
       expands: false,
       // 禁止无限扩展
       controller: controller.taskContentController,
+      autovalidateMode: AutovalidateMode.onUnfocus,
       decoration: const InputDecoration(
-        labelText: '内容',
+        label: Row(
+          spacing: 4,
+          children: [
+            const Text('内容'),
+            const Text(
+              '*',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
         icon: Icon(Icons.text_snippet_outlined),
       ),
       validator: (v) {
         // 暂不需要验证
+        if (v!.trim().isEmpty) {
+          return '内容不能为空';
+        }
         return null;
       },
     );
@@ -519,8 +544,13 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           child: TextFormField(
             keyboardType: TextInputType.datetime,
             onTap: () async {
-              DateTime date = await showCusDateTimePicker(context);
-              debugPrint("selectdt${date.toIso8601String()}");
+              final dt = parseDatetimeFromStr(
+                controller.taskReceiveDeadlineController.text,
+              );
+              DateTime date = await showCusDateTimePicker(context, dt: dt);
+              controller.taskReceiveDeadlineController.text = defaultDtFormat1
+                  .format(date);
+              // debugPrint("selectdt${date.toIso8601String()}");
             },
             controller: controller.taskReceiveDeadlineController,
             decoration: const InputDecoration(
@@ -537,26 +567,32 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     );
   }
 
-
   Widget _buildPlanDt(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: TextFormField(
             onTap: () async {
-              DateTime date = await showCusDatePicker(context);
-              debugPrint("selectdt${date.toIso8601String()}");
+              final dt = parseDateFromStr(
+                controller.taskPlanStartDtController.text,
+              );
+              DateTime date = await showCusDatePicker(context, dt: dt);
+              controller.taskPlanStartDtController.text = defaultDateFormat
+                  .format(date);
             },
             keyboardType: TextInputType.datetime,
-            // 固定显示 5 行
-            // 禁止无限扩展
             controller: controller.taskPlanStartDtController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: const InputDecoration(
               labelText: '开始日期',
               icon: Icon(Icons.access_alarm),
             ),
             validator: (v) {
               // 暂不需要验证
+              if (controller.taskPlanEndDtController.text.isNotEmpty &&
+                  v!.compareTo(controller.taskPlanEndDtController.text) > 0) {
+                return "开始日期不大于结束日期";
+              }
               return null;
             },
           ),
@@ -564,19 +600,28 @@ class _PublishTaskView extends GetView<PublishTaskController> {
         Expanded(
           child: TextFormField(
             onTap: () async {
-              DateTime date = await showCusDatePicker(context);
-              debugPrint("selectdt${date.toIso8601String()}");
+              final dt = parseDateFromStr(
+                controller.taskPlanEndDtController.text,
+              );
+              DateTime date = await showCusDatePicker(context, dt: dt);
+              controller.taskPlanEndDtController.text = defaultDateFormat
+                  .format(date);
             },
+
             keyboardType: TextInputType.datetime,
             // 固定显示 5 行
             // 禁止无限扩展
             controller: controller.taskPlanEndDtController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: const InputDecoration(
               labelText: '结束日期',
               icon: Icon(Icons.access_alarm),
             ),
             validator: (v) {
-              // 暂不需要验证
+              if (controller.taskPlanStartDtController.text.isNotEmpty &&
+                  v!.compareTo(controller.taskPlanStartDtController.text) < 0) {
+                return "结束日期不小于开始日期";
+              }
               return null;
             },
           ),
