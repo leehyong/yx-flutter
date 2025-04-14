@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import '../task-list/view.dart';
@@ -517,8 +518,10 @@ class _PublishTaskView extends GetView<PublishTaskController> {
         Expanded(
           child: TextFormField(
             keyboardType: TextInputType.datetime,
-            // 固定显示 5 行
-            // 禁止无限扩展
+            onTap: () async {
+              DateTime date = await showCusDateTimePicker(context);
+              debugPrint("selectdt${date.toIso8601String()}");
+            },
             controller: controller.taskReceiveDeadlineController,
             decoration: const InputDecoration(
               labelText: '领取截止时间',
@@ -534,17 +537,22 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     );
   }
 
+
   Widget _buildPlanDt(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: TextFormField(
+            onTap: () async {
+              DateTime date = await showCusDatePicker(context);
+              debugPrint("selectdt${date.toIso8601String()}");
+            },
             keyboardType: TextInputType.datetime,
             // 固定显示 5 行
             // 禁止无限扩展
             controller: controller.taskPlanStartDtController,
             decoration: const InputDecoration(
-              labelText: '开始时间',
+              labelText: '开始日期',
               icon: Icon(Icons.access_alarm),
             ),
             validator: (v) {
@@ -555,12 +563,16 @@ class _PublishTaskView extends GetView<PublishTaskController> {
         ),
         Expanded(
           child: TextFormField(
+            onTap: () async {
+              DateTime date = await showCusDatePicker(context);
+              debugPrint("selectdt${date.toIso8601String()}");
+            },
             keyboardType: TextInputType.datetime,
             // 固定显示 5 行
             // 禁止无限扩展
             controller: controller.taskPlanEndDtController,
             decoration: const InputDecoration(
-              labelText: '结束时间',
+              labelText: '结束日期',
               icon: Icon(Icons.access_alarm),
             ),
             validator: (v) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:toastification/toastification.dart';
@@ -13,6 +14,16 @@ void main() async {
   return runApp(
     ToastificationWrapper(
       child: GetMaterialApp(
+        locale: const Locale('zh', 'CN'),
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate, // Material 组件本地化
+          GlobalWidgetsLocalizations.delegate, // 基础 Widget 本地化（如文本方向）
+          GlobalCupertinoLocalizations.delegate, // iOS 风格组件本地化（可选）
+        ],
+        supportedLocales: [
+          const Locale('zh', 'CN'), // 中文（简体）
+          const Locale('en', 'US'), // 英文（美国）
+        ],
         enableLog: true,
         title: "悦享管",
         theme: ThemeData(),
