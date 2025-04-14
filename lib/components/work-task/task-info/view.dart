@@ -391,7 +391,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             controller: controller.taskCreditsController,
             decoration: const InputDecoration(
               labelText: '任务积分',
-              icon: Icon(Icons.diamond),
+              icon: Icon(Icons.diamond_outlined),
             ),
             validator: (v) {
               // 暂不需要验证

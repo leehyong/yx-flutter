@@ -95,25 +95,23 @@ class OneTaskView extends GetView<OneTaskController> {
         borderRadius: BorderRadius.circular(16.0),
         side: BorderSide(color: Colors.blue.shade300, width: 1.0),
       ),
-      child: Obx(
-        () => GestureDetector(
-          onTap: () {
-            debugPrint("点击了详情${task.id};$taskCategory");
-          },
-          child: Column(
-            children: [
-              _buildTaskName(context),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(flex: 5, child: _buildTaskLeft(context)),
-                    SizedBox(width: 2),
-                    Expanded(flex: 4, child: _buildTaskRight(context)),
-                  ],
-                ),
+      child: GestureDetector(
+        onTap: () {
+          debugPrint("点击了详情${task.id};$taskCategory");
+        },
+        child: Column(
+          children: [
+            _buildTaskName(context),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(flex: 5, child: _buildTaskLeft(context)),
+                  SizedBox(width: 2),
+                  Expanded(flex: 4, child: Obx(() => _buildTaskRight(context))),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -179,18 +177,24 @@ class OneTaskView extends GetView<OneTaskController> {
     );
   }
 
-  Widget _buildCountDown(BuildContext context) {
-    if (taskCategory == TaskListCategory.myManuscript) {
-      return SizedBox.shrink();
+  Widget? _buildCountDown(BuildContext context) {
+    final ignores = [
+      TaskListCategory.myManuscript,
+      // TaskListCategory.parentTaskInfo,
+      // TaskListCategory.childrenTaskInfo,
+    ];
+    if (ignores.contains(taskCategory)) {
+      return null;
     } else {
       final left = controller.leftDetail;
       final Widget w;
       final countdownNumberStyle = defaultNumberStyle.copyWith(fontSize: 18);
-      final children = <Widget>[const Text("剩余")];
+      final children = <Widget>[];
       // 截止时间的秒数
       if (left.left > left30Minutes) {
         //还超过30分钟的话
         children.addAll([
+          const Text("剩余"),
           if (left.days > 0) Text('${left.days}', style: countdownNumberStyle),
           if (left.days > 0) const Text('天'),
           if (left.hours > 0 || left.days > 0)
@@ -199,8 +203,11 @@ class OneTaskView extends GetView<OneTaskController> {
           Text('${left.minutes}', style: countdownNumberStyle),
           const Text('分'),
         ]);
+      } else if (left.left == 0) {
+        children.add(Text("报名已截止", style: countdownNumberStyle));
       } else {
         children.addAll([
+          const Text("剩余"),
           Text('${left.minutes}', style: countdownNumberStyle),
           const Text(":"),
           Text('${left.seconds}', style: countdownNumberStyle),
@@ -267,6 +274,38 @@ class OneTaskView extends GetView<OneTaskController> {
   }
 
   Widget _buildTaskRight(BuildContext context) {
+    final children = <Widget>[
+      Row(
+        spacing: 4,
+        children: [
+          const Text("联系人:"),
+          Text(task.contactor, style: defaultNumberStyle),
+        ],
+      ),
+      Row(
+        spacing: 4,
+        children: [
+          const Text("联系电话:"),
+          Text(task.contactPhone, style: defaultNumberStyle),
+        ],
+      ),
+      Row(
+        spacing: 4,
+        children: [
+          const Text("名额:"),
+          Text('${task.maxReceiverCount}', style: defaultNumberStyle),
+        ],
+      ),
+    ];
+
+    final countDownWidget = _buildCountDown(context);
+    if (countDownWidget != null) {
+      children.add(countDownWidget);
+    }
+    final actionsWidget = _buildAction(context);
+    if (actionsWidget != null) {
+      children.add(actionsWidget);
+    }
     return Container(
       decoration: BoxDecoration(
         color: Colors.greenAccent.shade100,
@@ -275,40 +314,12 @@ class OneTaskView extends GetView<OneTaskController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            spacing: 4,
-            children: [
-              const Text("联系人:"),
-              Text(task.contactor, style: defaultNumberStyle),
-            ],
-          ),
-          Row(
-            spacing: 4,
-            children: [
-              const Text("联系电话:"),
-              Text(task.contactPhone, style: defaultNumberStyle),
-            ],
-          ),
-          Row(
-            spacing: 4,
-            children: [
-              const Text("名额:"),
-              Text('${task.maxReceiverCount}', style: defaultNumberStyle),
-            ],
-          ),
-          _buildCountDown(context),
-          _buildAction(context),
-          // Align(
-          //   alignment: Alignment.bottomLeft,
-          //   child: _buildAction(context),
-          // ),
-        ],
+        children: children,
       ),
     );
   }
 
-  Widget _buildAction(BuildContext context) {
+  Widget? _buildAction(BuildContext context) {
     List<Widget> children;
     switch (taskCategory) {
       case TaskListCategory.allPublished:
@@ -350,10 +361,7 @@ class OneTaskView extends GetView<OneTaskController> {
             },
             child: const Text(
               "创建子任务",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.black, fontSize: 16),
             ),
           ),
           Spacer(),
@@ -423,7 +431,7 @@ class OneTaskView extends GetView<OneTaskController> {
         break;
       case TaskListCategory.parentTaskInfo:
       case TaskListCategory.childrenTaskInfo:
-        return SizedBox.shrink();
+        return null;
     }
     return Container(
       decoration: BoxDecoration(
