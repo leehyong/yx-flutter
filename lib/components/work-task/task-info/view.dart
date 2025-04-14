@@ -7,6 +7,7 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
+import '../../work-header/view.dart';
 import '../task-list/view.dart';
 import 'controller.dart';
 
@@ -266,29 +267,37 @@ class _PublishTaskView extends GetView<PublishTaskController> {
         //       },
         //     ),
         // ),
-        Table(
-          border: TableBorder.all(color: Colors.grey), // 边框样式
-          columnWidths: {
-            0: FixedColumnWidth(140), // 第一列固定宽度
-            1: FixedColumnWidth(60), // 第一列固定宽度
-            2: FlexColumnWidth(), // 第二列自适应
-          },
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle, // 垂直居中
-          children: [
-            TableRow(
-              decoration: BoxDecoration(color: Colors.blue[100]),
-              children: [Text("名称"), Text("类型"), Text("操作")],
-            ),
-            TableRow(
-              children: [Text("张三"), Text("数字"), _buildHeaderActions(context)],
-            ),
-            TableRow(
-              children: [Text("莉丝"), Text("文本"), _buildHeaderActions(context)],
-            ),
-            TableRow(
-              children: [Text("王五"), Text("小数"), _buildHeaderActions(context)],
-            ),
-          ],
+        // Table(
+        //   border: TableBorder.all(color: Colors.grey), // 边框样式
+        //   columnWidths: {
+        //     0: FixedColumnWidth(140), // 第一列固定宽度
+        //     1: FixedColumnWidth(60), // 第一列固定宽度
+        //     2: FlexColumnWidth(), // 第二列自适应
+        //   },
+        //   defaultVerticalAlignment: TableCellVerticalAlignment.middle, // 垂直居中
+        //   children: [
+        //     TableRow(
+        //       decoration: BoxDecoration(color: Colors.blue[100]),
+        //       children: [Text("名称"), Text("类型"), Text("操作")],
+        //     ),
+        //     TableRow(
+        //       children: [Text("张三"), Text("数字"), _buildHeaderActions(context)],
+        //     ),
+        //     TableRow(
+        //       children: [Text("莉丝"), Text("文本"), _buildHeaderActions(context)],
+        //     ),
+        //     TableRow(
+        //       children: [Text("王五"), Text("小数"), _buildHeaderActions(context)],
+        //     ),
+        //   ],
+        // ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: controller.submitItems.length,
+            itemBuilder: (ctx, idx) {
+              return OneWorkHeaderTreeView(controller.submitItems.value[idx]);
+            },
+          ),
         ),
       ],
     );

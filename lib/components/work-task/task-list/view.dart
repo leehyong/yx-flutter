@@ -4,6 +4,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
+import 'package:yx/utils/common_widget.dart';
 
 import 'controller.dart';
 
@@ -86,16 +87,8 @@ class OneTaskView extends GetView<OneTaskController> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.blueGrey.shade50,
-      // 设置卡片的阴影高度
-      elevation: 6.0,
-      // 设置卡片的形状
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-        side: BorderSide(color: Colors.blue.shade300, width: 1.0),
-      ),
-      child: GestureDetector(
+    return commonCard(
+      GestureDetector(
         onTap: () {
           debugPrint("点击了详情${task.id};$taskCategory");
         },
@@ -256,8 +249,9 @@ class OneTaskView extends GetView<OneTaskController> {
     return Container(
       padding: EdgeInsets.only(left: 4, right: 4),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.0),
-          color: Colors.white),
+        borderRadius: BorderRadius.circular(16.0),
+        color: Colors.white,
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,

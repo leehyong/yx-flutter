@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 
@@ -26,3 +26,15 @@ Widget maybeOneThirdCenterHorizontal(Widget w) =>
 
 Widget maybeOneThirdCenterVertical(Widget w) =>
     GetPlatform.isMobile ? w : Column(children: [Spacer(), w, Spacer()]);
+
+Widget commonCard(Widget w, {double? borderRadius, double? sideWidth}) => Card(
+  color: Colors.blueGrey.shade50,
+  // 设置卡片的阴影高度
+  elevation: 6.0,
+  // 设置卡片的形状
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(borderRadius ?? 16.0),
+    side: BorderSide(color: Colors.blue.shade300, width: sideWidth ?? 1.0),
+  ),
+  child: w,
+);
