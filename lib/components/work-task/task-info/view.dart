@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_widget.dart';
 
 import '../task-list/view.dart';
 import 'controller.dart';
@@ -79,7 +80,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           children: [
             _buildRelationAttributes(context),
             Expanded(child: _buildTaskRelates(context)),
-            _buildActions(context),
+            maybeOneThirdCenterHorizontal(_buildActions(context)),
           ],
         ),
       );
@@ -104,11 +105,15 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   Widget _buildTaskRelates(BuildContext context) {
     switch (controller.selectedAttrSet.first) {
       case TaskAttributeCategory.basic:
-        return _publishTaskBasicInfoView(context);
+        return maybeOneThirdCenterHorizontal(
+          _publishTaskBasicInfoView(context),
+        );
+      case TaskAttributeCategory.submitItem:
+        return maybeOneThirdCenterHorizontal(
+          _publishTaskSubmitItemView(context),
+        );
       case TaskAttributeCategory.parentTask:
         return _publishTaskParentInfoView(context);
-      case TaskAttributeCategory.submitItem:
-        return _publishTaskSubmitItemView(context);
       case TaskAttributeCategory.childrenTask:
         return _publishTaskChildrenInfoView(context);
     }
