@@ -41,7 +41,7 @@ class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
                 onPressed: () {
                   debugPrint("add");
                 },
-                highlightColor:Colors.green.withValues(alpha: 0.5),
+                highlightColor: Colors.green.withValues(alpha: 0.5),
                 icon: Tooltip(
                   message: parent.task.value.name,
                   child: Row(
@@ -50,28 +50,31 @@ class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
                         parent.task.value.name,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Icon(Icons.add, size: 12, color: Colors.black,),
-                      SizedBox(width: 4,),
+                      Icon(Icons.add, size: 12, color: Colors.black),
+                      SizedBox(width: 4),
                       buildTaskOpenRangeAndContentType(parent.task.value),
                     ],
                   ),
                 ),
               ),
-              Column(
-                children:
-                    parent.children
-                        .map<OneWorkHeaderTreeView>(
-                          (child) => OneWorkHeaderTreeView(
-                            child.task.value.id.toString(),
-                            child.children,
-                          ), // 递归嵌套
-                        )
-                        .toList(),
-              ),
+              Row(children: _buildChild(context, parent),)
             ],
           ),
         ),
       ],
     );
   }
+
+  List<Widget> _buildChild(BuildContext context, WorkHeaderTree parent) {
+    if (parent.children.isEmpty) {
+      return [SizedBox.shrink()];
+    }
+    return parent.children.map<OneWorkHeaderTreeView>(
+          (child) => OneWorkHeaderTreeView(
+        child.task.value.id.toString(),
+        child.children,
+      ), // 递归嵌套
+    ).toList();
+  }
+
 }

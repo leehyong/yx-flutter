@@ -269,7 +269,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                 itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossCount,
-                  crossAxisSpacing: crossCount == 1 ? 0 : 4,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
                   childAspectRatio: 1.2
                 ),
                 itemBuilder: (ctx, idx) {
@@ -286,6 +287,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                     );
                   }
                   return Column(children: oneItem);
+                  // return commonCard(Column(children: oneItem), borderRadius: 0);
                 },
               );
             },
