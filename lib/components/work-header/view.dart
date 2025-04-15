@@ -13,7 +13,7 @@ const columnWidths = {
 class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
   OneWorkHeaderTreeView(
     this.rootHeaderTreeId,
-    List<WorkHeaderTree> children, {
+    RxList<WorkHeaderTree> children, {
     super.key,
   }) {
     Get.put(WorkHeaderController(children), tag: rootHeaderTreeId);
@@ -32,6 +32,7 @@ class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
   Widget _buildTheHeaderTreeTable(BuildContext context) {
     final oneTr = [];
     return Table(
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       border: TableBorder.all(),
       columnWidths: columnWidths,
       children: [
@@ -42,7 +43,7 @@ class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
 
   TableRow _buildOneRow(BuildContext context, WorkHeaderTree parent) {
     final tr = <Widget>[
-      IconButton(
+      Center(child: IconButton(
         onPressed: () {
           debugPrint("add");
         },
@@ -50,6 +51,7 @@ class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
         icon: Tooltip(
           message: parent.task.value.name,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(parent.task.value.name, overflow: TextOverflow.ellipsis),
               Icon(Icons.add, size: 12, color: Colors.black),
@@ -58,7 +60,7 @@ class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
             ],
           ),
         ),
-      ),
+      )),
     ];
     tr.add(_buildChild(context, parent));
     return TableRow(children: tr);

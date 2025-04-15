@@ -82,6 +82,12 @@ class PublishTaskController extends GetxController {
 
   final submitItems = <WorkHeaderTree>[
     WorkHeaderTree(
+        WorkHeader(name: "抖动点", id: Int64(14), contentType: 0, open: 0).obs,
+        <WorkHeaderTree>[
+          WorkHeaderTree(WorkHeader(name: "抖", id: Int64(222), contentType: 0, open: 0).obs, <WorkHeaderTree>[].obs)
+        ].obs
+    ),
+    WorkHeaderTree(
         WorkHeader(name: "进度", id: Int64(1), contentType: 0, open: 0).obs,
         [
           WorkHeaderTree(WorkHeader(name: "虚拟进度", id: Int64(2), contentType: 0, open: 0).obs, <WorkHeaderTree>[
@@ -123,7 +129,7 @@ class PublishTaskController extends GetxController {
         ].obs,
     ),
     WorkHeaderTree(
-        WorkHeader(name: "测试点", id: Int64(14), contentType: 0, open: 0).obs,
+        WorkHeader(name: "测试点", id: Int64(144), contentType: 0, open: 0).obs,
       <WorkHeaderTree>[].obs
     ),
 
