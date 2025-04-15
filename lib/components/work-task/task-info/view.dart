@@ -264,15 +264,15 @@ class _PublishTaskView extends GetView<PublishTaskController> {
         Expanded(
           child: LayoutBuilder(
             builder: (ctx, constraints) {
-              final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
-              return GridView.builder(
+              // final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
+              return ListView.builder(
                 itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossCount,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 1.2
-                ),
+                // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                //   crossAxisCount: crossCount,
+                //   crossAxisSpacing: 10,
+                //   mainAxisSpacing: 10,
+                //   childAspectRatio: 1.2
+                // ),
                 itemBuilder: (ctx, idx) {
                   final headerTree = controller.submitItems.value[idx];
                   final oneItem = [
@@ -286,8 +286,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                       ),
                     );
                   }
-                  return Column(children: oneItem);
-                  // return commonCard(Column(children: oneItem), borderRadius: 0);
+                  // return Column(children: oneItem);
+                  return commonCard(Column(children: oneItem), borderRadius: 0);
                 },
               );
             },

@@ -30,51 +30,44 @@ class OneWorkHeaderTreeView extends GetView<WorkHeaderController> {
   }
 
   Widget _buildTheHeaderTreeTable(BuildContext context) {
+    final oneTr = [];
     return Table(
       border: TableBorder.all(),
       columnWidths: columnWidths,
       children: [
-        ...controller.children.map(
-          (parent) => TableRow(
-            children: [
-              IconButton(
-                onPressed: () {
-                  debugPrint("add");
-                },
-                highlightColor: Colors.green.withValues(alpha: 0.5),
-                icon: Tooltip(
-                  message: parent.task.value.name,
-                  child: Row(
-                    children: [
-                      Text(
-                        parent.task.value.name,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Icon(Icons.add, size: 12, color: Colors.black),
-                      SizedBox(width: 4),
-                      buildTaskOpenRangeAndContentType(parent.task.value),
-                    ],
-                  ),
-                ),
-              ),
-              Row(children: _buildChild(context, parent),)
-            ],
-          ),
-        ),
+        ...controller.children.map((parent) => _buildOneRow(context, parent)),
       ],
     );
   }
 
-  List<Widget> _buildChild(BuildContext context, WorkHeaderTree parent) {
-    if (parent.children.isEmpty) {
-      return [SizedBox.shrink()];
-    }
-    return parent.children.map<OneWorkHeaderTreeView>(
-          (child) => OneWorkHeaderTreeView(
-        child.task.value.id.toString(),
-        child.children,
-      ), // 递归嵌套
-    ).toList();
+  TableRow _buildOneRow(BuildContext context, WorkHeaderTree parent) {
+    final tr = <Widget>[
+      IconButton(
+        onPressed: () {
+          debugPrint("add");
+        },
+        highlightColor: Colors.green.withValues(alpha: 0.5),
+        icon: Tooltip(
+          message: parent.task.value.name,
+          child: Row(
+            children: [
+              Text(parent.task.value.name, overflow: TextOverflow.ellipsis),
+              Icon(Icons.add, size: 12, color: Colors.black),
+              SizedBox(width: 4),
+              buildTaskOpenRangeAndContentType(parent.task.value),
+            ],
+          ),
+        ),
+      ),
+    ];
+    tr.add(_buildChild(context, parent));
+    return TableRow(children: tr);
   }
 
+  Widget _buildChild(BuildContext context, WorkHeaderTree parent) {
+    return OneWorkHeaderTreeView(
+      parent.task.value.id.toString(),
+      parent.children,
+    );
+  }
 }
