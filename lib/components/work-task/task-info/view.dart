@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -227,6 +228,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   }
 
   Widget _publishTaskSubmitItemView(BuildContext context) {
+    final cnt = controller.submitItems.length;
     return Column(
       children: [
         Row(
@@ -259,47 +261,102 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             ),
           ],
         ),
-        // Expanded(
-        //     child: ListView.builder(
-        //       itemCount: 20,
-        //       itemBuilder: (context, idx) {
-        //         return Text("data $idx");
-        //       },
-        //     ),
-        // ),
-        // Table(
-        //   border: TableBorder.all(color: Colors.grey), // 边框样式
-        //   columnWidths: {
-        //     0: FixedColumnWidth(140), // 第一列固定宽度
-        //     1: FixedColumnWidth(60), // 第一列固定宽度
-        //     2: FlexColumnWidth(), // 第二列自适应
-        //   },
-        //   defaultVerticalAlignment: TableCellVerticalAlignment.middle, // 垂直居中
-        //   children: [
-        //     TableRow(
-        //       decoration: BoxDecoration(color: Colors.blue[100]),
-        //       children: [Text("名称"), Text("类型"), Text("操作")],
-        //     ),
-        //     TableRow(
-        //       children: [Text("张三"), Text("数字"), _buildHeaderActions(context)],
-        //     ),
-        //     TableRow(
-        //       children: [Text("莉丝"), Text("文本"), _buildHeaderActions(context)],
-        //     ),
-        //     TableRow(
-        //       children: [Text("王五"), Text("小数"), _buildHeaderActions(context)],
-        //     ),
-        //   ],
-        // ),
         Expanded(
-          child: ListView.builder(
-            itemCount: controller.submitItems.length,
-            itemBuilder: (ctx, idx) {
-              return OneWorkHeaderTreeView(controller.submitItems.value[idx]);
+          child: LayoutBuilder(
+            builder: (ctx, constraints) {
+              final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
+              return GridView.builder(
+                itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossCount,
+                  crossAxisSpacing: crossCount == 1 ? 0 : 4,
+                  childAspectRatio: 1.2
+                ),
+                itemBuilder: (ctx, idx) {
+                  final headerTree = controller.submitItems.value[idx];
+                  final oneItem = [
+                    _buildRootHeaderNameTable(context, headerTree.task.value),
+                  ];
+                  if (headerTree.children.isNotEmpty) {
+                    oneItem.add(
+                      OneWorkHeaderTreeView(
+                        headerTree.task.value.id.toString(),
+                        headerTree.children,
+                      ),
+                    );
+                  }
+                  return Column(children: oneItem);
+                },
+              );
             },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildRootHeaderNameTable(BuildContext context, WorkHeader root) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue, // 设置背景色
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Tooltip(
+                message: root.name,
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Text(
+                      root.name,
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.white,
+                            // 阴影颜色
+                            offset: Offset(1, 0),
+                            // Y 轴偏移量
+                            blurRadius: 1, // 阴影模糊程度
+                          ),
+                        ],
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    buildTaskOpenRangeAndContentType(root),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white, // 背景色
+              foregroundColor: Colors.black,
+              padding: EdgeInsets.only(left: 4, right: 4),
+              // 文字颜色
+            ),
+            onPressed: () {
+              debugPrint("新增子节点成功");
+            },
+            child: Row(
+              children: [
+                Text(
+                  "新增子项",
+                  // style: TextStyle(fontSize: 16, color: Colors.yellow),
+                ),
+                const SizedBox(width: 4),
+                // Icon(Icons.add, size: 20, color: Colors.yellow),
+                Icon(Icons.add, size: 20),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

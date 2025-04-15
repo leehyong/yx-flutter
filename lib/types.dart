@@ -188,3 +188,51 @@ extension TaskSubmitCycleStrategyExtension on TaskSubmitCycleStrategy {
     }
   }
 }
+
+enum TaskOpenRange { public, private, range }
+
+extension TaskOpenRangeExtension on TaskOpenRange {
+  String get i18name {
+    switch (this) {
+      case TaskOpenRange.public:
+        return '公开';
+      case TaskOpenRange.private:
+        return '私有';
+      case TaskOpenRange.range:
+        return '指定范围';
+    }
+  }
+
+  static TaskOpenRange fromInt(int idx) {
+    return TaskOpenRange.values.firstWhere(
+      (v) => v.index == idx,
+      orElse: () => TaskOpenRange.public,
+    );
+  }
+}
+
+enum TaskTextType { text, int, float, phone, email }
+
+extension TaskTextTypeExtension on TaskTextType {
+  String get i18name {
+    switch (this) {
+      case TaskTextType.text:
+        return '文本';
+      case TaskTextType.int:
+        return '整数';
+      case TaskTextType.float:
+        return '小数';
+      case TaskTextType.phone:
+        return '手机';
+      case TaskTextType.email:
+        return '邮箱';
+    }
+  }
+
+  static TaskTextType fromInt(int idx) {
+    return TaskTextType.values.firstWhere(
+          (v) => v.index == idx,
+      orElse: () => TaskTextType.text,
+    );
+  }
+}

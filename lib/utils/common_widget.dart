@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/types.dart';
 
 Widget emptyWidget(
   BuildContext context, {
@@ -27,10 +29,16 @@ Widget maybeOneThirdCenterHorizontal(Widget w) =>
 Widget maybeOneThirdCenterVertical(Widget w) =>
     GetPlatform.isMobile ? w : Column(children: [Spacer(), w, Spacer()]);
 
-Widget commonCard(Widget w, {double? borderRadius, double? sideWidth}) => Card(
-  color: Colors.blueGrey.shade50,
+Widget commonCard(
+  Widget w, {
+  double? elevation,
+  Color? color,
+  double? borderRadius,
+  double? sideWidth,
+}) => Card(
+  color: color ?? Colors.blueGrey.shade50,
   // 设置卡片的阴影高度
-  elevation: 6.0,
+  elevation: elevation ?? 12.0,
   // 设置卡片的形状
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(borderRadius ?? 16.0),
@@ -38,3 +46,28 @@ Widget commonCard(Widget w, {double? borderRadius, double? sideWidth}) => Card(
   ),
   child: w,
 );
+
+
+Widget buildTaskOpenRangeAndContentType(WorkHeader header){
+  return Column(
+    spacing: 2,
+    children: [
+      TDBadge(
+        TDBadgeType.message,
+        color: Colors.yellowAccent,
+        textColor: Colors.black,
+        message:
+        TaskTextTypeExtension.fromInt(
+          header.contentType,
+        ).i18name,
+      ),
+      TDBadge(
+        TDBadgeType.message,
+        color: Colors.greenAccent,
+        textColor: Colors.black,
+        message:
+        TaskOpenRangeExtension.fromInt(header.open).i18name,
+      ),
+    ],
+  );
+}

@@ -77,6 +77,7 @@ class PublishTaskController extends GetxController {
         receiveStrategy: 0,
       ).obs;
 
+  final isLoadingSubmitItem = false.obs;
   PublishTaskController() {}
 
   final submitItems = <WorkHeaderTree>[
@@ -120,6 +121,10 @@ class PublishTaskController extends GetxController {
             WorkHeaderTree(WorkHeader(name: "实困4", id: Int64(26), contentType: 0, open: 0).obs, <WorkHeaderTree>[].obs),
           ].obs),
         ].obs,
+    ),
+    WorkHeaderTree(
+        WorkHeader(name: "测试点", id: Int64(14), contentType: 0, open: 0).obs,
+      <WorkHeaderTree>[].obs
     ),
 
   ].obs;
