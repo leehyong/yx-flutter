@@ -4,6 +4,7 @@ import 'header_tree.dart';
 
 class WorkHeaderController extends GetxController {
   final RxList<WorkHeaderTree> children;
+  final opsCount = 0.obs;
 
   WorkHeaderController(this.children);
 

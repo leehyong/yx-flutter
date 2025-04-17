@@ -1,6 +1,10 @@
+import 'dart:math';
+
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/types.dart';
 
 import '../../utils/common_widget.dart';
 import 'controller.dart';
@@ -9,10 +13,10 @@ import 'header_tree.dart';
 class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   NestedDfsWorkHeaderTreeView(
     this.rootHeaderTreeId,
-    RxList<WorkHeaderTree> children, {
+    List<WorkHeaderTree> children, {
     super.key,
   }) {
-    Get.put(WorkHeaderController(children), tag: rootHeaderTreeId);
+    Get.put(WorkHeaderController(children.obs), tag: rootHeaderTreeId);
   }
 
   final String rootHeaderTreeId;
@@ -20,22 +24,34 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   @override
   String get tag => rootHeaderTreeId;
 
-  Widget _buildOneHeaderItem(int idx, WorkHeader task) {
+  Widget _buildOneHeaderItem(WorkHeaderTree task) {
     return Center(
       child: IconButton(
         onPressed: () {
+          task.children.value.add(
+            WorkHeaderTree(
+              WorkHeader(
+                name: "请输入填报项",
+                id: Int64(0),
+                contentType: 0,
+                open: 0,
+              ).obs,
+              <WorkHeaderTree>[].obs,
+            ),
+          );
+          controller.opsCount.value += 1;
           debugPrint("add");
         },
         highlightColor: Colors.green.withValues(alpha: 0.5),
         icon: Tooltip(
-          message: task.name,
+          message: task.task.value.name,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(task.name, overflow: TextOverflow.ellipsis),
+              Text(task.task.value.name, overflow: TextOverflow.ellipsis),
               Icon(Icons.add, size: 12, color: Colors.black),
               SizedBox(width: 4),
-              buildTaskOpenRangeAndContentType(task),
+              buildTaskOpenRangeAndContentType(task.task.value),
             ],
           ),
         ),
@@ -43,60 +59,30 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return LayoutBuilder(
-  //     builder: (ctx, constraints) {
-  //       return Container(
-  //         constraints: BoxConstraints(
-  //           minHeight: constraints.maxHeight,
-  //           minWidth: constraints.maxWidth,
-  //           maxWidth: double.infinity,
-  //           maxHeight: double.infinity,
-  //         ),
-  //         child: SingleChildScrollView(
-  //           scrollDirection: Axis.vertical,
-  //           child: SingleChildScrollView(
-  //             scrollDirection: Axis.horizontal,
-  //             child: CustomMultiChildLayout(
-  //               delegate: NestedWorkHeaderTreeLayoutDelegate(
-  //                 rootHeaderTreeId,
-  //                 count: allHeaderItems.length,
-  //                 rows: controller.maxRows,
-  //                 columns: controller.maxColumns,
-  //               ),
-  //               children: allHeaderItems,
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children:
-          controller.children
-              .asMap()
-              .entries
-              .map((e) => _buildHeaderTreeByDfs(context, e.key, e.value))
-              .toList(),
+    return Obx(
+      () => Column(
+        children:
+            controller.children
+                .asMap()
+                .entries
+                .map((e) => _buildHeaderTreeByDfs(context, e.key, 0, e.value))
+                .toList(),
+      ),
     );
   }
 
   Widget _buildHeaderTreeByDfs(
     BuildContext context,
     int idx,
+    int depth,
     WorkHeaderTree node,
   ) {
     final w;
     if (node.children.isEmpty) {
       // 没有子节点时，独占一行
-      w = Row(
-        children: [Expanded(child: _buildOneHeaderItem(idx, node.task.value))],
-      );
+      w = Row(children: [Expanded(child: _buildOneHeaderItem(node))]);
     } else {
       // 否则跟所有子节点一起放在同一行
       // todo 每项的背景色该怎么设置？
@@ -104,14 +90,19 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
         crossAxisAlignment: CrossAxisAlignment.center,
         // spacing: 4,
         children: [
-          _buildOneHeaderItem(idx, node.task.value),
+          _buildOneHeaderItem(node),
           Expanded(
             child: Column(
               // spacing: 4,
               crossAxisAlignment: CrossAxisAlignment.start,
               children:
                   node.children.asMap().entries.map((e) {
-                    return _buildHeaderTreeByDfs(context, e.key, e.value);
+                    return _buildHeaderTreeByDfs(
+                      context,
+                      e.key,
+                      depth + 1,
+                      e.value,
+                    );
                   }).toList(),
             ),
           ),
@@ -119,11 +110,15 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
       );
     }
 
+    final colorIdx = (idx + depth) % loadingColors.length;
+    // 把颜色做成随机透明的
+    final ra = 20 + 230 * Random().nextDouble().toInt();
     return Container(
       decoration: BoxDecoration(
-        border: Border.fromBorderSide(BorderSide(width: 1.0, color: Colors.black)),
-        color:
-            idx % 2 == 0 ? Colors.pink.shade200 : Colors.greenAccent.shade200,
+        border: Border.fromBorderSide(
+          BorderSide(width: 1.0, color: Colors.black),
+        ),
+        color: loadingColors[colorIdx].withAlpha(ra),
       ),
       child: w,
     );

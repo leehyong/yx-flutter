@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
@@ -8,6 +9,7 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
+import '../../work-header/header_tree.dart';
 import '../../work-header/nested_header2.dart';
 import '../task-list/view.dart';
 import 'controller.dart';
@@ -112,9 +114,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           _publishTaskBasicInfoView(context),
         );
       case TaskAttributeCategory.submitItem:
-        return maybeOneThirdCenterHorizontal(
-          _publishTaskSubmitItemView(context),
-        );
+        return _publishTaskSubmitItemView(context);
+
       case TaskAttributeCategory.parentTask:
         return _publishTaskParentInfoView(context);
       case TaskAttributeCategory.childrenTask:
@@ -256,6 +257,17 @@ class _PublishTaskView extends GetView<PublishTaskController> {
               ),
               onPressed: () {
                 debugPrint("新增任务项成功");
+                controller.submitItems.value.add(
+                  WorkHeaderTree(
+                    WorkHeader(
+                      name: "子节点${DateTime.now().millisecondsSinceEpoch}",
+                      id: Int64(0),
+                      contentType: 0,
+                      open: 0,
+                    ).obs,
+                    <WorkHeaderTree>[].obs,
+                  ),
+                );
               },
               child: const Text("新增"),
             ),
@@ -264,26 +276,21 @@ class _PublishTaskView extends GetView<PublishTaskController> {
         Expanded(
           child: LayoutBuilder(
             builder: (ctx, constraints) {
-              // final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
+              final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
               return ListView.builder(
+                // return GridView.builder(
+                shrinkWrap: true,
                 itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
-                // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                //   crossAxisCount: crossCount,
-                //   crossAxisSpacing: 10,
-                //   mainAxisSpacing: 10,
-                //   childAspectRatio: 1.2
-                // ),
                 itemBuilder: (ctx, idx) {
                   final headerTree = controller.submitItems.value[idx];
                   final oneItem = [
-                    _buildRootHeaderNameTable(context, headerTree.task.value),
+                    _buildRootHeaderNameTable(context, headerTree),
                   ];
                   if (headerTree.children.isNotEmpty) {
                     oneItem.add(
-                      // OneWorkHeaderTreeView(
                       NestedDfsWorkHeaderTreeView(
                         headerTree.task.value.id.toString(),
-                        headerTree.children,
+                        [...headerTree.children],
                       ),
                     );
                   }
@@ -298,7 +305,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     );
   }
 
-  Widget _buildRootHeaderNameTable(BuildContext context, WorkHeader root) {
+  Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.blue, // 设置背景色
@@ -309,12 +316,12 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             child: Padding(
               padding: EdgeInsets.only(left: 4),
               child: Tooltip(
-                message: root.name,
+                message: root.task.value.name,
                 child: Row(
                   spacing: 8,
                   children: [
                     Text(
-                      root.name,
+                      root.task.value.name,
                       style: TextStyle(
                         fontSize: 22,
                         color: Colors.white,
@@ -330,7 +337,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    buildTaskOpenRangeAndContentType(root),
+                    buildTaskOpenRangeAndContentType(root.task.value),
                   ],
                 ),
               ),
@@ -345,6 +352,17 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             ),
             onPressed: () {
               debugPrint("新增子节点成功");
+              root.children.value.add(
+                WorkHeaderTree(
+                  WorkHeader(
+                    name: "子节点${DateTime.now().millisecondsSinceEpoch}",
+                    id: Int64(0),
+                    contentType: 0,
+                    open: 0,
+                  ).obs,
+                  <WorkHeaderTree>[].obs,
+                ),
+              );
             },
             child: Row(
               children: [
