@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 
 import 'header_tree.dart';
 
@@ -33,5 +35,22 @@ class WorkHeaderController extends GetxController {
     }
 
     return calculateMaxRows(children);
+  }
+}
+
+class OneWorkHeaderItemController extends GetxController {
+  final globalKey =GlobalKey();
+  final RxList<WorkHeaderTree> children;
+  final Rx<WorkHeader> task;
+  final opsCount = 0.obs;
+
+  OneWorkHeaderItemController(this.task, this.children);
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(children, (v){
+      debugPrint("OneWorkHeaderItemController ss $v");
+    });
   }
 }

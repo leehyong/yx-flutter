@@ -288,9 +288,11 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                   ];
                   if (headerTree.children.isNotEmpty) {
                     oneItem.add(
-                      NestedDfsWorkHeaderTreeView(
-                        headerTree.task.value.id.toString(),
-                        [...headerTree.children],
+                      Obx(
+                        () => NestedDfsWorkHeaderTreeView(
+                          headerTree.task.value.id.toString(),
+                          headerTree.children,
+                        ),
                       ),
                     );
                   }

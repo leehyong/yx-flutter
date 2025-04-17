@@ -13,10 +13,10 @@ import 'header_tree.dart';
 class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   NestedDfsWorkHeaderTreeView(
     this.rootHeaderTreeId,
-    List<WorkHeaderTree> children, {
+    RxList<WorkHeaderTree> children, {
     super.key,
   }) {
-    Get.put(WorkHeaderController(children.obs), tag: rootHeaderTreeId);
+    Get.put(WorkHeaderController(children), tag: rootHeaderTreeId);
   }
 
   final String rootHeaderTreeId;
@@ -82,7 +82,16 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
     final w;
     if (node.children.isEmpty) {
       // 没有子节点时，独占一行
-      w = Row(children: [Expanded(child: _buildOneHeaderItem(node))]);
+      w = Row(
+        children: [
+          Expanded(
+            child: NestedDfsWorkHeaderTreeItemView(
+              node.children,
+              task: node.task,
+            ),
+          ),
+        ],
+      );
     } else {
       // 否则跟所有子节点一起放在同一行
       // todo 每项的背景色该怎么设置？
@@ -90,7 +99,7 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
         crossAxisAlignment: CrossAxisAlignment.center,
         // spacing: 4,
         children: [
-          _buildOneHeaderItem(node),
+          NestedDfsWorkHeaderTreeItemView(node.children, task: node.task),
           Expanded(
             child: Column(
               // spacing: 4,
@@ -121,6 +130,76 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
         color: loadingColors[colorIdx].withAlpha(ra),
       ),
       child: w,
+    );
+  }
+}
+
+class NestedDfsWorkHeaderTreeItemView
+    extends GetView<OneWorkHeaderItemController> {
+  NestedDfsWorkHeaderTreeItemView(
+    RxList<WorkHeaderTree> children, {
+    Rx<WorkHeader>? task,
+    super.key,
+  }) {
+    final _task =
+        task ??
+        WorkHeader(
+          id: Int64(DateTime.now().microsecondsSinceEpoch),
+          open: 0,
+          contentType: 0,
+        ).obs;
+    rootHeaderTreeId = _task.value.id.toString();
+    Get.put(
+      OneWorkHeaderItemController(_task, children),
+      tag: rootHeaderTreeId,
+    );
+  }
+
+  late final String rootHeaderTreeId;
+
+  @override
+  String get tag => rootHeaderTreeId;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => Center(
+        child: IconButton(
+          onPressed: () {
+            controller.children.value.add(
+              WorkHeaderTree(
+                WorkHeader(
+                  name: "请输入填报项",
+                  id: Int64(0),
+                  contentType: 0,
+                  open: 0,
+                ).obs,
+                <WorkHeaderTree>[].obs,
+              ),
+            );
+            controller.opsCount.value += 1;
+            // controller.update(null, false);
+            debugPrint("NestedDfsWorkHeaderTreeItemView add");
+            debugPrint("${controller.children.value}");
+          },
+          highlightColor: Colors.green.withValues(alpha: 0.5),
+          icon: Tooltip(
+            message: controller.task.value.name,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  controller.task.value.name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Icon(Icons.add, size: 12, color: Colors.black),
+                SizedBox(width: 4),
+                buildTaskOpenRangeAndContentType(controller.task.value),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
