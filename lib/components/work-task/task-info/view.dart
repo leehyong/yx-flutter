@@ -8,7 +8,7 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../../work-header/view.dart';
+import '../../work-header/nested_header.dart' show NestedWorkHeaderTreeView;
 import '../task-list/view.dart';
 import 'controller.dart';
 
@@ -280,14 +280,15 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                   ];
                   if (headerTree.children.isNotEmpty) {
                     oneItem.add(
-                      OneWorkHeaderTreeView(
+                      // OneWorkHeaderTreeView(
+                      NestedWorkHeaderTreeView(
                         headerTree.task.value.id.toString(),
                         headerTree.children,
                       ),
                     );
                   }
-                  // return Column(children: oneItem);
-                  return commonCard(Column(children: oneItem), borderRadius: 0);
+                  return Column(children: oneItem);
+                  // return commonCard(Column(children: oneItem), borderRadius: 0);
                 },
               );
             },
