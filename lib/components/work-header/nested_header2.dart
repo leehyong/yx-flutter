@@ -10,6 +10,171 @@ import '../../utils/common_widget.dart';
 import 'controller.dart';
 import 'header_tree.dart';
 
+class PublishItemsView extends GetView<PublishItemsController> {
+  PublishItemsView({super.key}) {
+    Get.put(PublishItemsController());
+  }
+
+  Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue, // 设置背景色
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Obx(
+                () => Tooltip(
+                  message: root.task.value.name,
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Text(
+                        root.task.value.name,
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.white,
+                              // 阴影颜色
+                              offset: Offset(1, 0),
+                              // Y 轴偏移量
+                              blurRadius: 1, // 阴影模糊程度
+                            ),
+                          ],
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      buildTaskOpenRangeAndContentType(root.task.value),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white, // 背景色
+              foregroundColor: Colors.black,
+              padding: EdgeInsets.only(left: 4, right: 4),
+              // 文字颜色
+            ),
+            onPressed: () {
+              debugPrint("新增子节点成功");
+              root.children.value.add(
+                WorkHeaderTree(
+                  WorkHeader(
+                    name: "子节点${DateTime.now().millisecondsSinceEpoch}",
+                    id: Int64(0),
+                    contentType: 0,
+                    open: 0,
+                  ).obs,
+                  <WorkHeaderTree>[].obs,
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                Text(
+                  "新增子项",
+                  // style: TextStyle(fontSize: 16, color: Colors.yellow),
+                ),
+                const SizedBox(width: 4),
+                // Icon(Icons.add, size: 20, color: Colors.yellow),
+                Icon(Icons.add, size: 20),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cnt = controller.submitItems.length;
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          spacing: 10,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade50, // 背景色
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.all(4),
+                // 文字颜色
+              ),
+              onPressed: () {
+                debugPrint("选择任务项成功");
+              },
+              child: const Text("选择"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade50, // 背景色
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.all(4),
+                // 文字颜色
+              ),
+              onPressed: () {
+                debugPrint("新增任务项成功");
+                controller.submitItems.value.add(
+                  WorkHeaderTree(
+                    WorkHeader(
+                      name: "子节点${DateTime.now().millisecondsSinceEpoch}",
+                      id: Int64(0),
+                      contentType: 0,
+                      open: 0,
+                    ).obs,
+                    <WorkHeaderTree>[].obs,
+                  ),
+                );
+              },
+              child: const Text("新增"),
+            ),
+          ],
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (ctx, constraints) {
+              final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
+              return Obx(() => ListView.builder(
+                // return GridView.builder(
+                shrinkWrap: true,
+                itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
+                itemBuilder: (ctx, idx) {
+                  final headerTree = controller.submitItems.value[idx];
+                  final oneItem = [
+                    _buildRootHeaderNameTable(context, headerTree),
+                  ];
+                  if (headerTree.children.isNotEmpty) {
+                    oneItem.add(
+                      Obx(
+                        () => NestedDfsWorkHeaderTreeView(
+                          headerTree.task.value.id.toString(),
+                          headerTree.children,
+                        ),
+                      ),
+                    );
+                  }
+                  // return Column(children: oneItem);
+                  return commonCard(Column(children: oneItem), borderRadius: 0);
+                },
+              ));
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   NestedDfsWorkHeaderTreeView(
     this.rootHeaderTreeId,
