@@ -70,7 +70,9 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
           Expanded(
             child:
                 controller.isEditing.value
-                    ? PublishItemsViewSimpleCrud()
+                    ? PublishItemsViewSimpleCrud(
+                      key: controller.itemsSimpleCrudKey,
+                    )
                     : _buildItemsDetail(context),
           ),
         ],
@@ -107,6 +109,10 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
             ),
             onPressed: () {
               debugPrint("选择任务项成功");
+              controller
+                  .itemsSimpleCrudKey
+                  .currentState
+                  ?.addChildToNode();
             },
             child: const Text("选择"),
           ),
@@ -118,6 +124,11 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
               // 文字颜色
             ),
             onPressed: () {
+              controller
+                  .itemsSimpleCrudKey
+                  .currentState
+                  ?.addChildToNode();
+
               debugPrint("新增任务项成功");
             },
             child: const Text("新增"),
@@ -133,38 +144,29 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
         final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
         final cnt = submitItems.length;
         return Obx(
-          () =>
-              controller.isEditing.value
-                  ? PublishItemsViewSimpleCrud()
-                  : ListView.builder(
-                    // return GridView.builder(
-                    shrinkWrap: false,
-                    reverse: true,
-                    cacheExtent: 100,
-                    controller: controller.scrollController,
-                    // addRepaintBoundaries:t,
-                    itemCount:
-                        controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
-                    itemBuilder: (ctx, idx) {
-                      final headerTree = submitItems[idx];
-                      final oneItem = [
-                        _buildRootHeaderNameTable(context, headerTree),
-                      ];
-                      if (headerTree.children.isNotEmpty) {
-                        oneItem.add(
-                          NestedDfsWorkHeaderTreeView(
-                            headerTree.task.id.toString(),
-                            headerTree.children,
-                          ),
-                        );
-                      }
-                      // return Column(children: oneItem);
-                      return commonCard(
-                        Column(children: oneItem),
-                        borderRadius: 0,
-                      );
-                    },
+          () => ListView.builder(
+            // return GridView.builder(
+            shrinkWrap: false,
+            reverse: true,
+            cacheExtent: 100,
+            controller: controller.scrollController,
+            // addRepaintBoundaries:t,
+            itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
+            itemBuilder: (ctx, idx) {
+              final headerTree = submitItems[idx];
+              final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
+              if (headerTree.children.isNotEmpty) {
+                oneItem.add(
+                  NestedDfsWorkHeaderTreeView(
+                    headerTree.task.id.toString(),
+                    headerTree.children,
                   ),
+                );
+              }
+              // return Column(children: oneItem);
+              return commonCard(Column(children: oneItem), borderRadius: 0);
+            },
+          ),
         );
       },
     );

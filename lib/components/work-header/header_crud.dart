@@ -13,19 +13,25 @@ class PublishItemsViewSimpleCrud extends StatefulWidget {
   const PublishItemsViewSimpleCrud({super.key});
 
   @override
-  PublishItemsViewSimpleCrudState createState() => PublishItemsViewSimpleCrudState();
+  PublishItemsViewSimpleCrudState createState() =>
+      PublishItemsViewSimpleCrudState();
 }
 
-class PublishItemsViewSimpleCrudState extends State<PublishItemsViewSimpleCrud> {
-  final TreeNode<WorkHeader> submitItemAnimatedTreeData =
+class PublishItemsViewSimpleCrudState
+    extends State<PublishItemsViewSimpleCrud> {
+  final TreeNode<WorkHeader> _submitItemAnimatedTreeData =
       TreeNode<WorkHeader>.root();
   TreeViewController? treeViewController;
 
-  PublishItemsViewSimpleCrud() {
-    buildAnimatedTreeViewData();
+  PublishItemsViewSimpleCrudState() {
+    _buildAnimatedTreeViewData();
   }
 
-  void buildAnimatedTreeViewData() {
+  void addChildToNode([TreeNode<WorkHeader>? node]) {
+    (node ?? _submitItemAnimatedTreeData).add(newEmptyHeaderTree());
+  }
+
+  void _buildAnimatedTreeViewData() {
     // dfs 遍历获取所有的 TreeNode
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
       final node = TreeNode(key: tree.task.id.toString(), data: tree.task);
@@ -35,17 +41,16 @@ class PublishItemsViewSimpleCrudState extends State<PublishItemsViewSimpleCrud> 
       return node;
     }
 
-    submitItemAnimatedTreeData.addAll(
+    _submitItemAnimatedTreeData.addAll(
       submitItems.map((item) => innerBuildAnimatedTreeViewData(item)),
     );
-    debugPrint("1111buildAnimatedTreeViewData");
   }
 
   @override
   Widget build(BuildContext context) {
     return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
       showRootNode: false,
-      tree: submitItemAnimatedTreeData,
+      tree: _submitItemAnimatedTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
           (ctx, node) => ChevronIndicator.rightDown(
@@ -126,20 +131,20 @@ class PublishItemsViewSimpleCrudState extends State<PublishItemsViewSimpleCrud> 
     return Row(
       children: [
         if (node.isLeaf)
-        IconButton(
-          onPressed: () {
-            debugPrint("删除当前节点");
-            node.delete();
-            // if (node.isLeaf) {
-            //   // 删除当前节点
-            // }
-          },
-          icon: Icon(Icons.delete, size: 22, color: Colors.red),
-        ),
+          IconButton(
+            onPressed: () {
+              debugPrint("删除当前节点");
+              node.delete();
+              // if (node.isLeaf) {
+              //   // 删除当前节点
+              // }
+            },
+            icon: Icon(Icons.delete, size: 22, color: Colors.red),
+          ),
         IconButton(
           onPressed: () {
             debugPrint("新增子节点成功");
-            node.add(newEmptyHeaderTree());
+            addChildToNode(node);
           },
           icon: Icon(Icons.add, size: 22, color: Colors.blue),
         ),

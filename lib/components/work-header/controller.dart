@@ -9,6 +9,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 
+import 'header_crud.dart';
 import 'header_tree.dart';
 
 const maxSubmitItemDepthExclusive = 1;
@@ -143,6 +144,7 @@ class PublishItemsController extends GetxController {
   final isLoadingSubmitItem = false.obs;
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isEditing = false.obs;
+  final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
 
   final Rx<TreeNode<WorkHeader>> submitItemAnimatedTreeData =
       TreeNode<WorkHeader>.root(data: WorkHeader.create()).obs;
