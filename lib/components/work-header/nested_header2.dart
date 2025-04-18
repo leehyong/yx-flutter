@@ -65,7 +65,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
             onPressed: () {
               addNewHeaderTree(
                 root.children,
-                DateTime.now().millisecondsSinceEpoch.toString(),
+                "",
               );
               debugPrint("新增子节点成功");
               // root.children.value.add(
@@ -190,7 +190,7 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
     return Center(
       child: IconButton(
         onPressed: () {
-          addNewHeaderTree(task.children, "请输入填报项");
+          addNewHeaderTree(task.children, "");
           // controller.opsCount.value += 1;
           debugPrint("add");
         },
@@ -321,8 +321,7 @@ class NestedDfsWorkHeaderTreeItemView
       () => Center(
         child: IconButton(
           onPressed: () {
-            addNewHeaderTree(controller.children, "请输入填报项");
-            // controller.children.value.add(newEmptyHeaderTree("请输入填报项"));
+            addNewHeaderTree(controller.children, "");
             // controller.opsCount.value += 1;
             // controller.update(null, false);
             debugPrint("NestedDfsWorkHeaderTreeItemView add");

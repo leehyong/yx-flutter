@@ -355,7 +355,5 @@ Rx<WorkHeaderTree> _newEmptyHeaderTree(String name) {
 
 
 void addNewHeaderTree(RxList<Rx<WorkHeaderTree>> tree, String name){
-  tree.value.add(_newEmptyHeaderTree(name));
-  final controller = Get.find<PublishItemsController>();
-  controller.update();
+  tree.value = [...tree.value, _newEmptyHeaderTree(name)];
 }
