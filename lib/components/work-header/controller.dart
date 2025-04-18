@@ -12,6 +12,7 @@ const maxSubmitItemDepthExclusive = 1;
 
 class PublishItemsController extends GetxController {
   final isLoadingSubmitItem = false.obs;
+  ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final submitItems =
       <Rx<WorkHeaderTree>>[
         WorkHeaderTree(
@@ -341,14 +342,18 @@ Rx<WorkHeaderTree> _newEmptyHeaderTree(String name) {
   ).obs;
 }
 
-void addNewHeaderTree<Ctr extends GetxController>(RxList<Rx<WorkHeaderTree>> tree, String name, Ctr ctr) {
+void addNewHeaderTree<Ctr extends GetxController>(RxList<Rx<WorkHeaderTree>> tree, String name, Ctr ctr, {bool needJump=false}) {
   // tree.value.add(_newEmptyHeaderTree(name));
-  if (tree.value.isEmpty) {
-    tree.value.add(_newEmptyHeaderTree(name));
-    tree.value = [...tree.value];
-  }else{
-    tree.value = [...tree.value, _newEmptyHeaderTree(name)];
-  }
+  // if (tree.value.isEmpty) {
+  //   tree.value.add(_newEmptyHeaderTree(name));
+  //   tree.value = [...tree.value];
+  // }else{
+  //   tree.value = [...tree.value, _newEmptyHeaderTree(name)];
+  // }
+  tree.value = [...tree.value, _newEmptyHeaderTree(name)];
   // final controller = Get.find<PublishItemsController>();
-  ctr.update();
+  if(ctr is PublishItemsController && needJump){
+    ctr.scrollController.jumpTo(ctr.scrollController.position.maxScrollExtent + 60);
+  }
+  // ctr.update();
 }

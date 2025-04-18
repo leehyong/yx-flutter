@@ -64,11 +64,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
               // 文字颜色
             ),
             onPressed: () {
-              addNewHeaderTree(
-                root.children,
-                "",
-                      controller,
-              );
+              addNewHeaderTree(root.children, "", controller);
               debugPrint("新增子节点成功");
               // root.children.value.add(
               //   newEmptyHeaderTree("${DateTime.now().millisecondsSinceEpoch}"),
@@ -93,8 +89,8 @@ class PublishItemsView extends GetView<PublishItemsController> {
 
   @override
   Widget build(BuildContext context) {
+    // final cnt = min(3, controller.submitItems.length);
     final cnt = controller.submitItems.length;
-
     return Column(
       children: [
         Row(
@@ -125,7 +121,8 @@ class PublishItemsView extends GetView<PublishItemsController> {
                 addNewHeaderTree(
                   controller.submitItems,
                   DateTime.now().millisecondsSinceEpoch.toString(),
-                  controller
+                  controller,
+                  needJump: true
                 );
               },
               child: const Text("新增"),
@@ -141,6 +138,8 @@ class PublishItemsView extends GetView<PublishItemsController> {
                   // return GridView.builder(
                   shrinkWrap: false,
                   reverse: true,
+                  cacheExtent:100,
+                  controller: controller.scrollController,
                   // addRepaintBoundaries:t,
                   itemCount:
                       controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
@@ -303,12 +302,12 @@ class NestedDfsWorkHeaderTreeItemView
       () => Center(
         child: IconButton(
           onPressed: () {
-            if(depth < maxSubmitItemDepthExclusive){
+            if (depth < maxSubmitItemDepthExclusive) {
               addNewHeaderTree(controller.children, "", controller);
               // controller.opsCount.value += 1;
               // controller.update(null, false);
               debugPrint("NestedDfsWorkHeaderTreeItemView add");
-            }else{
+            } else {
               errToast("超过最大数量限制");
             }
           },
