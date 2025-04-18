@@ -63,18 +63,14 @@ class PublishItemsView extends GetView<PublishItemsController> {
               // 文字颜色
             ),
             onPressed: () {
-              debugPrint("新增子节点成功");
-              root.children.value.add(
-                WorkHeaderTree(
-                  WorkHeader(
-                    name: "子节点${DateTime.now().millisecondsSinceEpoch}",
-                    id: Int64(0),
-                    contentType: 0,
-                    open: 0,
-                  ).obs,
-                  <WorkHeaderTree>[].obs,
-                ),
+              addNewHeaderTree(
+                root.children,
+                DateTime.now().millisecondsSinceEpoch.toString(),
               );
+              debugPrint("新增子节点成功");
+              // root.children.value.add(
+              //   newEmptyHeaderTree("${DateTime.now().millisecondsSinceEpoch}"),
+              // );
             },
             child: Row(
               children: [
@@ -124,16 +120,9 @@ class PublishItemsView extends GetView<PublishItemsController> {
               ),
               onPressed: () {
                 debugPrint("新增任务项成功");
-                controller.submitItems.value.add(
-                  WorkHeaderTree(
-                    WorkHeader(
-                      name: "子节点${DateTime.now().millisecondsSinceEpoch}",
-                      id: Int64(0),
-                      contentType: 0,
-                      open: 0,
-                    ).obs,
-                    <WorkHeaderTree>[].obs,
-                  ),
+                addNewHeaderTree(
+                  controller.submitItems,
+                  DateTime.now().millisecondsSinceEpoch.toString(),
                 );
               },
               child: const Text("新增"),
@@ -144,29 +133,37 @@ class PublishItemsView extends GetView<PublishItemsController> {
           child: LayoutBuilder(
             builder: (ctx, constraints) {
               final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
-              return Obx(() => ListView.builder(
-                // return GridView.builder(
-                shrinkWrap: true,
-                itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
-                itemBuilder: (ctx, idx) {
-                  final headerTree = controller.submitItems.value[idx];
-                  final oneItem = [
-                    _buildRootHeaderNameTable(context, headerTree),
-                  ];
-                  if (headerTree.children.isNotEmpty) {
-                    oneItem.add(
-                      Obx(
-                        () => NestedDfsWorkHeaderTreeView(
-                          headerTree.task.value.id.toString(),
-                          headerTree.children,
+              return Obx(
+                () => ListView.builder(
+                  key: controller.listKey,
+                  // return GridView.builder(
+                  shrinkWrap: true,
+                  reverse: true,
+                  itemCount:
+                      controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
+                  itemBuilder: (ctx, idx) {
+                    final headerTree = controller.submitItems.value[idx];
+                    final oneItem = [
+                      _buildRootHeaderNameTable(context, headerTree.value),
+                    ];
+                    if (headerTree.value.children.isNotEmpty) {
+                      oneItem.add(
+                        Obx(
+                          () => NestedDfsWorkHeaderTreeView(
+                            headerTree.value.task.value.id.toString(),
+                            headerTree.value.children,
+                          ),
                         ),
-                      ),
+                      );
+                    }
+                    // return Column(children: oneItem);
+                    return commonCard(
+                      Column(children: oneItem),
+                      borderRadius: 0,
                     );
-                  }
-                  // return Column(children: oneItem);
-                  return commonCard(Column(children: oneItem), borderRadius: 0);
-                },
-              ));
+                  },
+                ),
+              );
             },
           ),
         ),
@@ -178,7 +175,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
 class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   NestedDfsWorkHeaderTreeView(
     this.rootHeaderTreeId,
-    RxList<WorkHeaderTree> children, {
+    RxList<Rx<WorkHeaderTree>> children, {
     super.key,
   }) {
     Get.put(WorkHeaderController(children), tag: rootHeaderTreeId);
@@ -193,18 +190,8 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
     return Center(
       child: IconButton(
         onPressed: () {
-          task.children.value.add(
-            WorkHeaderTree(
-              WorkHeader(
-                name: "请输入填报项",
-                id: Int64(0),
-                contentType: 0,
-                open: 0,
-              ).obs,
-              <WorkHeaderTree>[].obs,
-            ),
-          );
-          controller.opsCount.value += 1;
+          addNewHeaderTree(task.children, "请输入填报项");
+          // controller.opsCount.value += 1;
           debugPrint("add");
         },
         highlightColor: Colors.green.withValues(alpha: 0.5),
@@ -242,17 +229,17 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
     BuildContext context,
     int idx,
     int depth,
-    WorkHeaderTree node,
+    Rx<WorkHeaderTree> node,
   ) {
     final w;
-    if (node.children.isEmpty) {
+    if (node.value.children.isEmpty) {
       // 没有子节点时，独占一行
       w = Row(
         children: [
           Expanded(
             child: NestedDfsWorkHeaderTreeItemView(
-              node.children,
-              task: node.task,
+              node.value.children,
+              task: node.value.task,
             ),
           ),
         ],
@@ -264,13 +251,16 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
         crossAxisAlignment: CrossAxisAlignment.center,
         // spacing: 4,
         children: [
-          NestedDfsWorkHeaderTreeItemView(node.children, task: node.task),
+          NestedDfsWorkHeaderTreeItemView(
+            node.value.children,
+            task: node.value.task,
+          ),
           Expanded(
             child: Column(
               // spacing: 4,
               crossAxisAlignment: CrossAxisAlignment.start,
               children:
-                  node.children.asMap().entries.map((e) {
+                  node.value.children.asMap().entries.map((e) {
                     return _buildHeaderTreeByDfs(
                       context,
                       e.key,
@@ -302,7 +292,7 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
 class NestedDfsWorkHeaderTreeItemView
     extends GetView<OneWorkHeaderItemController> {
   NestedDfsWorkHeaderTreeItemView(
-    RxList<WorkHeaderTree> children, {
+    RxList<Rx<WorkHeaderTree>> children, {
     Rx<WorkHeader>? task,
     super.key,
   }) {
@@ -331,18 +321,9 @@ class NestedDfsWorkHeaderTreeItemView
       () => Center(
         child: IconButton(
           onPressed: () {
-            controller.children.value.add(
-              WorkHeaderTree(
-                WorkHeader(
-                  name: "请输入填报项",
-                  id: Int64(0),
-                  contentType: 0,
-                  open: 0,
-                ).obs,
-                <WorkHeaderTree>[].obs,
-              ),
-            );
-            controller.opsCount.value += 1;
+            addNewHeaderTree(controller.children, "请输入填报项");
+            // controller.children.value.add(newEmptyHeaderTree("请输入填报项"));
+            // controller.opsCount.value += 1;
             // controller.update(null, false);
             debugPrint("NestedDfsWorkHeaderTreeItemView add");
             debugPrint("${controller.children.value}");
