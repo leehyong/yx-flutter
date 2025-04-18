@@ -55,21 +55,6 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
               ),
             ),
           ),
-          // if (root.children.isEmpty)
-          //   IconButton(
-          //     onPressed: () {
-          //       // addNewHeaderTree(root.children, "", controller);
-          //       debugPrint("删除子项成功");
-          //     },
-          //     icon: Icon(Icons.delete, size: 22, color: Colors.red),
-          //   ),
-          // IconButton(
-          //   onPressed: () {
-          //     // addNewHeaderTree(root.children, "", controller);
-          //     debugPrint("新增子节点成功");
-          //   },
-          //   icon: Icon(Icons.add, size: 22, color: Colors.white),
-          // ),
         ],
       ),
     );
@@ -78,67 +63,66 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
   @override
   Widget build(BuildContext context) {
     // final cnt = min(3, controller.submitItems.length);
-    return Column(
+    return Obx(
+      () => Column(
+        children: [
+          _buildHeaderActions(context),
+          Expanded(
+            child:
+                controller.isEditing.value
+                    ? PublishItemsViewSimpleCrud()
+                    : _buildItemsDetail(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      spacing: 10,
       children: [
-        Obx(
-          () => Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            spacing: 10,
+        ElevatedButton(
+          onPressed: () {
+            debugPrint("编辑任务项成功");
+            controller.isEditing.value = !controller.isEditing.value;
+          },
+          child: Row(
             children: [
-              if (controller.isEditing.value)
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade50, // 背景色
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.all(4),
-                    // 文字颜色
-                  ),
-                  onPressed: () {
-                    debugPrint("选择任务项成功");
-                  },
-                  child: const Text("选择"),
-                ),
-              if (controller.isEditing.value)
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade50, // 背景色
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.all(4),
-                    // 文字颜色
-                  ),
-                  onPressed: () {
-                    debugPrint("新增任务项成功");
-                    // addNewHeaderTree(
-                    //   controller.submitItems,
-                    //   DateTime.now().millisecondsSinceEpoch.toString(),
-                    //   controller,
-                    //   needJump: true,
-                    // );
-                  },
-                  child: const Text("新增"),
-                ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade50, // 背景色
-                  foregroundColor: Colors.black,
-                  padding: EdgeInsets.all(4),
-                  // 文字颜色
-                ),
-                onPressed: () {
-                  debugPrint("编辑任务项成功");
-                  controller.isEditing.value = !controller.isEditing.value;
-                },
-                child: Text(controller.isEditing.value ? "返回" : "编辑"),
-              ),
+              Icon(controller.isEditing.value ? Icons.arrow_back : Icons.edit),
+              Text(controller.isEditing.value ? "返回" : "编辑"),
             ],
           ),
         ),
-        Expanded(
-          child:
-              controller.isEditing.value
-                  ? PublishItemsViewSimpleCrud()
-                  : _buildItemsDetail(context),
-        ),
+
+        if (controller.isEditing.value) ...[
+          Spacer(),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue.shade50, // 背景色
+              foregroundColor: Colors.black,
+              padding: EdgeInsets.all(4),
+              // 文字颜色
+            ),
+            onPressed: () {
+              debugPrint("选择任务项成功");
+            },
+            child: const Text("选择"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue.shade400, // 背景色
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.all(4),
+              // 文字颜色
+            ),
+            onPressed: () {
+              debugPrint("新增任务项成功");
+            },
+            child: const Text("新增"),
+          ),
+        ],
       ],
     );
   }

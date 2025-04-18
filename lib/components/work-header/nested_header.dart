@@ -65,7 +65,7 @@ class NestedWorkHeaderTreeView extends GetView<WorkHeaderController> {
   }
 
   List<Widget> _buildAllHeaders(int idx, WorkHeaderTree tree) {
-    final items = <Widget>[_buildOneHeaderItem(idx, tree.task.value)];
+    final items = <Widget>[_buildOneHeaderItem(idx, tree.task)];
     for (var header in tree.children.asMap().entries) {
       items.addAll(_buildAllHeaders(header.key, header.value));
     }
@@ -167,14 +167,14 @@ class NestedWorkHeaderTreeLayoutDelegate extends MultiChildLayoutDelegate {
     final nthCol = columns - column;
     final width = nthCol * cellWidth;
     layoutChild(
-      tree.task.value.id,
+      tree.task.id,
       BoxConstraints.tightFor(
         width: width,
         height: cellHeight,
       ),
     );
     positionChild(
-      tree.task.value.id,
+      tree.task.id,
       Offset((nthCol - 1) * width, row * cellHeight),
     );
 
@@ -186,7 +186,7 @@ class NestedWorkHeaderTreeLayoutDelegate extends MultiChildLayoutDelegate {
   void performLayout(Size size) {
     int curRow = 0;
     for (var tree in controller.children) {
-      if (hasChild(tree.task.value.id)) {
+      if (hasChild(tree.task.id)) {
         curRow = _performOneHeaderLayout(tree, curRow, 0);
       }
     }

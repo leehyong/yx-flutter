@@ -247,26 +247,3 @@ TreeNode<WorkHeader> newEmptyHeaderTree([String? name]) {
     ),
   );
 }
-
-// void addNewHeaderTree<Ctr extends GetxController>(
-//   RxList<WorkHeaderTree> tree,
-//   String name,
-//   Ctr ctr, {
-//   bool needJump = false,
-// }) {
-//   final node = newEmptyHeaderTree(name);
-//   PublishItemsController publishItemsController;
-//   if (ctr is PublishItemsController) {
-//     if (needJump) {
-//       ctr.scrollController.jumpTo(
-//         ctr.scrollController.position.maxScrollExtent + 60,
-//       );
-//     }
-//     publishItemsController = ctr;
-//   } else {
-//     publishItemsController = Get.find<PublishItemsController>();
-//   }
-//   tree.value = [...tree.value, node];
-//   publishItemsController.debounceBuildSubmitItemsMap();
-//   // ctr.update();
-// }
