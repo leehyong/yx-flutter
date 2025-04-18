@@ -343,17 +343,13 @@ Rx<WorkHeaderTree> _newEmptyHeaderTree(String name) {
 }
 
 void addNewHeaderTree<Ctr extends GetxController>(RxList<Rx<WorkHeaderTree>> tree, String name, Ctr ctr, {bool needJump=false}) {
-  // tree.value.add(_newEmptyHeaderTree(name));
-  // if (tree.value.isEmpty) {
-  //   tree.value.add(_newEmptyHeaderTree(name));
-  //   tree.value = [...tree.value];
-  // }else{
-  //   tree.value = [...tree.value, _newEmptyHeaderTree(name)];
-  // }
   tree.value = [...tree.value, _newEmptyHeaderTree(name)];
-  // final controller = Get.find<PublishItemsController>();
-  if(ctr is PublishItemsController && needJump){
-    ctr.scrollController.jumpTo(ctr.scrollController.position.maxScrollExtent + 60);
+  if(ctr is PublishItemsController){
+    if (needJump) {
+      ctr.scrollController.jumpTo(ctr.scrollController.position.maxScrollExtent + 60);
+    }
+  }else{
+
   }
   // ctr.update();
 }

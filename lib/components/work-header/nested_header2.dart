@@ -19,7 +19,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
   Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.blue, // 设置背景色
+        color: Colors.blue.withAlpha(150), // 设置背景色
       ),
       child: Row(
         children: [
@@ -30,12 +30,12 @@ class PublishItemsView extends GetView<PublishItemsController> {
                 () => Tooltip(
                   message: root.task.value.name,
                   child: Row(
-                    spacing: 8,
+                    spacing: 4,
                     children: [
                       Text(
                         root.task.value.name,
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           color: Colors.white,
                           shadows: [
                             Shadow(
@@ -56,31 +56,20 @@ class PublishItemsView extends GetView<PublishItemsController> {
               ),
             ),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white, // 背景色
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.only(left: 4, right: 4),
-              // 文字颜色
+          if (root.children.isEmpty)
+            IconButton(
+              onPressed: () {
+                addNewHeaderTree(root.children, "", controller);
+                debugPrint("删除子项成功");
+              },
+              icon: Icon(Icons.delete, size: 22, color: Colors.red),
             ),
+          IconButton(
             onPressed: () {
               addNewHeaderTree(root.children, "", controller);
               debugPrint("新增子节点成功");
-              // root.children.value.add(
-              //   newEmptyHeaderTree("${DateTime.now().millisecondsSinceEpoch}"),
-              // );
             },
-            child: Row(
-              children: [
-                Text(
-                  "新增子项",
-                  // style: TextStyle(fontSize: 16, color: Colors.yellow),
-                ),
-                const SizedBox(width: 4),
-                // Icon(Icons.add, size: 20, color: Colors.yellow),
-                Icon(Icons.add, size: 20),
-              ],
-            ),
+            icon: Icon(Icons.add, size: 22, color: Colors.white),
           ),
         ],
       ),
@@ -122,7 +111,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
                   controller.submitItems,
                   DateTime.now().millisecondsSinceEpoch.toString(),
                   controller,
-                  needJump: true
+                  needJump: true,
                 );
               },
               child: const Text("新增"),
@@ -138,7 +127,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
                   // return GridView.builder(
                   shrinkWrap: false,
                   reverse: true,
-                  cacheExtent:100,
+                  cacheExtent: 100,
                   controller: controller.scrollController,
                   // addRepaintBoundaries:t,
                   itemCount:
@@ -321,7 +310,7 @@ class NestedDfsWorkHeaderTreeItemView
                   controller.task.value.name,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Icon(Icons.add, size: 12, color: Colors.black),
+                // Icon(Icons.add, size: 12, color: Colors.black),
                 SizedBox(width: 4),
                 buildTaskOpenRangeAndContentType(controller.task.value),
               ],
