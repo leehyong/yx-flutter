@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/toast.dart';
 
 import '../../utils/common_widget.dart';
 import 'controller.dart';
@@ -66,6 +67,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
               addNewHeaderTree(
                 root.children,
                 "",
+                      controller,
               );
               debugPrint("新增子节点成功");
               // root.children.value.add(
@@ -123,6 +125,7 @@ class PublishItemsView extends GetView<PublishItemsController> {
                 addNewHeaderTree(
                   controller.submitItems,
                   DateTime.now().millisecondsSinceEpoch.toString(),
+                  controller
                 );
               },
               child: const Text("新增"),
@@ -135,10 +138,10 @@ class PublishItemsView extends GetView<PublishItemsController> {
               final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
               return Obx(
                 () => ListView.builder(
-                  key: controller.listKey,
                   // return GridView.builder(
-                  shrinkWrap: true,
+                  shrinkWrap: false,
                   reverse: true,
+                  // addRepaintBoundaries:t,
                   itemCount:
                       controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
                   itemBuilder: (ctx, idx) {
@@ -186,31 +189,6 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   @override
   String get tag => rootHeaderTreeId;
 
-  Widget _buildOneHeaderItem(WorkHeaderTree task) {
-    return Center(
-      child: IconButton(
-        onPressed: () {
-          addNewHeaderTree(task.children, "");
-          // controller.opsCount.value += 1;
-          debugPrint("add");
-        },
-        highlightColor: Colors.green.withValues(alpha: 0.5),
-        icon: Tooltip(
-          message: task.task.value.name,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(task.task.value.name, overflow: TextOverflow.ellipsis),
-              Icon(Icons.add, size: 12, color: Colors.black),
-              SizedBox(width: 4),
-              buildTaskOpenRangeAndContentType(task.task.value),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Obx(
@@ -238,6 +216,7 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
         children: [
           Expanded(
             child: NestedDfsWorkHeaderTreeItemView(
+              depth,
               node.value.children,
               task: node.value.task,
             ),
@@ -252,6 +231,7 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
         // spacing: 4,
         children: [
           NestedDfsWorkHeaderTreeItemView(
+            depth,
             node.value.children,
             task: node.value.task,
           ),
@@ -292,6 +272,7 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
 class NestedDfsWorkHeaderTreeItemView
     extends GetView<OneWorkHeaderItemController> {
   NestedDfsWorkHeaderTreeItemView(
+    this.depth,
     RxList<Rx<WorkHeaderTree>> children, {
     Rx<WorkHeader>? task,
     super.key,
@@ -311,6 +292,7 @@ class NestedDfsWorkHeaderTreeItemView
   }
 
   late final String rootHeaderTreeId;
+  late final int depth;
 
   @override
   String get tag => rootHeaderTreeId;
@@ -321,11 +303,14 @@ class NestedDfsWorkHeaderTreeItemView
       () => Center(
         child: IconButton(
           onPressed: () {
-            addNewHeaderTree(controller.children, "");
-            // controller.opsCount.value += 1;
-            // controller.update(null, false);
-            debugPrint("NestedDfsWorkHeaderTreeItemView add");
-            debugPrint("${controller.children.value}");
+            if(depth < maxSubmitItemDepthExclusive){
+              addNewHeaderTree(controller.children, "", controller);
+              // controller.opsCount.value += 1;
+              // controller.update(null, false);
+              debugPrint("NestedDfsWorkHeaderTreeItemView add");
+            }else{
+              errToast("超过最大数量限制");
+            }
           },
           highlightColor: Colors.green.withValues(alpha: 0.5),
           icon: Tooltip(

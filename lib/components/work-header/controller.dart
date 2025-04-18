@@ -8,9 +8,10 @@ import 'package:yx/types.dart';
 
 import 'header_tree.dart';
 
+const maxSubmitItemDepthExclusive = 1;
+
 class PublishItemsController extends GetxController {
   final isLoadingSubmitItem = false.obs;
-  final listKey = GlobalKey();
   final submitItems =
       <Rx<WorkHeaderTree>>[
         WorkHeaderTree(
@@ -313,7 +314,6 @@ class WorkHeaderController extends GetxController {
 }
 
 class OneWorkHeaderItemController extends GetxController {
-  final globalKey = GlobalKey();
   final RxList<Rx<WorkHeaderTree>> children;
   final Rx<WorkHeader> task;
   final opsCount = 0.obs;
@@ -341,9 +341,14 @@ Rx<WorkHeaderTree> _newEmptyHeaderTree(String name) {
   ).obs;
 }
 
-
-void addNewHeaderTree(RxList<Rx<WorkHeaderTree>> tree, String name){
+void addNewHeaderTree<Ctr extends GetxController>(RxList<Rx<WorkHeaderTree>> tree, String name, Ctr ctr) {
   // tree.value.add(_newEmptyHeaderTree(name));
-  tree.value = [...tree.value, _newEmptyHeaderTree(name)];
+  if (tree.value.isEmpty) {
+    tree.value.add(_newEmptyHeaderTree(name));
+    tree.value = [...tree.value];
+  }else{
+    tree.value = [...tree.value, _newEmptyHeaderTree(name)];
+  }
   // final controller = Get.find<PublishItemsController>();
+  ctr.update();
 }
