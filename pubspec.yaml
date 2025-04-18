@@ -48,6 +48,8 @@ dependencies:
   logger: ^2.5.0
   common_utils: ^2.1.0
   loading_indicator: ^3.1.1
+  animated_tree_view: ^2.3.0
+  color_palette_plus: ^2.0.0
   graphview: ^1.2.0
   comment_tree: ^0.3.0
   dotted_decoration: ^2.0.0

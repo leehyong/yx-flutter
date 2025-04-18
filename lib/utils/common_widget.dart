@@ -47,27 +47,46 @@ Widget commonCard(
   child: w,
 );
 
+Widget buildTaskOpenRangeAndContentType(
+  WorkHeader header, {
+  bool isRow = false,
+  MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
+  CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+  double spacing = 2,
+}) {
+  final children = [
+    TDBadge(
+      TDBadgeType.message,
+      color: Colors.yellowAccent,
+      textColor: Colors.black,
+      message: header.required ? "必填": "可选",
+    ),
+    TDBadge(
+      TDBadgeType.message,
+      color: Colors.purpleAccent.shade100,
+      textColor:  Colors.black,
+      message: TaskTextTypeExtension.fromInt(header.contentType).i18name,
+    ),
+    TDBadge(
+      TDBadgeType.message,
+      color: Colors.greenAccent,
+      textColor: Colors.black,
+      message: TaskOpenRangeExtension.fromInt(header.open).i18name,
+    ),
+  ];
 
-Widget buildTaskOpenRangeAndContentType(WorkHeader header){
-  return Column(
-    spacing: 2,
-    children: [
-      TDBadge(
-        TDBadgeType.message,
-        color: Colors.yellowAccent,
-        textColor: Colors.black,
-        message:
-        TaskTextTypeExtension.fromInt(
-          header.contentType,
-        ).i18name,
-      ),
-      TDBadge(
-        TDBadgeType.message,
-        color: Colors.greenAccent,
-        textColor: Colors.black,
-        message:
-        TaskOpenRangeExtension.fromInt(header.open).i18name,
-      ),
-    ],
-  );
+
+  return isRow
+      ? Row(
+        spacing: spacing,
+        mainAxisAlignment: mainAxisAlignment,
+        crossAxisAlignment: crossAxisAlignment,
+        children: children,
+      )
+      : Column(
+        spacing: spacing,
+        mainAxisAlignment: mainAxisAlignment,
+        crossAxisAlignment: crossAxisAlignment,
+        children: children,
+      );
 }

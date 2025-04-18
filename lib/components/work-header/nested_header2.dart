@@ -9,6 +9,7 @@ import 'package:yx/utils/toast.dart';
 
 import '../../utils/common_widget.dart';
 import 'controller.dart';
+import 'header_crud.dart';
 import 'header_tree.dart';
 
 class PublishItemsViewDetail extends GetView<PublishItemsController> {
@@ -26,51 +27,49 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(left: 4),
-              child: Obx(
-                () => Tooltip(
-                  message: root.task.value.name,
-                  child: Row(
-                    spacing: 4,
-                    children: [
-                      Text(
-                        root.task.value.name,
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              // 阴影颜色
-                              offset: Offset(1, 0),
-                              // Y 轴偏移量
-                              blurRadius: 1, // 阴影模糊程度
-                            ),
-                          ],
-                        ),
-                        overflow: TextOverflow.ellipsis,
+              child: Tooltip(
+                message: root.task.name,
+                child: Row(
+                  spacing: 4,
+                  children: [
+                    Text(
+                      root.task.name,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.white,
+                            // 阴影颜色
+                            offset: Offset(1, 0),
+                            // Y 轴偏移量
+                            blurRadius: 1, // 阴影模糊程度
+                          ),
+                        ],
                       ),
-                      buildTaskOpenRangeAndContentType(root.task.value),
-                    ],
-                  ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    buildTaskOpenRangeAndContentType(root.task),
+                  ],
                 ),
               ),
             ),
           ),
-          if (root.children.isEmpty)
-            IconButton(
-              onPressed: () {
-                addNewHeaderTree(root.children, "", controller);
-                debugPrint("删除子项成功");
-              },
-              icon: Icon(Icons.delete, size: 22, color: Colors.red),
-            ),
-          IconButton(
-            onPressed: () {
-              addNewHeaderTree(root.children, "", controller);
-              debugPrint("新增子节点成功");
-            },
-            icon: Icon(Icons.add, size: 22, color: Colors.white),
-          ),
+          // if (root.children.isEmpty)
+          //   IconButton(
+          //     onPressed: () {
+          //       // addNewHeaderTree(root.children, "", controller);
+          //       debugPrint("删除子项成功");
+          //     },
+          //     icon: Icon(Icons.delete, size: 22, color: Colors.red),
+          //   ),
+          // IconButton(
+          //   onPressed: () {
+          //     // addNewHeaderTree(root.children, "", controller);
+          //     debugPrint("新增子节点成功");
+          //   },
+          //   icon: Icon(Icons.add, size: 22, color: Colors.white),
+          // ),
         ],
       ),
     );
@@ -79,86 +78,111 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
   @override
   Widget build(BuildContext context) {
     // final cnt = min(3, controller.submitItems.length);
-    final cnt = controller.submitItems.length;
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          spacing: 10,
-          children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade50, // 背景色
-                foregroundColor: Colors.black,
-                padding: EdgeInsets.all(4),
-                // 文字颜色
-              ),
-              onPressed: () {
-                debugPrint("选择任务项成功");
-              },
-              child: const Text("选择"),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade50, // 背景色
-                foregroundColor: Colors.black,
-                padding: EdgeInsets.all(4),
-                // 文字颜色
-              ),
-              onPressed: () {
-                debugPrint("新增任务项成功");
-                addNewHeaderTree(
-                  controller.submitItems,
-                  DateTime.now().millisecondsSinceEpoch.toString(),
-                  controller,
-                  needJump: true,
-                );
-              },
-              child: const Text("新增"),
-            ),
-          ],
-        ),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (ctx, constraints) {
-              final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
-              return Obx(
-                () => ListView.builder(
-                  // return GridView.builder(
-                  shrinkWrap: false,
-                  reverse: true,
-                  cacheExtent: 100,
-                  controller: controller.scrollController,
-                  // addRepaintBoundaries:t,
-                  itemCount:
-                      controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
-                  itemBuilder: (ctx, idx) {
-                    final headerTree = controller.submitItems.value[idx];
-                    final oneItem = [
-                      _buildRootHeaderNameTable(context, headerTree.value),
-                    ];
-                    if (headerTree.value.children.isNotEmpty) {
-                      oneItem.add(
-                        Obx(
-                          () => NestedDfsWorkHeaderTreeView(
-                            headerTree.value.task.value.id.toString(),
-                            headerTree.value.children,
-                          ),
-                        ),
-                      );
-                    }
-                    // return Column(children: oneItem);
-                    return commonCard(
-                      Column(children: oneItem),
-                      borderRadius: 0,
-                    );
+        Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            spacing: 10,
+            children: [
+              if (controller.isEditing.value)
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade50, // 背景色
+                    foregroundColor: Colors.black,
+                    padding: EdgeInsets.all(4),
+                    // 文字颜色
+                  ),
+                  onPressed: () {
+                    debugPrint("选择任务项成功");
                   },
+                  child: const Text("选择"),
                 ),
-              );
-            },
+              if (controller.isEditing.value)
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade50, // 背景色
+                    foregroundColor: Colors.black,
+                    padding: EdgeInsets.all(4),
+                    // 文字颜色
+                  ),
+                  onPressed: () {
+                    debugPrint("新增任务项成功");
+                    // addNewHeaderTree(
+                    //   controller.submitItems,
+                    //   DateTime.now().millisecondsSinceEpoch.toString(),
+                    //   controller,
+                    //   needJump: true,
+                    // );
+                  },
+                  child: const Text("新增"),
+                ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade50, // 背景色
+                  foregroundColor: Colors.black,
+                  padding: EdgeInsets.all(4),
+                  // 文字颜色
+                ),
+                onPressed: () {
+                  debugPrint("编辑任务项成功");
+                  controller.isEditing.value = !controller.isEditing.value;
+                },
+                child: Text(controller.isEditing.value ? "返回" : "编辑"),
+              ),
+            ],
           ),
         ),
+        Expanded(
+          child:
+              controller.isEditing.value
+                  ? PublishItemsViewSimpleCrud()
+                  : _buildItemsDetail(context),
+        ),
       ],
+    );
+  }
+
+  Widget _buildItemsDetail(BuildContext context) {
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
+        final cnt = submitItems.length;
+        return Obx(
+          () =>
+              controller.isEditing.value
+                  ? PublishItemsViewSimpleCrud()
+                  : ListView.builder(
+                    // return GridView.builder(
+                    shrinkWrap: false,
+                    reverse: true,
+                    cacheExtent: 100,
+                    controller: controller.scrollController,
+                    // addRepaintBoundaries:t,
+                    itemCount:
+                        controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
+                    itemBuilder: (ctx, idx) {
+                      final headerTree = submitItems[idx];
+                      final oneItem = [
+                        _buildRootHeaderNameTable(context, headerTree),
+                      ];
+                      if (headerTree.children.isNotEmpty) {
+                        oneItem.add(
+                          NestedDfsWorkHeaderTreeView(
+                            headerTree.task.id.toString(),
+                            headerTree.children,
+                          ),
+                        );
+                      }
+                      // return Column(children: oneItem);
+                      return commonCard(
+                        Column(children: oneItem),
+                        borderRadius: 0,
+                      );
+                    },
+                  ),
+        );
+      },
     );
   }
 }
@@ -166,7 +190,7 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
 class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   NestedDfsWorkHeaderTreeView(
     this.rootHeaderTreeId,
-    RxList<Rx<WorkHeaderTree>> children, {
+    List<WorkHeaderTree> children, {
     super.key,
   }) {
     Get.put(WorkHeaderController(children), tag: rootHeaderTreeId);
@@ -195,18 +219,18 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
     BuildContext context,
     int idx,
     int depth,
-    Rx<WorkHeaderTree> node,
+    WorkHeaderTree node,
   ) {
     final w;
-    if (node.value.children.isEmpty) {
+    if (node.children.isEmpty) {
       // 没有子节点时，独占一行
       w = Row(
         children: [
           Expanded(
             child: NestedDfsWorkHeaderTreeItemView(
               depth,
-              node.value.children,
-              task: node.value.task,
+              node.children,
+              task: node.task.obs,
             ),
           ),
         ],
@@ -220,15 +244,15 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
         children: [
           NestedDfsWorkHeaderTreeItemView(
             depth,
-            node.value.children,
-            task: node.value.task,
+            node.children,
+            task: node.task.obs,
           ),
           Expanded(
             child: Column(
               // spacing: 4,
               crossAxisAlignment: CrossAxisAlignment.start,
               children:
-                  node.value.children.asMap().entries.map((e) {
+                  node.children.asMap().entries.map((e) {
                     return _buildHeaderTreeByDfs(
                       context,
                       e.key,
@@ -257,11 +281,13 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   }
 }
 
+// todo: 只支持改名、范围、文本类型及 是否必填项操作了 ，
+// todo: 必填项操作， 每项单独设置， 不依赖于父节点
 class NestedDfsWorkHeaderTreeItemView
     extends GetView<OneWorkHeaderItemController> {
   NestedDfsWorkHeaderTreeItemView(
     this.depth,
-    RxList<Rx<WorkHeaderTree>> children, {
+    List<WorkHeaderTree> children, {
     Rx<WorkHeader>? task,
     super.key,
   }) {
@@ -292,7 +318,7 @@ class NestedDfsWorkHeaderTreeItemView
         child: IconButton(
           onPressed: () {
             if (depth < maxSubmitItemDepthExclusive) {
-              addNewHeaderTree(controller.children, "", controller);
+              // addNewHeaderTree(controller.children, "", controller);
               // controller.opsCount.value += 1;
               // controller.update(null, false);
               debugPrint("NestedDfsWorkHeaderTreeItemView add");

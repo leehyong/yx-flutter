@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:color_palette_plus/color_palette_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -93,4 +94,16 @@ Function commonDebounceByTimer(Function fn, Duration duration) {
     _timer?.cancel(); // 取消之前的计时器
     _timer = Timer(duration, () => fn());
   };
+}
+
+Color getHighContrastColor(Color baseColor) {
+  final complementaryColors = ColorPalettes.complementary(baseColor); // 生成互补色（高对比度）
+  return complementaryColors.last;
+  // final theme = ThemeGenerator.generateTheme(baseColor, config: ThemeConfig(
+  //   colorSchemeConfig:  ColorSchemeConfig(harmonyType: HarmonyType.complementary,)
+  //    // 使用互补色方案
+  // ));
+  final hsl = HSLColor.fromColor(baseColor);
+  // 提高亮度或降低亮度以增强对比度
+  return hsl.withLightness(hsl.lightness > 0.5 ? 0.1 : 0.9).toColor();
 }
