@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 
 import 'header_tree.dart';
 
@@ -279,6 +280,14 @@ class PublishItemsController extends GetxController {
     buildMap(submitItems);
   }
 
+  Function debounceBuildSubmitItemsMap() {
+    // 500毫秒内避免重复构建 submitItemsMap
+    return commonDebounceByTimer(
+      _buildSubmitItemsMap,
+      Duration(milliseconds: 500),
+    );
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -342,14 +351,25 @@ Rx<WorkHeaderTree> _newEmptyHeaderTree(String name) {
   ).obs;
 }
 
-void addNewHeaderTree<Ctr extends GetxController>(RxList<Rx<WorkHeaderTree>> tree, String name, Ctr ctr, {bool needJump=false}) {
-  tree.value = [...tree.value, _newEmptyHeaderTree(name)];
-  if(ctr is PublishItemsController){
+void addNewHeaderTree<Ctr extends GetxController>(
+  RxList<Rx<WorkHeaderTree>> tree,
+  String name,
+  Ctr ctr, {
+  bool needJump = false,
+}) {
+  final node = _newEmptyHeaderTree(name);
+  PublishItemsController publishItemsController;
+  if (ctr is PublishItemsController) {
     if (needJump) {
-      ctr.scrollController.jumpTo(ctr.scrollController.position.maxScrollExtent + 60);
+      ctr.scrollController.jumpTo(
+        ctr.scrollController.position.maxScrollExtent + 60,
+      );
     }
-  }else{
-
+    publishItemsController = ctr;
+  } else {
+    publishItemsController = Get.find<PublishItemsController>();
   }
+  tree.value = [...tree.value, node];
+  publishItemsController.debounceBuildSubmitItemsMap();
   // ctr.update();
 }

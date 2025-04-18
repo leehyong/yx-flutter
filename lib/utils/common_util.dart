@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -81,4 +83,14 @@ DateTime? parseDatetimeFromStr(String dtStr) {
     }
   }
   return null;
+}
+
+
+
+Function commonDebounceByTimer(Function fn, Duration duration) {
+  Timer? _timer;
+  return () {
+    _timer?.cancel(); // 取消之前的计时器
+    _timer = Timer(duration, () => fn());
+  };
 }

@@ -11,8 +11,8 @@ import '../../utils/common_widget.dart';
 import 'controller.dart';
 import 'header_tree.dart';
 
-class PublishItemsView extends GetView<PublishItemsController> {
-  PublishItemsView({super.key}) {
+class PublishItemsViewDetail extends GetView<PublishItemsController> {
+  PublishItemsViewDetail({super.key}) {
     Get.put(PublishItemsController());
   }
 
