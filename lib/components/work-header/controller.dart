@@ -292,19 +292,7 @@ class WorkHeaderController extends GetxController {
 
   int get maxColumns {
     // dfs 求最大列数
-    int calculateMaxDepth(List<Rx<WorkHeaderTree>> children) {
-      return 1 +
-          children
-              .map(
-                (c) =>
-                    c.value.children.isEmpty
-                        ? 1
-                        : calculateMaxDepth(c.value.children),
-              )
-              .reduce((a, b) => a > b ? a : b);
-    }
-
-    return calculateMaxDepth(children) - 1;
+    return 0;
   }
 
   int get maxRows {
@@ -355,5 +343,7 @@ Rx<WorkHeaderTree> _newEmptyHeaderTree(String name) {
 
 
 void addNewHeaderTree(RxList<Rx<WorkHeaderTree>> tree, String name){
+  // tree.value.add(_newEmptyHeaderTree(name));
   tree.value = [...tree.value, _newEmptyHeaderTree(name)];
+  // final controller = Get.find<PublishItemsController>();
 }
