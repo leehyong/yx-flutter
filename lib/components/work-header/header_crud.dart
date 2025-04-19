@@ -175,9 +175,7 @@ class PublishItemsViewSimpleCrudState
               DropdownMenuItem(value: true, child: Text("是")),
               DropdownMenuItem(value: false, child: Text("否")),
             ],
-            decoration: InputDecoration(
-              labelText: "是否必填项",
-            ),
+            decoration: InputDecoration(labelText: "是否必填项"),
             onChanged: (v) {
               node.data!.required = v!;
             },
@@ -193,7 +191,8 @@ class PublishItemsViewSimpleCrudState
               ),
             ],
             decoration: InputDecoration(
-              errorText: node.data!.contentType == unknownValue ? "请选择文本类型":null,
+              errorText:
+                  node.data!.contentType == unknownValue ? "请选择文本类型" : null,
               label: Row(
                 spacing: 2,
                 children: [
@@ -257,8 +256,8 @@ class PublishItemsViewSimpleCrudState
           onPressed: () {
             if (node.data!.contentType != unknownValue) {
               _exitEditing();
-            }else{
-             errToast("请选择文本类型");
+            } else {
+              errToast("请选择文本类型");
             }
           },
           icon: Tooltip(
@@ -271,13 +270,11 @@ class PublishItemsViewSimpleCrudState
   }
 
   Widget _buildItemHeader(BuildContext context, TreeNode<WorkHeader> node) {
-    return Row(
+    final item = Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(width: 20),
-        // if (!node.isLeaf)
-        //   Icon(expandIcon, color: Colors.red, size: 24),
+        SizedBox(width: 18),
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,14 +284,23 @@ class PublishItemsViewSimpleCrudState
               message: node.data!.name,
               child: Text(
                 node.data!.name,
-                style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis),
+                style: TextStyle(
+                  fontSize: 18,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
-            SizedBox(height: 4),
+            SizedBox(height: 6),
             buildTaskOpenRangeAndContentType(node.data!, isRow: true),
           ],
         ),
       ],
+    );
+    final cnt = node.children.length;
+    return cnt == 0? item: Badge.count(
+      alignment: Alignment.topLeft,
+      count: node.children.length,
+      child: item,
     );
   }
 
