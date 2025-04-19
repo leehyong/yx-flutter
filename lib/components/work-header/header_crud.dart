@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
@@ -25,28 +24,35 @@ class PublishItemsViewSimpleCrudState
       TreeNode<WorkHeader>.root();
   TreeViewController? treeViewController;
 
-  Int64 _isEditingNodeId = Int64.ZERO;
+  TreeNode<WorkHeader>? _isEditingNode;
 
   PublishItemsViewSimpleCrudState() {
     _buildAnimatedTreeViewData();
   }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {
-    if (_isEditingNodeId != Int64.ZERO) {
-      errToast("已添加了新节点，请先完成新节点的信息修改");
+    if (_isEditingNode != null) {
+      errToast("请先完成节点信息修改，再操作");
+      treeViewController?.scrollToItem(_isEditingNode!);
     } else {
       final newNode = newEmptyHeaderTree();
       (node ?? _submitItemAnimatedTreeData).add(newNode);
       // 修改状态
       setState(() {
-        _isEditingNodeId = newNode.data!.id;
+        _isEditingNode = newNode;
       });
     }
   }
 
   void _exitEditing() {
     setState(() {
-      _isEditingNodeId = Int64.ZERO;
+      _isEditingNode = null;
+    });
+  }
+
+  void _setCurEditingNode(TreeNode<WorkHeader> node) {
+    setState(() {
+      _isEditingNode = node;
     });
   }
 
@@ -72,11 +78,14 @@ class PublishItemsViewSimpleCrudState
       tree: _submitItemAnimatedTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
-          (ctx, node) => ChevronIndicator.rightDown(
-            tree: node,
-            alignment: Alignment.centerLeft,
-            color: Colors.red,
-          ),
+          (ctx, node) =>
+              _isEditingNode == node
+                  ? NoExpansionIndicator(tree: node)
+                  : ChevronIndicator.rightDown(
+                    tree: node,
+                    alignment: Alignment.centerLeft,
+                    color: Colors.red,
+                  ),
       shrinkWrap: true,
       indentation: const Indentation(style: IndentStyle.roundJoint),
       builder: (context, node) {
@@ -84,20 +93,19 @@ class PublishItemsViewSimpleCrudState
         if (node.key == INode.ROOT_KEY) {
           return SizedBox.shrink();
         }
-        final colorIdx = node.data!.id.toInt() % loadingColors.length;
+        final colorIdx =
+            Random(node.data!.id.toInt()).nextInt(10000) % loadingColors.length;
         // 把颜色做成随机透明的
-        final ra = 20 + Random().nextInt(40);
         // 区分编辑和只读
         return Container(
           margin: EdgeInsets.symmetric(vertical: 2),
           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           decoration: BoxDecoration(
-            color: loadingColors[colorIdx].withAlpha(ra),
+            color: loadingColors[colorIdx].withAlpha(40),
             borderRadius: BorderRadius.circular(16),
           ),
           child:
-              (node.data!.contentType == unknownValue ||
-                      _isEditingNodeId == node.data!.id)
+              (node.data!.contentType == unknownValue || _isEditingNode == node)
                   ? _buildWritingItemHeader(context, node)
                   : _buildReadonlyItemHeader(context, node),
         );
@@ -130,37 +138,129 @@ class PublishItemsViewSimpleCrudState
     TreeNode<WorkHeader> node,
   ) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: TextField(
-            controller: TextEditingController()..text = node.data!.name,
-            decoration: InputDecoration(
-              labelText: "填报项名称",
-              icon: Icon(Icons.text_snippet_outlined),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: TextEditingController()..text = node.data!.name,
+                decoration: InputDecoration(
+                  labelText: "填报项名称",
+                  icon: Icon(Icons.text_snippet_outlined),
+                ),
+              ),
+              _buildWritingItemHeaderRequiredAttributes(context, node),
+            ],
           ),
         ),
-        Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                _exitEditing();
-              },
-              icon: Tooltip(
-                message: "取消修改",
-                child: Icon(Icons.cancel_outlined),
+        _buildWritingItemHeaderActions(context, node),
+      ],
+    );
+  }
+
+  Widget _buildWritingItemHeaderRequiredAttributes(
+    BuildContext context,
+    TreeNode<WorkHeader> node,
+  ) {
+    return Row(
+      spacing: 4,
+      children: [
+        Expanded(
+          child: DropdownButtonFormField(
+            value: node.data!.required,
+            items: [
+              DropdownMenuItem(value: true, child: Text("是")),
+              DropdownMenuItem(value: false, child: Text("否")),
+            ],
+            decoration: InputDecoration(
+              labelText: "是否必填项",
+            ),
+            onChanged: (v) {
+              node.data!.required = v!;
+            },
+          ),
+        ),
+        Expanded(
+          child: DropdownButtonFormField(
+            value: node.data!.contentType,
+            items: [
+              DropdownMenuItem(value: unknownValue, child: const Text("未知")),
+              ...TaskTextType.values.map(
+                (v) => DropdownMenuItem(value: v.index, child: Text(v.i18name)),
+              ),
+            ],
+            decoration: InputDecoration(
+              errorText: node.data!.contentType == unknownValue ? "请选择文本类型":null,
+              label: Row(
+                spacing: 2,
+                children: [
+                  Icon(Icons.format_color_text, size: 14),
+                  const Text("文本类型"),
+                ],
               ),
             ),
-            IconButton(
-              onPressed: () {
-                _exitEditing();
-              },
-              icon: Tooltip(
-                message: "确认修改",
-                child: Icon(Icons.check, color: Colors.blue),
+            onChanged: (v) {
+              setState(() {
+                node.data!.contentType = v!;
+              });
+            },
+          ),
+        ),
+        Expanded(
+          child: DropdownButtonFormField(
+            value: node.data!.open,
+            items:
+                TaskOpenRange.values
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v.index,
+                        child: Text(v.i18name),
+                      ),
+                    )
+                    .toList(),
+            decoration: InputDecoration(
+              label: Row(
+                spacing: 2,
+                children: [Icon(Icons.share, size: 14), const Text("开放范围")],
               ),
             ),
-          ],
+            onChanged: (v) {
+              node.data!.open = v!;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWritingItemHeaderActions(
+    BuildContext context,
+    TreeNode<WorkHeader> node,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        IconButton(
+          onPressed: () {
+            node.delete();
+            _exitEditing();
+          },
+          icon: Tooltip(message: "取消修改", child: Icon(Icons.cancel_outlined)),
+        ),
+        IconButton(
+          onPressed: () {
+            if (node.data!.contentType != unknownValue) {
+              _exitEditing();
+            }else{
+             errToast("请选择文本类型");
+            }
+          },
+          icon: Tooltip(
+            message: "确认修改",
+            child: Icon(Icons.check, color: Colors.blue),
+          ),
         ),
       ],
     );
@@ -211,17 +311,16 @@ class PublishItemsViewSimpleCrudState
               child: Icon(Icons.delete, size: 22, color: Colors.red),
             ),
           ),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              _isEditingNodeId = node.data!.id;
-            });
-          },
-          icon: Tooltip(
-            message: "修改",
-            child: Icon(Icons.edit, size: 22, color: Colors.purple),
+        if (_isEditingNode == null)
+          IconButton(
+            onPressed: () {
+              _setCurEditingNode(node);
+            },
+            icon: Tooltip(
+              message: "修改",
+              child: Icon(Icons.edit, size: 22, color: Colors.purple),
+            ),
           ),
-        ),
         IconButton(
           onPressed: () {
             debugPrint("新增子节点成功");
