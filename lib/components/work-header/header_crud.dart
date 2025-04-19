@@ -244,7 +244,10 @@ class PublishItemsViewSimpleCrudState
       children: [
         IconButton(
           onPressed: () {
-            node.delete();
+            if (node.isLeaf) {
+              node.delete();
+              return;
+            }
             _exitEditing();
           },
           icon: Tooltip(message: "取消修改", child: Icon(Icons.cancel_outlined)),
