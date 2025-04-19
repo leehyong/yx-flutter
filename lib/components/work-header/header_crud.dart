@@ -56,6 +56,17 @@ class PublishItemsViewSimpleCrudState
     });
   }
 
+  void expandAllChildren(){
+    treeViewController?.expandAllChildren(_submitItemAnimatedTreeData);
+  }
+  void collapseAllChildren(){
+    if (treeViewController != null) {
+      for(var node in _submitItemAnimatedTreeData.children.values){
+        treeViewController?.collapseNode(node as ITreeNode);
+      }
+    }
+  }
+
   void _buildAnimatedTreeViewData() {
     // dfs 遍历获取所有的 TreeNode
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {

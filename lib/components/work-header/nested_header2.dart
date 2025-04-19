@@ -87,7 +87,6 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
       children: [
         ElevatedButton(
           onPressed: () {
-            debugPrint("编辑任务项成功");
             controller.isEditing.value = !controller.isEditing.value;
           },
           child: Row(
@@ -99,6 +98,26 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
         ),
 
         if (controller.isEditing.value) ...[
+          ElevatedButton(
+            onPressed: () {
+              controller.expandAll.value = !controller.expandAll.value;
+              if (controller.expandAll.value) {
+                controller.itemsSimpleCrudKey.currentState?.expandAllChildren();
+              } else {
+                controller.itemsSimpleCrudKey.currentState?.collapseAllChildren();
+              }
+            },
+            child: Row(
+              children: [
+                Icon(
+                  controller.expandAll.value
+                      ? Icons.arrow_right_alt_rounded
+                      : Icons.arrow_downward,
+                ),
+                Text(controller.expandAll.value ? "全部折叠" : "全部展开"),
+              ],
+            ),
+          ),
           Spacer(),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -109,10 +128,7 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
             ),
             onPressed: () {
               debugPrint("选择任务项成功");
-              controller
-                  .itemsSimpleCrudKey
-                  .currentState
-                  ?.addChildToNode();
+              controller.itemsSimpleCrudKey.currentState?.addChildToNode();
             },
             child: const Text("选择"),
           ),
@@ -124,10 +140,7 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
               // 文字颜色
             ),
             onPressed: () {
-              controller
-                  .itemsSimpleCrudKey
-                  .currentState
-                  ?.addChildToNode();
+              controller.itemsSimpleCrudKey.currentState?.addChildToNode();
 
               debugPrint("新增任务项成功");
             },

@@ -144,6 +144,7 @@ class PublishItemsController extends GetxController {
   final isLoadingSubmitItem = false.obs;
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isEditing = false.obs;
+  final expandAll = false.obs;
   final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
 
   final Rx<TreeNode<WorkHeader>> submitItemAnimatedTreeData =
