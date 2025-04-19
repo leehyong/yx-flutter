@@ -59,7 +59,8 @@ class PublishItemsViewSimpleCrudState
   void _buildAnimatedTreeViewData() {
     // dfs 遍历获取所有的 TreeNode
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
-      final node = TreeNode(key: tree.task.id.toString(), data: tree.task);
+      // ::__inner加上这个字符串，以免节点删除时，整体消失的情况
+      final node = TreeNode(key: "${tree.task.id}::__inner", data: tree.task);
       node.addAll(
         tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
       );
@@ -303,11 +304,11 @@ class PublishItemsViewSimpleCrudState
         if (node.isLeaf)
           IconButton(
             onPressed: () {
-              debugPrint("删除当前节点");
-              node.delete();
-              // if (node.isLeaf) {
-              //   // 删除当前节点
-              // }
+              debugPrint("删除当前节点 ${node.key}");
+              if (node.isLeaf) {
+                node.delete();
+                // 删除当前节点
+              }
             },
             icon: Tooltip(
               message: "删除当前项",
