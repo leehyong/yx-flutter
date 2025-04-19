@@ -177,6 +177,8 @@ class PublishItemsViewSimpleCrudState
     BuildContext context,
     TreeNode<WorkHeader> node,
   ) {
+    // 只支持改名、范围、文本类型及 是否必填项操作了 ，
+    // 必填项操作， 每项单独设置， 不依赖于父节点
     return Row(
       spacing: 4,
       children: [

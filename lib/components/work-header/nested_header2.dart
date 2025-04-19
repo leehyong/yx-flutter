@@ -280,8 +280,6 @@ class NestedDfsWorkHeaderTreeView extends GetView<WorkHeaderController> {
   }
 }
 
-// todo: 只支持改名、范围、文本类型及 是否必填项操作了 ，
-// todo: 必填项操作， 每项单独设置， 不依赖于父节点
 class NestedDfsWorkHeaderTreeItemView
     extends GetView<OneWorkHeaderItemController> {
   NestedDfsWorkHeaderTreeItemView(
