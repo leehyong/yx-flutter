@@ -154,7 +154,7 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
   Widget _buildItemsDetail(BuildContext context) {
     return LayoutBuilder(
       builder: (ctx, constraints) {
-        final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
+        // final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
         final cnt = submitItems.length;
         return Obx(
           () => ListView.builder(

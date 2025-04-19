@@ -56,12 +56,13 @@ class PublishItemsViewSimpleCrudState
     });
   }
 
-  void expandAllChildren(){
+  void expandAllChildren() {
     treeViewController?.expandAllChildren(_submitItemAnimatedTreeData);
   }
-  void collapseAllChildren(){
+
+  void collapseAllChildren() {
     if (treeViewController != null) {
-      for(var node in _submitItemAnimatedTreeData.children.values){
+      for (var node in _submitItemAnimatedTreeData.children.values) {
         treeViewController?.collapseNode(node as ITreeNode);
       }
     }
@@ -70,7 +71,7 @@ class PublishItemsViewSimpleCrudState
   void _buildAnimatedTreeViewData() {
     // dfs 遍历获取所有的 TreeNode
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
-      // ::__inner加上这个字符串，以免节点删除时，整体消失的情况
+      // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
       final node = TreeNode(key: "${tree.task.id}::__inner", data: tree.task);
       node.addAll(
         tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
@@ -117,7 +118,7 @@ class PublishItemsViewSimpleCrudState
             borderRadius: BorderRadius.circular(16),
           ),
           child:
-              (node.data!.contentType == unknownValue || _isEditingNode == node)
+              _isEditingNode == node
                   ? _buildWritingItemHeader(context, node)
                   : _buildReadonlyItemHeader(context, node),
         );
@@ -295,10 +296,7 @@ class PublishItemsViewSimpleCrudState
               message: node.data!.name,
               child: Text(
                 node.data!.name,
-                style: TextStyle(
-                  fontSize: 18,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                style: TextStyle(fontSize: 18, overflow: TextOverflow.ellipsis),
               ),
             ),
             SizedBox(height: 6),
@@ -308,11 +306,13 @@ class PublishItemsViewSimpleCrudState
       ],
     );
     final cnt = node.children.length;
-    return cnt == 0? item: Badge.count(
-      alignment: Alignment.topLeft,
-      count: node.children.length,
-      child: item,
-    );
+    return cnt == 0
+        ? item
+        : Badge.count(
+          alignment: Alignment.topLeft,
+          count: node.children.length,
+          child: item,
+        );
   }
 
   Widget _buildItemAction(BuildContext ctx, TreeNode<WorkHeader> node) {
