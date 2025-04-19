@@ -210,6 +210,7 @@ extension TaskOpenRangeExtension on TaskOpenRange {
     );
   }
 }
+const unknownValue = -1;
 
 enum TaskTextType { text, int, float, phone, email }
 

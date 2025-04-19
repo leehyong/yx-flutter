@@ -235,6 +235,8 @@ class OneWorkHeaderItemController extends GetxController {
   // }
 }
 
+
+
 TreeNode<WorkHeader> newEmptyHeaderTree([String? name]) {
   final id = Int64(DateTime.now().microsecondsSinceEpoch);
   final key = id.toString();
@@ -243,7 +245,7 @@ TreeNode<WorkHeader> newEmptyHeaderTree([String? name]) {
     data: WorkHeader(
       name: "子项-${name ?? key}",
       id: id,
-      contentType: Random().nextInt(TaskTextType.values.length),
+      contentType: unknownValue,
       open: Random().nextInt(TaskOpenRange.values.length),
       required: Random().nextBool(),
     ),

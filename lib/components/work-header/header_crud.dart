@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_widget.dart';
+import 'package:yx/utils/toast.dart';
 
 import 'controller.dart';
 import 'header_tree.dart';
@@ -23,12 +25,29 @@ class PublishItemsViewSimpleCrudState
       TreeNode<WorkHeader>.root();
   TreeViewController? treeViewController;
 
+  Int64 _isEditingNodeId = Int64.ZERO;
+
   PublishItemsViewSimpleCrudState() {
     _buildAnimatedTreeViewData();
   }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {
-    (node ?? _submitItemAnimatedTreeData).add(newEmptyHeaderTree());
+    if (_isEditingNodeId != Int64.ZERO) {
+      errToast("已添加了新节点，请先完成新节点的信息修改");
+    } else {
+      final newNode = newEmptyHeaderTree();
+      (node ?? _submitItemAnimatedTreeData).add(newNode);
+      // 修改状态
+      setState(() {
+        _isEditingNodeId = newNode.data!.id;
+      });
+    }
+  }
+
+  void _exitEditing() {
+    setState(() {
+      _isEditingNodeId = Int64.ZERO;
+    });
   }
 
   void _buildAnimatedTreeViewData() {
@@ -68,8 +87,7 @@ class PublishItemsViewSimpleCrudState
         final colorIdx = node.data!.id.toInt() % loadingColors.length;
         // 把颜色做成随机透明的
         final ra = 20 + Random().nextInt(40);
-        final expandIcon =
-            node.isExpanded ? Icons.arrow_drop_down : Icons.arrow_right;
+        // 区分编辑和只读
         return Container(
           margin: EdgeInsets.symmetric(vertical: 2),
           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
@@ -77,17 +95,11 @@ class PublishItemsViewSimpleCrudState
             color: loadingColors[colorIdx].withAlpha(ra),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Stack(
-            children: [
-              _buildItemHeader(context, node),
-              Positioned(
-                top: 0,
-                bottom: 0,
-                right: 4,
-                child: Row(children: [_buildItemAction(context, node)]),
-              ),
-            ],
-          ),
+          child:
+              (node.data!.contentType == unknownValue ||
+                      _isEditingNodeId == node.data!.id)
+                  ? _buildWritingItemHeader(context, node)
+                  : _buildReadonlyItemHeader(context, node),
         );
       },
       onItemTap: (node) {
@@ -99,7 +111,62 @@ class PublishItemsViewSimpleCrudState
     );
   }
 
-  Widget _buildItemHeader(BuildContext ctx, TreeNode<WorkHeader> node) {
+  Widget _buildReadonlyItemHeader(BuildContext ctx, TreeNode<WorkHeader> node) {
+    return Stack(
+      children: [
+        _buildItemHeader(context, node),
+        Positioned(
+          top: 0,
+          bottom: 0,
+          right: 4,
+          child: Row(children: [_buildItemAction(context, node)]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWritingItemHeader(
+    BuildContext context,
+    TreeNode<WorkHeader> node,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: TextEditingController()..text = node.data!.name,
+            decoration: InputDecoration(
+              labelText: "填报项名称",
+              icon: Icon(Icons.text_snippet_outlined),
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                _exitEditing();
+              },
+              icon: Tooltip(
+                message: "取消修改",
+                child: Icon(Icons.cancel_outlined),
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                _exitEditing();
+              },
+              icon: Tooltip(
+                message: "确认修改",
+                child: Icon(Icons.check, color: Colors.blue),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildItemHeader(BuildContext context, TreeNode<WorkHeader> node) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -139,14 +206,31 @@ class PublishItemsViewSimpleCrudState
               //   // 删除当前节点
               // }
             },
-            icon: Icon(Icons.delete, size: 22, color: Colors.red),
+            icon: Tooltip(
+              message: "删除当前项",
+              child: Icon(Icons.delete, size: 22, color: Colors.red),
+            ),
           ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              _isEditingNodeId = node.data!.id;
+            });
+          },
+          icon: Tooltip(
+            message: "修改",
+            child: Icon(Icons.edit, size: 22, color: Colors.purple),
+          ),
+        ),
         IconButton(
           onPressed: () {
             debugPrint("新增子节点成功");
             addChildToNode(node);
           },
-          icon: Icon(Icons.add, size: 22, color: Colors.blue),
+          icon: Tooltip(
+            message: "新增子项",
+            child: Icon(Icons.add, size: 22, color: Colors.blue),
+          ),
         ),
       ],
     );

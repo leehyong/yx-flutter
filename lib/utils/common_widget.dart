@@ -59,22 +59,27 @@ Widget buildTaskOpenRangeAndContentType(
       TDBadgeType.message,
       color: Colors.yellowAccent,
       textColor: Colors.black,
-      message: header.required ? "必填": "可选",
+      message: header.required ? "必填" : "可选",
     ),
     TDBadge(
       TDBadgeType.message,
       color: Colors.purpleAccent.shade100,
-      textColor:  Colors.black,
-      message: TaskTextTypeExtension.fromInt(header.contentType).i18name,
+      textColor: Colors.black,
+      message:
+          header.contentType == unknownValue
+              ? "未知"
+              : TaskTextTypeExtension.fromInt(header.contentType).i18name,
     ),
     TDBadge(
       TDBadgeType.message,
       color: Colors.greenAccent,
       textColor: Colors.black,
-      message: TaskOpenRangeExtension.fromInt(header.open).i18name,
+      message:
+          header.open == unknownValue
+              ? "未知"
+              : TaskOpenRangeExtension.fromInt(header.open).i18name,
     ),
   ];
-
 
   return isRow
       ? Row(
