@@ -27,6 +27,9 @@ class PublishItemsViewSimpleCrudState
   TreeNode<WorkHeader>? _isEditingNode;
 
   PublishItemsViewSimpleCrudState() {
+    // todo： 跟 PublishItemsViewDetail 复用相同的数据结构，从而避免数据的重复转换
+    // todo： 在 PublishItemsController 里初始化这个树形结构，从而可能实现复用
+    // todo： 明天尝试
     _buildAnimatedTreeViewData();
   }
 
