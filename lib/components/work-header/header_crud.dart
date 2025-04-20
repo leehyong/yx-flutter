@@ -28,6 +28,7 @@ class PublishItemsViewSimpleCrudState
   TreeViewController? treeViewController;
 
   TreeNode<WorkHeader>? _isEditingNode;
+  TreeNode<WorkHeader>? _isNewNode;
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {
     if (_isEditingNode != null) {
@@ -39,12 +40,23 @@ class PublishItemsViewSimpleCrudState
       // 修改状态
       setState(() {
         _isEditingNode = newNode;
+        _isNewNode = newNode;
       });
     }
   }
 
-  void _exitEditing() {
+  void  _cancelEditing(TreeNode<WorkHeader> node) {
     setState(() {
+      if (node == _isNewNode) {
+          node.delete();
+      }
+      _isNewNode = null;
+      _isEditingNode = null;
+    });
+  }
+  void  _confirmEditing(TreeNode<WorkHeader> node) {
+    setState(() {
+      _isNewNode = null;
       _isEditingNode = null;
     });
   }
@@ -241,18 +253,14 @@ class PublishItemsViewSimpleCrudState
       children: [
         IconButton(
           onPressed: () {
-            if (node.isLeaf) {
-              node.delete();
-              return;
-            }
-            _exitEditing();
+             _cancelEditing(node);
           },
           icon: Tooltip(message: "取消修改", child: Icon(Icons.cancel_outlined)),
         ),
         IconButton(
           onPressed: () {
             if (node.data!.contentType != unknownValue) {
-              _exitEditing();
+              _confirmEditing(node);
             } else {
               errToast("请选择文本类型");
             }
