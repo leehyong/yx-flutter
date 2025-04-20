@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
@@ -30,6 +31,11 @@ class PublishItemsViewSimpleCrudState
   TreeNode<WorkHeader>? _isEditingNode;
   TreeNode<WorkHeader>? _isNewNode;
 
+  // 所有新增的节点需要跟当前任务进行绑定
+  Set<Int64> binds = {};
+  // 所有删除的节点需要跟当前任务进行解绑
+  List<int> unbinds = [];
+
   void addChildToNode([TreeNode<WorkHeader>? node]) {
     if (_isEditingNode != null) {
       errToast("请先完成节点信息修改，再操作");
@@ -45,6 +51,21 @@ class PublishItemsViewSimpleCrudState
     }
   }
 
+  // 遍历整棵树
+  void traverseTree(){
+    void innerTraverseTree(ITreeNode<WorkHeader> node){
+      if(node.key != INode.ROOT_KEY){
+        binds.add(node.data!.id);
+      }
+      for (final child in node.childrenAsList) {
+          innerTraverseTree(child as ITreeNode<WorkHeader>);
+      }
+    }
+    innerTraverseTree(widget.submitItemAnimatedTreeData);
+    debugPrint("allbinds:${binds.join(",")}");
+  }
+
+
   void  _cancelEditing(TreeNode<WorkHeader> node) {
     setState(() {
       if (node == _isNewNode) {
@@ -55,10 +76,14 @@ class PublishItemsViewSimpleCrudState
     });
   }
   void  _confirmEditing(TreeNode<WorkHeader> node) {
+    // node.elementAt(node.key)
+    // todo 如果当前节点是新增的节点，那么需要把其添加到绑定列表中
+    // node.key = 1.toString();
     setState(() {
       _isNewNode = null;
       _isEditingNode = null;
     });
+    traverseTree();
   }
 
   void _setCurEditingNode(TreeNode<WorkHeader> node) {
