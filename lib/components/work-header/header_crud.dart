@@ -33,9 +33,6 @@ class PublishItemsViewSimpleCrudState
 
   // 所有新增的节点需要跟当前任务进行绑定
   Set<Int64> binds = {};
-  // 所有删除的节点需要跟当前任务进行解绑
-  List<int> unbinds = [];
-
   void addChildToNode([TreeNode<WorkHeader>? node]) {
     if (_isEditingNode != null) {
       errToast("请先完成节点信息修改，再操作");
@@ -49,6 +46,13 @@ class PublishItemsViewSimpleCrudState
         _isNewNode = newNode;
       });
     }
+  }
+
+  void deleteNode(TreeNode<WorkHeader> node){
+    // todo： 调用接口去删除节点
+    // 只有叶节点才能删除
+    assert(node.isLeaf);
+    node.delete();
   }
 
   // 遍历整棵树
@@ -69,16 +73,25 @@ class PublishItemsViewSimpleCrudState
   void  _cancelEditing(TreeNode<WorkHeader> node) {
     setState(() {
       if (node == _isNewNode) {
-          node.delete();
+        node.delete();
       }
       _isNewNode = null;
       _isEditingNode = null;
     });
   }
   void  _confirmEditing(TreeNode<WorkHeader> node) {
-    // node.elementAt(node.key)
-    // todo 如果当前节点是新增的节点，那么需要把其添加到绑定列表中
-    // node.key = 1.toString();
+
+    if (node == _isNewNode) {
+      final parent = node.parent!;
+      // todo: 调用新增接口， 把数据存下来,删除新当前节点，并重新再父节点上增加一个新节点
+      node.delete();
+      final newNode = newEmptyHeaderTree("lhytest");
+      parent.add(newNode);
+      // 滚动到新节点，以便进行进行查看
+      treeViewController!.scrollToItem(newNode);
+    } else{
+      // todo: 确认时，会调用修改接口的把信息进行保存
+    }
     setState(() {
       _isNewNode = null;
       _isEditingNode = null;
@@ -341,8 +354,7 @@ class PublishItemsViewSimpleCrudState
             onPressed: () {
               debugPrint("删除当前节点 ${node.key}");
               if (node.isLeaf) {
-                node.delete();
-                // 删除当前节点
+                deleteNode(node);
               }
             },
             icon: Tooltip(
