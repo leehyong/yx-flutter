@@ -306,7 +306,7 @@ class NestedDfsWorkHeaderTreeItemView
       () => Center(
         child: IconButton(
           onPressed: () {
-            if (depth < maxSubmitItemDepthExclusive) {
+            if (depth < maxSubmitItemDepth) {
               // addNewHeaderTree(controller.children, "", controller);
               // controller.opsCount.value += 1;
               // controller.update(null, false);

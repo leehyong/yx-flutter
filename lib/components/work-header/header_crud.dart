@@ -10,8 +10,13 @@ import 'package:yx/utils/toast.dart';
 import 'controller.dart';
 
 class PublishItemsViewSimpleCrud extends StatefulWidget {
-  const PublishItemsViewSimpleCrud(this.submitItemAnimatedTreeData, {super.key,});
+  const PublishItemsViewSimpleCrud(
+    this.submitItemAnimatedTreeData, {
+    super.key,
+  });
+
   final TreeNode<WorkHeader> submitItemAnimatedTreeData;
+
   @override
   PublishItemsViewSimpleCrudState createState() =>
       PublishItemsViewSimpleCrudState();
@@ -19,7 +24,6 @@ class PublishItemsViewSimpleCrud extends StatefulWidget {
 
 class PublishItemsViewSimpleCrudState
     extends State<PublishItemsViewSimpleCrud> {
-
   // late final TreeNode<WorkHeader>  widget.submitItemAnimatedTreeData ;
   TreeViewController? treeViewController;
 
@@ -52,12 +56,12 @@ class PublishItemsViewSimpleCrudState
   }
 
   void expandAllChildren() {
-    treeViewController?.expandAllChildren( widget.submitItemAnimatedTreeData);
+    treeViewController?.expandAllChildren(widget.submitItemAnimatedTreeData);
   }
 
   void collapseAllChildren() {
     if (treeViewController != null) {
-      for (var node in  widget.submitItemAnimatedTreeData.children.values) {
+      for (var node in widget.submitItemAnimatedTreeData.children.values) {
         treeViewController?.collapseNode(node as ITreeNode);
       }
     }
@@ -67,7 +71,7 @@ class PublishItemsViewSimpleCrudState
   Widget build(BuildContext context) {
     return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
       showRootNode: false,
-      tree:  widget.submitItemAnimatedTreeData,
+      tree: widget.submitItemAnimatedTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
           (ctx, node) =>
@@ -323,16 +327,17 @@ class PublishItemsViewSimpleCrudState
               child: Icon(Icons.edit, size: 22, color: Colors.purple),
             ),
           ),
-        IconButton(
-          onPressed: () {
-            debugPrint("新增子节点成功");
-            addChildToNode(node);
-          },
-          icon: Tooltip(
-            message: "新增子项",
-            child: Icon(Icons.add, size: 22, color: Colors.blue),
+        if (node.level <= maxSubmitItemDepth)
+          IconButton(
+            onPressed: () {
+              debugPrint("新增子节点成功");
+              addChildToNode(node);
+            },
+            icon: Tooltip(
+              message: "新增子项",
+              child: Icon(Icons.add, size: 22, color: Colors.blue),
+            ),
           ),
-        ),
       ],
     );
   }

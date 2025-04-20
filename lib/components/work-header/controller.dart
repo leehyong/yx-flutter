@@ -10,7 +10,7 @@ import 'package:yx/types.dart';
 import 'header_crud.dart';
 import 'header_tree.dart';
 
-const maxSubmitItemDepthExclusive = 1;
+const maxSubmitItemDepth = 3;
 final submitItems = <WorkHeaderTree>[
   WorkHeaderTree(
     WorkHeader(name: "抖动点", id: Int64(114), contentType: 0, open: 0),
