@@ -111,7 +111,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           _publishTaskBasicInfoView(context),
         );
       case TaskAttributeCategory.submitItem:
-        return PublishItemsViewDetail();
+        return PublishSubmitItemsCrudView();
 
       case TaskAttributeCategory.parentTask:
         return _publishTaskParentInfoView(context);

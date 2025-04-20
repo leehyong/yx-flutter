@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
-import 'package:yx/utils/common_util.dart';
 
 import 'header_crud.dart';
 import 'header_tree.dart';
@@ -140,60 +138,40 @@ final submitItems = <WorkHeaderTree>[
   ),
 ];
 
-class PublishItemsController extends GetxController {
-  final isLoadingSubmitItem = false.obs;
+class PublishItemsDetailController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
-  final isEditing = false.obs;
+  final isLoadingSubmitItem = false.obs;
+}
+
+
+class PublishItemsCrudController extends GetxController {
+  final isLoadingSubmitItem = false.obs;
   final expandAll = false.obs;
   final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
-
-  final Rx<TreeNode<WorkHeader>> submitItemAnimatedTreeData =
-      TreeNode<WorkHeader>.root(data: WorkHeader.create()).obs;
-  final Rx<TreeViewController?> treeViewController =
-      (null as TreeViewController?).obs;
-  final submitItemsMap = HashMap<Int64, WorkHeaderTree>().obs;
-
-  void _buildSubmitItemsMap() {
-    void buildMap(List<WorkHeaderTree> tree) {
-      for (var item in tree) {
-        submitItemsMap.value[item.task.id] = item;
-        buildMap(item.children);
-      }
-    }
-
-    buildMap(submitItems);
-  }
-
-  Function debounceBuildSubmitItemsMap() {
-    // 500毫秒内避免重复构建 submitItemsMap
-    return commonDebounceByTimer(
-      _buildSubmitItemsMap,
-      Duration(milliseconds: 500),
-    );
-  }
+  final submitItemAnimatedTreeData =  TreeNode<WorkHeader>.root();
 
   @override
   void onInit() {
     super.onInit();
     // _buildSubmitItemsMap();
-    // buildAnimatedTreeViewData();
+    _buildAnimatedTreeViewData();
   }
 
-  // void buildAnimatedTreeViewData() {
-  //   // dfs 遍历获取所有的 TreeNode
-  //   TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
-  //     final node = TreeNode(key: tree.task.id.toString(), data: tree.task);
-  //     node.addAll(
-  //       tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
-  //     );
-  //     return node;
-  //   }
-  //
-  //   submitItemAnimatedTreeData.value.addAll(
-  //     submitItems.map((item) => innerBuildAnimatedTreeViewData(item)),
-  //   );
-  //   debugPrint("1111buildAnimatedTreeViewData");
-  // }
+  void _buildAnimatedTreeViewData() {
+    // dfs 遍历获取所有的 TreeNode
+    TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
+      // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
+      final node = TreeNode(key: "${tree.task.id}::__inner", data: tree.task);
+      node.addAll(
+        tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
+      );
+      return node;
+    }
+
+    submitItemAnimatedTreeData.addAll(
+      submitItems.map((item) => innerBuildAnimatedTreeViewData(item)),
+    );
+  }
 }
 
 class WorkHeaderController extends GetxController {

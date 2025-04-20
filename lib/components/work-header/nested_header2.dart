@@ -12,9 +12,91 @@ import 'controller.dart';
 import 'header_crud.dart';
 import 'header_tree.dart';
 
-class PublishItemsViewDetail extends GetView<PublishItemsController> {
+class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
+  PublishSubmitItemsCrudView({super.key}) {
+    Get.put(PublishItemsCrudController());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // final cnt = min(3, controller.submitItems.length);
+    return Column(
+      children: [
+        Obx(() => _buildHeaderActions(context)),
+        Expanded(
+          child: RepaintBoundary(
+            child: PublishItemsViewSimpleCrud(
+              controller.submitItemAnimatedTreeData,
+              key: controller.itemsSimpleCrudKey,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeaderActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      spacing: 10,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            controller.expandAll.value = !controller.expandAll.value;
+            if (controller.expandAll.value) {
+              controller.itemsSimpleCrudKey.currentState?.expandAllChildren();
+            } else {
+              controller.itemsSimpleCrudKey.currentState?.collapseAllChildren();
+            }
+          },
+          child: Row(
+            children: [
+              Icon(
+                controller.expandAll.value
+                    ? Icons.arrow_right_alt_rounded
+                    : Icons.arrow_downward,
+              ),
+              Text(controller.expandAll.value ? "全部折叠" : "全部展开"),
+            ],
+          ),
+        ),
+        Spacer(),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade50, // 背景色
+            foregroundColor: Colors.black,
+            padding: EdgeInsets.all(4),
+            // 文字颜色
+          ),
+          onPressed: () {
+            debugPrint("选择任务项成功");
+            controller.itemsSimpleCrudKey.currentState?.addChildToNode();
+          },
+          child: const Text("选择"),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade400, // 背景色
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.all(4),
+            // 文字颜色
+          ),
+          onPressed: () {
+            controller.itemsSimpleCrudKey.currentState?.addChildToNode();
+
+            debugPrint("新增任务项成功");
+          },
+          child: const Text("新增"),
+        ),
+      ],
+    );
+  }
+}
+
+// todo: 后续 填报任务项的时候使用它
+class PublishItemsViewDetail extends GetView<PublishItemsDetailController> {
   PublishItemsViewDetail({super.key}) {
-    Get.put(PublishItemsController());
+    Get.put(PublishItemsDetailController());
   }
 
   Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {
@@ -62,96 +144,6 @@ class PublishItemsViewDetail extends GetView<PublishItemsController> {
 
   @override
   Widget build(BuildContext context) {
-    // final cnt = min(3, controller.submitItems.length);
-    return Obx(
-      () => Column(
-        children: [
-          _buildHeaderActions(context),
-          Expanded(
-            child:
-                controller.isEditing.value
-                    ? PublishItemsViewSimpleCrud(
-                      key: controller.itemsSimpleCrudKey,
-                    )
-                    : _buildItemsDetail(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      spacing: 10,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            controller.isEditing.value = !controller.isEditing.value;
-          },
-          child: Row(
-            children: [
-              Icon(controller.isEditing.value ? Icons.arrow_back : Icons.edit),
-              Text(controller.isEditing.value ? "返回" : "编辑"),
-            ],
-          ),
-        ),
-
-        if (controller.isEditing.value) ...[
-          ElevatedButton(
-            onPressed: () {
-              controller.expandAll.value = !controller.expandAll.value;
-              if (controller.expandAll.value) {
-                controller.itemsSimpleCrudKey.currentState?.expandAllChildren();
-              } else {
-                controller.itemsSimpleCrudKey.currentState?.collapseAllChildren();
-              }
-            },
-            child: Row(
-              children: [
-                Icon(
-                  controller.expandAll.value
-                      ? Icons.arrow_right_alt_rounded
-                      : Icons.arrow_downward,
-                ),
-                Text(controller.expandAll.value ? "全部折叠" : "全部展开"),
-              ],
-            ),
-          ),
-          Spacer(),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade50, // 背景色
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.all(4),
-              // 文字颜色
-            ),
-            onPressed: () {
-              debugPrint("选择任务项成功");
-              controller.itemsSimpleCrudKey.currentState?.addChildToNode();
-            },
-            child: const Text("选择"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade400, // 背景色
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.all(4),
-              // 文字颜色
-            ),
-            onPressed: () {
-              controller.itemsSimpleCrudKey.currentState?.addChildToNode();
-
-              debugPrint("新增任务项成功");
-            },
-            child: const Text("新增"),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildItemsDetail(BuildContext context) {
     return LayoutBuilder(
       builder: (ctx, constraints) {
         // final crossCount = constraints.maxWidth >= 720 ? 4 : 1;

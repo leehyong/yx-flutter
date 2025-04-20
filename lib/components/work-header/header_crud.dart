@@ -8,11 +8,10 @@ import 'package:yx/utils/common_widget.dart';
 import 'package:yx/utils/toast.dart';
 
 import 'controller.dart';
-import 'header_tree.dart';
 
 class PublishItemsViewSimpleCrud extends StatefulWidget {
-  const PublishItemsViewSimpleCrud({super.key});
-
+  const PublishItemsViewSimpleCrud(this.submitItemAnimatedTreeData, {super.key,});
+  final TreeNode<WorkHeader> submitItemAnimatedTreeData;
   @override
   PublishItemsViewSimpleCrudState createState() =>
       PublishItemsViewSimpleCrudState();
@@ -20,18 +19,11 @@ class PublishItemsViewSimpleCrud extends StatefulWidget {
 
 class PublishItemsViewSimpleCrudState
     extends State<PublishItemsViewSimpleCrud> {
-  final TreeNode<WorkHeader> _submitItemAnimatedTreeData =
-      TreeNode<WorkHeader>.root();
+
+  // late final TreeNode<WorkHeader>  widget.submitItemAnimatedTreeData ;
   TreeViewController? treeViewController;
 
   TreeNode<WorkHeader>? _isEditingNode;
-
-  PublishItemsViewSimpleCrudState() {
-    // todo： 跟 PublishItemsViewDetail 复用相同的数据结构，从而避免数据的重复转换
-    // todo： 在 PublishItemsController 里初始化这个树形结构，从而可能实现复用
-    // todo： 明天尝试
-    _buildAnimatedTreeViewData();
-  }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {
     if (_isEditingNode != null) {
@@ -39,7 +31,7 @@ class PublishItemsViewSimpleCrudState
       treeViewController?.scrollToItem(_isEditingNode!);
     } else {
       final newNode = newEmptyHeaderTree();
-      (node ?? _submitItemAnimatedTreeData).add(newNode);
+      (node ?? widget.submitItemAnimatedTreeData).add(newNode);
       // 修改状态
       setState(() {
         _isEditingNode = newNode;
@@ -60,38 +52,22 @@ class PublishItemsViewSimpleCrudState
   }
 
   void expandAllChildren() {
-    treeViewController?.expandAllChildren(_submitItemAnimatedTreeData);
+    treeViewController?.expandAllChildren( widget.submitItemAnimatedTreeData);
   }
 
   void collapseAllChildren() {
     if (treeViewController != null) {
-      for (var node in _submitItemAnimatedTreeData.children.values) {
+      for (var node in  widget.submitItemAnimatedTreeData.children.values) {
         treeViewController?.collapseNode(node as ITreeNode);
       }
     }
-  }
-
-  void _buildAnimatedTreeViewData() {
-    // dfs 遍历获取所有的 TreeNode
-    TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
-      // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
-      final node = TreeNode(key: "${tree.task.id}::__inner", data: tree.task);
-      node.addAll(
-        tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
-      );
-      return node;
-    }
-
-    _submitItemAnimatedTreeData.addAll(
-      submitItems.map((item) => innerBuildAnimatedTreeViewData(item)),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
       showRootNode: false,
-      tree: _submitItemAnimatedTreeData,
+      tree:  widget.submitItemAnimatedTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
           (ctx, node) =>
