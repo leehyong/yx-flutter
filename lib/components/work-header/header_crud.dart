@@ -29,10 +29,12 @@ class PublishItemsViewSimpleCrudState
   TreeViewController? treeViewController;
 
   TreeNode<WorkHeader>? _isEditingNode;
+  WorkHeader? _isEditingNodeData;
   TreeNode<WorkHeader>? _isNewNode;
 
   // 所有新增的节点需要跟当前任务进行绑定
   Set<Int64> binds = {};
+
   void addChildToNode([TreeNode<WorkHeader>? node]) {
     if (_isEditingNode != null) {
       errToast("请先完成节点信息修改，再操作");
@@ -43,12 +45,14 @@ class PublishItemsViewSimpleCrudState
       // 修改状态
       setState(() {
         _isEditingNode = newNode;
+        // bugfix: 复制 newNode 的数据，避免在取消编辑的时候也会修改原来的数据
+        _isEditingNodeData = _deepCopyNodeData(newNode.data!);
         _isNewNode = newNode;
       });
     }
   }
 
-  void deleteNode(TreeNode<WorkHeader> node){
+  void deleteNode(TreeNode<WorkHeader> node) {
     // todo： 调用接口去删除节点
     // 只有叶节点才能删除
     assert(node.isLeaf);
@@ -56,51 +60,60 @@ class PublishItemsViewSimpleCrudState
   }
 
   // 遍历整棵树
-  void traverseTree(){
-    void innerTraverseTree(ITreeNode<WorkHeader> node){
-      if(node.key != INode.ROOT_KEY){
+  void traverseTree() {
+    void innerTraverseTree(ITreeNode<WorkHeader> node) {
+      if (node.key != INode.ROOT_KEY) {
         binds.add(node.data!.id);
       }
       for (final child in node.childrenAsList) {
-          innerTraverseTree(child as ITreeNode<WorkHeader>);
+        innerTraverseTree(child as ITreeNode<WorkHeader>);
       }
     }
+
     innerTraverseTree(widget.submitItemAnimatedTreeData);
     debugPrint("allbinds:${binds.join(",")}");
   }
 
+  void _cancelEditing(TreeNode<WorkHeader> node) {
+    //取消时，不需要改变 node.data
+    if (node == _isNewNode) {
+      node.delete();
+    }
+    _resetNodeState();
+  }
 
-  void  _cancelEditing(TreeNode<WorkHeader> node) {
+  void _resetNodeState(){
     setState(() {
-      if (node == _isNewNode) {
-        node.delete();
-      }
+      _isEditingNodeData = null;
       _isNewNode = null;
       _isEditingNode = null;
     });
   }
-  void  _confirmEditing(TreeNode<WorkHeader> node) {
 
+  WorkHeader _deepCopyNodeData(WorkHeader data) =>
+      WorkHeader.fromJson(data.writeToJson());
+
+  void _confirmEditing(TreeNode<WorkHeader> node) {
+    // 把修改的数据保存到node上
+    node.data = _deepCopyNodeData(_isEditingNodeData!);
     if (node == _isNewNode) {
       final parent = node.parent!;
       // todo: 调用新增接口， 把数据存下来,删除新当前节点，并重新再父节点上增加一个新节点
       node.delete();
-      final newNode = newEmptyHeaderTree("lhytest");
+      final newNode = newEmptyHeaderTree(name: "lhytest");
       parent.add(newNode);
       // 滚动到新节点，以便进行进行查看
       treeViewController!.scrollToItem(newNode);
-    } else{
+    } else {
       // todo: 确认时，会调用修改接口的把信息进行保存
     }
-    setState(() {
-      _isNewNode = null;
-      _isEditingNode = null;
-    });
+    _resetNodeState();
     traverseTree();
   }
 
   void _setCurEditingNode(TreeNode<WorkHeader> node) {
     setState(() {
+      _isEditingNodeData = _deepCopyNodeData(node.data!);
       _isEditingNode = node;
     });
   }
@@ -191,11 +204,15 @@ class PublishItemsViewSimpleCrudState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
-                controller: TextEditingController()..text = node.data!.name,
+                controller:
+                    TextEditingController()..text = _isEditingNodeData!.name,
                 decoration: InputDecoration(
                   labelText: "填报项名称",
                   icon: Icon(Icons.text_snippet_outlined),
                 ),
+                onChanged: (v) {
+                  _isEditingNodeData!.name = v;
+                },
               ),
               _buildWritingItemHeaderRequiredAttributes(context, node),
             ],
@@ -217,20 +234,20 @@ class PublishItemsViewSimpleCrudState
       children: [
         Expanded(
           child: DropdownButtonFormField(
-            value: node.data!.required,
+            value: _isEditingNodeData!.required,
             items: [
               DropdownMenuItem(value: true, child: Text("是")),
               DropdownMenuItem(value: false, child: Text("否")),
             ],
             decoration: InputDecoration(labelText: "是否必填项"),
             onChanged: (v) {
-              node.data!.required = v!;
+              _isEditingNodeData!.required = v!;
             },
           ),
         ),
         Expanded(
           child: DropdownButtonFormField(
-            value: node.data!.contentType,
+            value: _isEditingNodeData!.contentType,
             items: [
               DropdownMenuItem(value: unknownValue, child: const Text("未知")),
               ...TaskTextType.values.map(
@@ -239,7 +256,7 @@ class PublishItemsViewSimpleCrudState
             ],
             decoration: InputDecoration(
               errorText:
-                  node.data!.contentType == unknownValue ? "请选择文本类型" : null,
+              _isEditingNodeData!.contentType == unknownValue ? "请选择文本类型" : null,
               label: Row(
                 spacing: 2,
                 children: [
@@ -250,14 +267,14 @@ class PublishItemsViewSimpleCrudState
             ),
             onChanged: (v) {
               setState(() {
-                node.data!.contentType = v!;
+                _isEditingNodeData!.contentType = v!;
               });
             },
           ),
         ),
         Expanded(
           child: DropdownButtonFormField(
-            value: node.data!.open,
+            value: _isEditingNodeData!.open,
             items:
                 TaskOpenRange.values
                     .map(
@@ -274,7 +291,7 @@ class PublishItemsViewSimpleCrudState
               ),
             ),
             onChanged: (v) {
-              node.data!.open = v!;
+              _isEditingNodeData!.open = v!;
             },
           ),
         ),
@@ -291,13 +308,13 @@ class PublishItemsViewSimpleCrudState
       children: [
         IconButton(
           onPressed: () {
-             _cancelEditing(node);
+            _cancelEditing(node);
           },
           icon: Tooltip(message: "取消修改", child: Icon(Icons.cancel_outlined)),
         ),
         IconButton(
           onPressed: () {
-            if (node.data!.contentType != unknownValue) {
+            if (_isEditingNodeData!.contentType != unknownValue) {
               _confirmEditing(node);
             } else {
               errToast("请选择文本类型");

@@ -143,12 +143,13 @@ class PublishItemsDetailController extends GetxController {
   final isLoadingSubmitItem = false.obs;
 }
 
+const innerNodeKey = "::__inner";
 
 class PublishItemsCrudController extends GetxController {
   final isLoadingSubmitItem = false.obs;
   final expandAll = false.obs;
   final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
-  final submitItemAnimatedTreeData =  TreeNode<WorkHeader>.root();
+  final submitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
 
   @override
   void onInit() {
@@ -161,7 +162,10 @@ class PublishItemsCrudController extends GetxController {
     // dfs 遍历获取所有的 TreeNode
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
       // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
-      final node = TreeNode(key: "${tree.task.id}::__inner", data: tree.task);
+      final node = TreeNode(
+        key: "${tree.task.id}$innerNodeKey",
+        data: tree.task,
+      );
       node.addAll(
         tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
       );
@@ -214,19 +218,20 @@ class OneWorkHeaderItemController extends GetxController {
   // }
 }
 
-
-
-TreeNode<WorkHeader> newEmptyHeaderTree([String? name]) {
-  final id = Int64(DateTime.now().microsecondsSinceEpoch);
-  final key = id.toString();
-  return TreeNode(
-    key: key,
-    data: WorkHeader(
+TreeNode<WorkHeader> newEmptyHeaderTree({String? name, WorkHeader? data}) {
+  String key;
+  if (data == null) {
+    final id = Int64(DateTime.now().microsecondsSinceEpoch);
+    key = "$id$innerNodeKey";
+    data = WorkHeader(
       name: "子项-${name ?? key}",
       id: id,
       contentType: unknownValue,
       open: Random().nextInt(TaskOpenRange.values.length),
       required: Random().nextBool(),
-    ),
-  );
+    );
+  } else {
+    key = "${data.id}$innerNodeKey";
+  }
+  return TreeNode(key: key, data: data);
 }
