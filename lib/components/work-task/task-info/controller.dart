@@ -7,6 +7,9 @@ import 'package:yx/types.dart';
 
 class PublishTaskController extends GetxController {
   final GlobalKey formKey = GlobalKey<FormState>();
+  late final Int64 taskId;
+  late final Int64 parentId;
+  PublishTaskController( this.parentId, this.taskId);
   final taskNameController = TextEditingController();
   final taskContentController = TextEditingController();
   final taskPlanStartDtController = TextEditingController();

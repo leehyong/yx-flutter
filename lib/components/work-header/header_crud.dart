@@ -35,6 +35,12 @@ class PublishItemsViewSimpleCrudState
   // 所有新增的节点需要跟当前任务进行绑定
   Set<Int64> binds = {};
 
+  void addChildrenToRoot(Iterable<WorkHeader> children) {
+    widget.submitItemAnimatedTreeData.addAll(
+      children.map((item) => newEmptyHeaderTree(data: item)),
+    );
+  }
+
   void addChildToNode([TreeNode<WorkHeader>? node]) {
     if (_isEditingNode != null) {
       errToast("请先完成节点信息修改，再操作");

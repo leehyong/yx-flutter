@@ -1,3 +1,4 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 
@@ -87,7 +88,7 @@ extension TaskListCategoryExtension on TaskListCategory {
   ];
 }
 
-enum TaskOperationCategory { detailTask, publishTask, submitTask }
+enum TaskOperationCategory { detailTask, publishTask, submitTask, updateTask }
 
 extension TaskOperationCategoryExtension on TaskOperationCategory {
   String get i18name {
@@ -98,6 +99,8 @@ extension TaskOperationCategoryExtension on TaskOperationCategory {
         return '发布任务';
       case TaskOperationCategory.submitTask:
         return '填报任务';
+      case TaskOperationCategory.updateTask:
+        return '修改任务';
     }
   }
 }
@@ -148,11 +151,12 @@ extension TaskCreditStrategyExtension on TaskCreditStrategy {
 }
 
 class HallPublishTaskParams {
-  const HallPublishTaskParams(this.parentId, this.routeId, this.task);
+  const HallPublishTaskParams(this.parentId, this.routeId, this.task, {this.opCat});
 
-  final int parentId;
+  final Int64 parentId;
   final int routeId;
   final WorkTask? task;
+  final TaskOperationCategory? opCat;
 }
 
 enum TaskSubmitCycleStrategy {
@@ -210,6 +214,7 @@ extension TaskOpenRangeExtension on TaskOpenRange {
     );
   }
 }
+
 const unknownValue = -1;
 
 enum TaskTextType { text, int, float, phone, email }
@@ -232,7 +237,7 @@ extension TaskTextTypeExtension on TaskTextType {
 
   static TaskTextType fromInt(int idx) {
     return TaskTextType.values.firstWhere(
-          (v) => v.index == idx,
+      (v) => v.index == idx,
       orElse: () => TaskTextType.text,
     );
   }

@@ -1,3 +1,4 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/root/nest_nav_key.dart';
@@ -23,7 +24,7 @@ class TaskHallView extends GetView<TaskHallController> {
                 id: NestedNavigatorKeyId.hallId,
 
                 arguments: const HallPublishTaskParams(
-                  0,
+                  Int64.ZERO,
                   NestedNavigatorKeyId.hallId,
                   null,
                 ),

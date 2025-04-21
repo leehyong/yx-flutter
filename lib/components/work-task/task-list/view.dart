@@ -1,3 +1,4 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -6,6 +7,7 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
+import '../task-info/view.dart';
 import 'controller.dart';
 
 class TaskListView extends StatelessWidget {
@@ -90,7 +92,20 @@ class OneTaskView extends GetView<OneTaskController> {
     return commonCard(
       GestureDetector(
         onTap: () {
-          debugPrint("点击了详情${task.id};$taskCategory");
+          if (taskCategory == TaskListCategory.myManuscript) {
+            Get.to(
+              TaskInfoView(
+                publishTaskParams: HallPublishTaskParams(
+                  Int64.ZERO,
+                  routeId,
+                  task,
+                  opCat: TaskOperationCategory.updateTask,
+                ),
+              ),
+            );
+          } else {
+            debugPrint("点击了详情${task.id};$taskCategory");
+          }
         },
         child: Column(
           children: [
@@ -385,7 +400,7 @@ class OneTaskView extends GetView<OneTaskController> {
               debugPrint("${task.name}任务详情！");
               Get.toNamed(
                 '/task_detail',
-                arguments: "${task.id};$taskCategory",
+                arguments: HallPublishTaskParams(0, routeId, null),
                 id: routeId,
               );
             },

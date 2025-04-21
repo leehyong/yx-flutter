@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/toast.dart';
@@ -11,10 +12,11 @@ import '../../utils/common_widget.dart';
 import 'controller.dart';
 import 'header_crud.dart';
 import 'header_tree.dart';
+import 'select_submit_item.dart';
 
 class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
-  PublishSubmitItemsCrudView({super.key}) {
-    Get.put(PublishItemsCrudController());
+  PublishSubmitItemsCrudView(Int64 curTaskId, {super.key}) {
+    Get.put(PublishItemsCrudController(curTaskId));
   }
 
   @override
@@ -60,7 +62,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
             ],
           ),
         ),
-        Spacer(),
+        const Spacer(),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue.shade50, // 背景色
@@ -69,8 +71,68 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
             // 文字颜色
           ),
           onPressed: () {
-            debugPrint("选择任务项成功");
-            controller.itemsSimpleCrudKey.currentState?.addChildToNode();
+            WoltModalSheet.show(
+              onModalDismissedWithBarrierTap: () {
+                Navigator.of(context).maybePop();
+              },
+              useSafeArea: true,
+              context: context,
+              modalTypeBuilder: (BuildContext context) {
+                final width = MediaQuery.sizeOf(context).width;
+                if (width < 600) {
+                  return const WoltBottomSheetType(showDragHandle: false);
+                } else if (width < 1000) {
+                  return WoltModalType.dialog();
+                } else {
+                  return WoltModalType.sideSheet();
+                }
+              },
+              pageListBuilder:
+                  (modalSheetContext) => [
+                    WoltModalSheetPage(
+                      topBarTitle: Center(
+                        child: Text(
+                          "请选择任务项",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                          ),
+                        ),
+                      ),
+                      hasTopBarLayer: true,
+                      // hasSabGradient: false,
+                      isTopBarLayerAlwaysVisible: true,
+                      leadingNavBarWidget: IconButton(
+                        padding: const EdgeInsets.all(4),
+                        icon: Text("重置"),
+                        onPressed: () {
+                          Navigator.of(modalSheetContext).pop();
+                        },
+                      ),
+                      trailingNavBarWidget: IconButton(
+                        padding: const EdgeInsets.all(4),
+                        icon: Text("确定", style: TextStyle(color: Colors.blue)),
+                        // icon: Text("确定"),
+                        onPressed: () {
+                          controller.itemsSimpleCrudKey.currentState
+                              ?.addChildToNode();
+                          Navigator.of(modalSheetContext).maybePop();
+                        },
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: GetPlatform.isMobile ? 500 : 800,
+                        ),
+                        child: SelectSubmitItemView(
+                          controller.itemsSimpleCrudKey,
+                          controller.curTaskId,
+                        ),
+                      ),
+                    ),
+                    // child: ,
+                  ],
+            );
           },
           child: const Text("选择"),
         ),
@@ -82,9 +144,8 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
             // 文字颜色
           ),
           onPressed: () {
-            controller.itemsSimpleCrudKey.currentState?.addChildToNode();
-
-            debugPrint("新增任务项成功");
+            // todo:
+            controller.itemsSimpleCrudKey.currentState?.addChildrenToRoot([]);
           },
           child: const Text("新增"),
         ),
