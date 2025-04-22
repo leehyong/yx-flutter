@@ -6,7 +6,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 
 import '../../utils/common_widget.dart';
 import 'controller.dart';
-import 'header_tree.dart';
+import 'header_data.dart';
 
 class NestedWorkHeaderTreeView extends GetView<WorkHeaderController> {
   NestedWorkHeaderTreeView(

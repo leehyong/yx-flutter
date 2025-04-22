@@ -163,6 +163,7 @@ class PublishItemsViewSimpleCrudState
   Widget build(BuildContext context) {
     return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
       showRootNode: false,
+      focusToNewNode: true,
       tree: widget.submitItemAnimatedTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
@@ -208,18 +209,43 @@ class PublishItemsViewSimpleCrudState
   }
 
   Widget _buildReadonlyItemHeader(BuildContext ctx, TreeNode<WorkHeader> node) {
-    return _buildItemHeader(context, node);
-    // return Stack(
-    //   children: [
-    //     _buildItemHeader(context, node),
-    //     Positioned(
-    //       top: 0,
-    //       bottom: 0,
-    //       right: 4,
-    //       child: Row(children: [_buildItemAction(context, node)]),
-    //     ),
-    //   ],
-    // );
+    final item = Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(width: 18),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            // spacing: 8,
+            children: [
+              Tooltip(
+                message: node.data!.name,
+                child: Text(
+                  node.data!.name,
+                  style: TextStyle(
+                    fontSize: 18,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              SizedBox(height: 6),
+              buildTaskOpenRangeAndContentType(node.data!, isRow: true),
+            ],
+          ),
+        ),
+        if (!widget.readOnly) _buildItemAction(context, node),
+      ],
+    );
+    final cnt = node.children.length;
+    return cnt == 0
+        ? item
+        : Badge.count(
+          alignment: Alignment.topLeft,
+          count: node.children.length,
+          child: item,
+        );
   }
 
   Widget _buildWritingItemHeader(
@@ -359,46 +385,6 @@ class PublishItemsViewSimpleCrudState
         ),
       ],
     );
-  }
-
-  Widget _buildItemHeader(BuildContext context, TreeNode<WorkHeader> node) {
-    final item = Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(width: 18),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            // spacing: 8,
-            children: [
-              Tooltip(
-                message: node.data!.name,
-                child: Text(
-                  node.data!.name,
-                  style: TextStyle(
-                    fontSize: 18,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              SizedBox(height: 6),
-              buildTaskOpenRangeAndContentType(node.data!, isRow: true),
-            ],
-          ),
-        ),
-        if (!widget.readOnly) _buildItemAction(context, node),
-      ],
-    );
-    final cnt = node.children.length;
-    return cnt == 0
-        ? item
-        : Badge.count(
-          alignment: Alignment.topLeft,
-          count: node.children.length,
-          child: item,
-        );
   }
 
   Widget _buildItemAction(BuildContext ctx, TreeNode<WorkHeader> node) {

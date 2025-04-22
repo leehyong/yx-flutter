@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import 'controller.dart';
-import 'header_tree.dart';
+import 'header_data.dart';
 
 const columnWidths = {
   0: FixedColumnWidth(120), // 父表格第一列宽100

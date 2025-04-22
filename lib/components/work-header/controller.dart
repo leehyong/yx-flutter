@@ -8,7 +8,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
 import 'header_crud.dart';
-import 'header_tree.dart';
+import 'header_data.dart';
 
 const maxSubmitItemDepth = 3;
 final submitItems = <WorkHeaderTree>[
@@ -221,27 +221,26 @@ class OneWorkHeaderItemController extends GetxController {
   // }
 }
 
+WorkHeader newEmptyWorkHeader({String? name}) {
+  final id = Int64(DateTime.now().microsecondsSinceEpoch);
+  final key = "$id$innerNodeKey";
+  return WorkHeader(
+    name: "子项-${name ?? key}",
+    id: id,
+    contentType: unknownValue,
+    open: Random().nextInt(TaskOpenRange.values.length),
+    required: Random().nextBool(),
+  );
+}
+
 TreeNode<WorkHeader> newEmptyHeaderTree({String? name, WorkHeader? data}) {
   String key;
   if (data == null) {
     final id = Int64(DateTime.now().microsecondsSinceEpoch);
     key = "$id$innerNodeKey";
-    data = WorkHeader(
-      name: "子项-${name ?? key}",
-      id: id,
-      contentType: unknownValue,
-      open: Random().nextInt(TaskOpenRange.values.length),
-      required: Random().nextBool(),
-    );
+    data = newEmptyWorkHeader(name: name);
   } else {
     key = "${data.id}$innerNodeKey";
   }
   return TreeNode(key: key, data: data);
-}
-
-class SelectSubmitItemsController extends GetxController {
-  final GlobalKey<PublishItemsViewSimpleCrudState> treeStateKey;
-  Int64 taskId;
-
-  SelectSubmitItemsController(this.treeStateKey, this.taskId);
 }
