@@ -12,3 +12,9 @@ abstract class Routes {
   static String LOGIN_THEN(String afterSuccessfulLogin) =>
       '$login?then=${Uri.encodeQueryComponent(afterSuccessfulLogin)}';
 }
+
+abstract class HallRoutes {
+  static const hallList = '/hall';
+  static const hallTaskDetail = '/hall/task/detail';
+  static const hallTaskPublish = '/hall/task/publish';
+}

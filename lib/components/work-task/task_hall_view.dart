@@ -2,6 +2,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/root/nest_nav_key.dart';
+import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
 
 import 'hall_controller.dart';
@@ -20,7 +21,7 @@ class TaskHallView extends GetView<TaskHallController> {
             onPressed: () {
               debugPrint("发布了");
               Get.toNamed(
-                '/hall/task/publish',
+                HallRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
 
                 arguments: const HallPublishTaskParams(

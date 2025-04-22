@@ -22,25 +22,41 @@ class SelectSubmitItemView extends StatefulWidget {
 
 class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
   final TreeNode<CheckableWorkHeader> _checkableTree =
-  TreeNode<CheckableWorkHeader>.root();
+      TreeNode<CheckableWorkHeader>.root();
 
   Iterable<TreeNode<WorkHeader>> get allCheckedNode sync* {
     final queue = Queue.from(_checkableTree.childrenAsList);
     TreeNode<CheckableWorkHeader> node;
     TreeNode<CheckableWorkHeader> childNode;
     final nodeParents = <String, TreeNode<WorkHeader>?>{};
+
     // 层序遍历， 方便记录所有节点的父节点
     while (queue.isNotEmpty) {
       node = queue.first as TreeNode<CheckableWorkHeader>;
       TreeNode<WorkHeader>? parent;
       if (node.data!.checked) {
-         // 只有选中的节点才会返回
-         parent = nodeParents.containsKey(node.key)
-            ? nodeParents[node.key]
-            : null;
-        yield TreeNode<WorkHeader>(data: node.data!.header, key: node.key, parent: parent);
+        // 只有选中的节点才会返回
+        parent =
+            nodeParents.containsKey(node.key) ? nodeParents[node.key] : null;
+        if (parent == null) {
+          parent = TreeNode<WorkHeader>(
+            data: node.data!.header,
+            key: node.key,
+            parent: parent,
+          );
+          // 只返回根级节点，避免子节点与根节点平级
+          yield parent;
+        } else {
+          parent.add(
+            TreeNode<WorkHeader>(
+              data: node.data!.header,
+              key: node.key,
+              parent: parent,
+            ),
+          );
+        }
       }
-      for(var child in node.childrenAsList){
+      for (var child in node.childrenAsList) {
         childNode = child as TreeNode<CheckableWorkHeader>;
         nodeParents[childNode.key] = parent;
         queue.add(child);
@@ -71,15 +87,14 @@ class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
   @override
   Widget build(BuildContext context) {
     return TreeView.simpleTyped<
-        CheckableWorkHeader,
-        TreeNode<CheckableWorkHeader>
+      CheckableWorkHeader,
+      TreeNode<CheckableWorkHeader>
     >(
       showRootNode: false,
       tree: _checkableTree,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
-          (ctx, node) =>
-          ChevronIndicator.rightDown(
+          (ctx, node) => ChevronIndicator.rightDown(
             tree: node,
             alignment: Alignment.centerLeft,
             color: Colors.red,
@@ -93,7 +108,7 @@ class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
         }
         final colorIdx =
             Random(node.data!.header.id.toInt()).nextInt(10000) %
-                loadingColors.length;
+            loadingColors.length;
         // 把颜色做成随机透明的
         // 区分编辑和只读
         return Container(
@@ -112,8 +127,21 @@ class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
     );
   }
 
-  Widget _buildReadonlyItemHeader(BuildContext ctx,
-      TreeNode<CheckableWorkHeader> node,) {
+  void _recursiveSelectNodes(TreeNode<CheckableWorkHeader> node, bool checked) {
+    node.data!.checked = checked;
+    TreeNode<CheckableWorkHeader> childNode;
+    // 递归更改其子节点的状态
+    for (var child in node.childrenAsList) {
+      childNode = child as TreeNode<CheckableWorkHeader>;
+      childNode.data!.checked = checked;
+      _recursiveSelectNodes(child, checked);
+    }
+  }
+
+  Widget _buildReadonlyItemHeader(
+    BuildContext ctx,
+    TreeNode<CheckableWorkHeader> node,
+  ) {
     final item = Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -122,14 +150,9 @@ class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
         Checkbox(
           value: node.data!.checked,
           onChanged: (v) {
-            // setState(() {
-            node.data!.checked = v!;
-            // 递归更改其子节点的状态
-            for (var child in node.childrenAsList) {
-              final childNode = child as TreeNode<CheckableWorkHeader>;
-              childNode.data!.checked = v!;
-            }
-            // });
+            setState(() {
+              _recursiveSelectNodes(node, v!);
+            });
           },
         ),
         Expanded(
@@ -159,9 +182,9 @@ class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
     return cnt == 0
         ? item
         : Badge.count(
-      alignment: Alignment.topLeft,
-      count: node.children.length,
-      child: item,
-    );
+          alignment: Alignment.topLeft,
+          count: node.children.length,
+          child: item,
+        );
   }
 }

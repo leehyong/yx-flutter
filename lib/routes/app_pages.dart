@@ -8,10 +8,10 @@ import '../modules/change-pwd/bindings/change_pwd_binding.dart';
 import '../modules/change-pwd/views/change_pwd_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
-import '../root/bindings/root_binding.dart';
-import '../root/views/root_view.dart';
 import '../modules/settings/bindings/settings_binding.dart';
 import '../modules/settings/views/settings_view.dart';
+import '../root/bindings/root_binding.dart';
+import '../root/views/root_view.dart';
 
 part 'app_routes.dart';
 

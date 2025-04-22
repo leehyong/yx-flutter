@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../task-info/view.dart';
 import 'controller.dart';
 
 class TaskListView extends StatelessWidget {
@@ -92,20 +92,40 @@ class OneTaskView extends GetView<OneTaskController> {
     return commonCard(
       GestureDetector(
         onTap: () {
-          if (taskCategory == TaskListCategory.myManuscript) {
-            Get.to(
-              TaskInfoView(
-                publishTaskParams: HallPublishTaskParams(
-                  Int64.ZERO,
-                  routeId,
-                  task,
-                  opCat: TaskOperationCategory.updateTask,
-                ),
-              ),
-            );
-          } else {
-            debugPrint("点击了详情${task.id};$taskCategory");
+          TaskOperationCategory op;
+          switch (taskCategory) {
+            // 这些是查看任务详情的
+            case TaskListCategory.allPublished:
+            case TaskListCategory.myPublished:
+              op = TaskOperationCategory.detailTask;
+              break;
+            // 这些是在填报任务项的时候的
+            case TaskListCategory.finished:
+            case TaskListCategory.myLeading:
+            case TaskListCategory.myParticipant:
+            case TaskListCategory.delegatedToMe:
+              op = TaskOperationCategory.submitTask;
+              break;
+            //   我的草稿状态的任务
+            case TaskListCategory.myManuscript:
+              op = TaskOperationCategory.updateTask;
+              break;
+            //   在任务详情里的父任务信息
+            case TaskListCategory.parentTaskInfo:
+              // TODO: Handle this case.
+              throw UnimplementedError();
+            //   在任务详情里的子任务信息
+            case TaskListCategory.childrenTaskInfo:
+              // TODO: Handle this case.
+              throw UnimplementedError();
           }
+          final args = HallPublishTaskParams(
+            Int64.ZERO,
+            routeId,
+            task,
+            opCat: op,
+          );
+          Get.toNamed(HallRoutes.hallTaskDetail, arguments: args, id: routeId);
         },
         child: Column(
           children: [

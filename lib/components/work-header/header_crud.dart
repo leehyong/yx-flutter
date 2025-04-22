@@ -41,7 +41,7 @@ class PublishItemsViewSimpleCrudState
     if (widget.readOnly) {
       return;
     }
-    widget.submitItemAnimatedTreeData.addAll(nodes);
+    widget.submitItemAnimatedTreeData.addAll(nodes.toList());
   }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {
@@ -161,7 +161,7 @@ class PublishItemsViewSimpleCrudState
   Widget build(BuildContext context) {
     return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
       showRootNode: false,
-      focusToNewNode: true,
+      // focusToNewNode: true,
       tree: widget.submitItemAnimatedTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
