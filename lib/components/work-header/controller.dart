@@ -151,6 +151,7 @@ class PublishItemsCrudController extends GetxController {
   final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
   final submitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
   late final Int64 curTaskId;
+
   PublishItemsCrudController(this.curTaskId);
 
   @override
@@ -239,7 +240,8 @@ TreeNode<WorkHeader> newEmptyHeaderTree({String? name, WorkHeader? data}) {
 }
 
 class SelectSubmitItemsController extends GetxController {
-  late final GlobalKey<PublishItemsViewSimpleCrudState> treeStateKey;
+  final GlobalKey<PublishItemsViewSimpleCrudState> treeStateKey;
+  Int64 taskId;
 
-  SelectSubmitItemsController(this.treeStateKey);
+  SelectSubmitItemsController(this.treeStateKey, this.taskId);
 }

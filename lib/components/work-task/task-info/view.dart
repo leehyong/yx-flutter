@@ -124,7 +124,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           _publishTaskBasicInfoView(context),
         );
       case TaskAttributeCategory.submitItem:
-        return PublishSubmitItemsCrudView(Int64.ZERO);
+        return PublishSubmitItemsCrudView(controller.taskId, readOnly);
 
       case TaskAttributeCategory.parentTask:
         return _publishTaskParentInfoView(context);
@@ -170,21 +170,22 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   Widget _publishTaskParentInfoView(BuildContext context) {
     return Column(
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade50, // 背景色
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.all(4),
-              // 文字颜色
+        if (!readOnly)
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade50, // 背景色
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.all(4),
+                // 文字颜色
+              ),
+              onPressed: () {
+                debugPrint("选择父任务成功");
+              },
+              child: const Text("选择"),
             ),
-            onPressed: () {
-              debugPrint("选择父任务成功");
-            },
-            child: const Text("选择"),
           ),
-        ),
         Row(
           children: [
             Expanded(
@@ -211,21 +212,22 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   Widget _publishTaskChildrenInfoView(BuildContext context) {
     return Column(
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade50, // 背景色
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.all(4),
-              // 文字颜色
+        if (!readOnly)
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade50, // 背景色
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.all(4),
+                // 文字颜色
+              ),
+              onPressed: () {
+                debugPrint("选择子任务成功");
+              },
+              child: const Text("选择"),
             ),
-            onPressed: () {
-              debugPrint("选择子任务成功");
-            },
-            child: const Text("选择"),
           ),
-        ),
         Expanded(
           child: TaskListView(
             tasks: controller.childrenTask.value,

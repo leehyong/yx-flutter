@@ -12,10 +12,12 @@ import 'controller.dart';
 
 class PublishItemsViewSimpleCrud extends StatefulWidget {
   const PublishItemsViewSimpleCrud(
-    this.submitItemAnimatedTreeData, {
+    this.submitItemAnimatedTreeData,
+    this.readOnly, {
     super.key,
   });
 
+  final bool readOnly;
   final TreeNode<WorkHeader> submitItemAnimatedTreeData;
 
   @override
@@ -36,12 +38,18 @@ class PublishItemsViewSimpleCrudState
   Set<Int64> binds = {};
 
   void addChildrenToRoot(Iterable<WorkHeader> children) {
+    if (widget.readOnly) {
+      return;
+    }
     widget.submitItemAnimatedTreeData.addAll(
       children.map((item) => newEmptyHeaderTree(data: item)),
     );
   }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {
+    if (widget.readOnly) {
+      return;
+    }
     if (_isEditingNode != null) {
       errToast("请先完成节点信息修改，再操作");
       treeViewController?.scrollToItem(_isEditingNode!);
@@ -59,6 +67,9 @@ class PublishItemsViewSimpleCrudState
   }
 
   void deleteNode(TreeNode<WorkHeader> node) {
+    if (widget.readOnly) {
+      return;
+    }
     // todo： 调用接口去删除节点
     // 只有叶节点才能删除
     assert(node.isLeaf);
@@ -81,6 +92,9 @@ class PublishItemsViewSimpleCrudState
   }
 
   void _cancelEditing(TreeNode<WorkHeader> node) {
+    if (widget.readOnly) {
+      return;
+    }
     //取消时，不需要改变 node.data
     if (node == _isNewNode) {
       node.delete();
@@ -89,6 +103,9 @@ class PublishItemsViewSimpleCrudState
   }
 
   void _resetNodeState() {
+    if (widget.readOnly) {
+      return;
+    }
     setState(() {
       _isEditingNodeData = null;
       _isNewNode = null;
@@ -100,6 +117,9 @@ class PublishItemsViewSimpleCrudState
       WorkHeader.fromJson(data.writeToJson());
 
   void _confirmEditing(TreeNode<WorkHeader> node) {
+    if (widget.readOnly) {
+      return;
+    }
     // 把修改的数据保存到node上
     node.data = _deepCopyNodeData(_isEditingNodeData!);
     if (node == _isNewNode) {
@@ -118,6 +138,9 @@ class PublishItemsViewSimpleCrudState
   }
 
   void _setCurEditingNode(TreeNode<WorkHeader> node) {
+    if (widget.readOnly) {
+      return;
+    }
     setState(() {
       _isEditingNodeData = _deepCopyNodeData(node.data!);
       _isEditingNode = node;
@@ -365,7 +388,7 @@ class PublishItemsViewSimpleCrudState
             ],
           ),
         ),
-        _buildItemAction(context, node),
+        if (!widget.readOnly) _buildItemAction(context, node),
       ],
     );
     final cnt = node.children.length;

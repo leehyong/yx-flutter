@@ -400,7 +400,7 @@ class OneTaskView extends GetView<OneTaskController> {
               debugPrint("${task.name}任务详情！");
               Get.toNamed(
                 '/task_detail',
-                arguments: HallPublishTaskParams(0, routeId, null),
+                arguments: HallPublishTaskParams(Int64.ZERO, routeId, task),
                 id: routeId,
               );
             },
