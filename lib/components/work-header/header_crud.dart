@@ -37,13 +37,11 @@ class PublishItemsViewSimpleCrudState
   // 所有新增的节点需要跟当前任务进行绑定
   Set<Int64> binds = {};
 
-  void addChildrenToRoot(Iterable<WorkHeader> children) {
+  void addNodesToRoot(Iterable<TreeNode<WorkHeader>> nodes) {
     if (widget.readOnly) {
       return;
     }
-    widget.submitItemAnimatedTreeData.addAll(
-      children.map((item) => newEmptyHeaderTree(data: item)),
-    );
+    widget.submitItemAnimatedTreeData.addAll(nodes);
   }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {

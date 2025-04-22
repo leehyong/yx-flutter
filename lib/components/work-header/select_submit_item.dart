@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
@@ -8,24 +9,47 @@ import 'package:yx/utils/common_widget.dart';
 
 import '../../types.dart';
 import 'controller.dart';
-import 'header_crud.dart';
 import 'header_data.dart';
 
 class SelectSubmitItemView extends StatefulWidget {
-  const SelectSubmitItemView(this.treeStateKey, this.taskId, {super.key});
+  const SelectSubmitItemView(this.taskId, {super.key});
 
   final Int64 taskId;
-  final GlobalKey<PublishItemsViewSimpleCrudState> treeStateKey;
 
   @override
-  State<StatefulWidget> createState() => _SelectSubmitItemStateView();
+  State<StatefulWidget> createState() => SelectSubmitItemStateView();
 }
 
-class _SelectSubmitItemStateView extends State<SelectSubmitItemView> {
+class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
   final TreeNode<CheckableWorkHeader> _checkableTree =
-      TreeNode<CheckableWorkHeader>.root();
+  TreeNode<CheckableWorkHeader>.root();
 
-  _SelectSubmitItemStateView() {
+  Iterable<TreeNode<WorkHeader>> get allCheckedNode sync* {
+    final queue = Queue.from(_checkableTree.childrenAsList);
+    TreeNode<CheckableWorkHeader> node;
+    TreeNode<CheckableWorkHeader> childNode;
+    final nodeParents = <String, TreeNode<WorkHeader>?>{};
+    // 层序遍历， 方便记录所有节点的父节点
+    while (queue.isNotEmpty) {
+      node = queue.first as TreeNode<CheckableWorkHeader>;
+      TreeNode<WorkHeader>? parent;
+      if (node.data!.checked) {
+         // 只有选中的节点才会返回
+         parent = nodeParents.containsKey(node.key)
+            ? nodeParents[node.key]
+            : null;
+        yield TreeNode<WorkHeader>(data: node.data!.header, key: node.key, parent: parent);
+      }
+      for(var child in node.childrenAsList){
+        childNode = child as TreeNode<CheckableWorkHeader>;
+        nodeParents[childNode.key] = parent;
+        queue.add(child);
+      }
+      queue.removeFirst();
+    }
+  }
+
+  SelectSubmitItemStateView() {
     // 初始化数据
     var idx = 0;
     WorkHeader header;
@@ -47,14 +71,15 @@ class _SelectSubmitItemStateView extends State<SelectSubmitItemView> {
   @override
   Widget build(BuildContext context) {
     return TreeView.simpleTyped<
-      CheckableWorkHeader,
-      TreeNode<CheckableWorkHeader>
+        CheckableWorkHeader,
+        TreeNode<CheckableWorkHeader>
     >(
       showRootNode: false,
       tree: _checkableTree,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
-          (ctx, node) => ChevronIndicator.rightDown(
+          (ctx, node) =>
+          ChevronIndicator.rightDown(
             tree: node,
             alignment: Alignment.centerLeft,
             color: Colors.red,
@@ -68,7 +93,7 @@ class _SelectSubmitItemStateView extends State<SelectSubmitItemView> {
         }
         final colorIdx =
             Random(node.data!.header.id.toInt()).nextInt(10000) %
-            loadingColors.length;
+                loadingColors.length;
         // 把颜色做成随机透明的
         // 区分编辑和只读
         return Container(
@@ -87,10 +112,8 @@ class _SelectSubmitItemStateView extends State<SelectSubmitItemView> {
     );
   }
 
-  Widget _buildReadonlyItemHeader(
-    BuildContext ctx,
-    TreeNode<CheckableWorkHeader> node,
-  ) {
+  Widget _buildReadonlyItemHeader(BuildContext ctx,
+      TreeNode<CheckableWorkHeader> node,) {
     final item = Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -136,9 +159,9 @@ class _SelectSubmitItemStateView extends State<SelectSubmitItemView> {
     return cnt == 0
         ? item
         : Badge.count(
-          alignment: Alignment.topLeft,
-          count: node.children.length,
-          child: item,
-        );
+      alignment: Alignment.topLeft,
+      count: node.children.length,
+      child: item,
+    );
   }
 }

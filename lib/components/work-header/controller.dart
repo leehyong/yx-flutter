@@ -9,6 +9,7 @@ import 'package:yx/types.dart';
 
 import 'header_crud.dart';
 import 'header_data.dart';
+import 'select_submit_item.dart';
 
 const maxSubmitItemDepth = 3;
 final submitItems = <WorkHeaderTree>[
@@ -149,6 +150,7 @@ class PublishItemsCrudController extends GetxController {
   final isLoadingSubmitItem = false.obs;
   final expandAll = false.obs;
   final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
+  final selectHeaderItemsKey = GlobalKey<SelectSubmitItemStateView>();
   final submitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
   late final Int64 curTaskId;
 

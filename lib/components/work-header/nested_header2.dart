@@ -19,7 +19,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
     Get.put(PublishItemsCrudController(curTaskId));
   }
 
-  bool readOnly;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +123,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                           // icon: Text("确定"),
                           onPressed: () {
                             controller.itemsSimpleCrudKey.currentState
-                                ?.addChildToNode();
+                                ?.addNodesToRoot(controller.selectHeaderItemsKey.currentState!.allCheckedNode);
                             Navigator.of(modalSheetContext).maybePop();
                           },
                         ),
@@ -132,8 +132,8 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                             maxHeight: GetPlatform.isMobile ? 500 : 800,
                           ),
                           child: SelectSubmitItemView(
-                            controller.itemsSimpleCrudKey,
                             controller.curTaskId,
+                            key: controller.selectHeaderItemsKey,
                           ),
                         ),
                       ),
@@ -152,7 +152,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
             ),
             onPressed: () {
               // todo:
-              controller.itemsSimpleCrudKey.currentState?.addChildrenToRoot([]);
+              controller.itemsSimpleCrudKey.currentState?.addChildToNode();
             },
             child: const Text("新增"),
           ),
