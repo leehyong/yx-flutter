@@ -344,11 +344,14 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     );
   }
 
+  Widget _buildMaybeIgnorePointerDropDown(Widget w) =>
+      IgnorePointer(ignoring: readOnly, child: w);
+
   Widget _buildTaskSubmitCycleCredits(BuildContext context) {
-    return DropdownButtonFormField(
+    return DropdownButtonFormField<TaskSubmitCycleStrategy>(
       value: controller.taskSubmitCycleStrategy.value,
       decoration: InputDecoration(
-        enabled: !readOnly,
+        // enabled: !readOnly,
         label: Row(
           spacing: 4,
           children: [
@@ -381,28 +384,29 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     return Row(
       children: [
         Expanded(
-          child: DropdownButtonFormField(
-            value: controller.taskCreditStrategy.value,
-            decoration: InputDecoration(
-              labelText: '积分方式',
-              enabled: !readOnly,
-              icon: Icon(Icons.gas_meter),
+          child: _buildMaybeIgnorePointerDropDown(
+            DropdownButtonFormField(
+              value: controller.taskCreditStrategy.value,
+              decoration: InputDecoration(
+                labelText: '积分方式',
+                icon: Icon(Icons.gas_meter),
+              ),
+              items:
+                  TaskCreditStrategy.values
+                      .map(
+                        (item) => DropdownMenuItem(
+                          value: item,
+                          child: Text(item.i18name),
+                        ),
+                      )
+                      .toList(),
+              onChanged: (v) {
+                if (readOnly) {
+                  return;
+                }
+                controller.taskCreditStrategy.value = v!;
+              },
             ),
-            items:
-                TaskCreditStrategy.values
-                    .map(
-                      (item) => DropdownMenuItem(
-                        value: item,
-                        child: Text(item.i18name),
-                      ),
-                    )
-                    .toList(),
-            onChanged: (v) {
-              if (readOnly) {
-                return;
-              }
-              controller.taskCreditStrategy.value = v!;
-            },
           ),
         ),
         Expanded(
@@ -519,28 +523,29 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     return Row(
       children: [
         Expanded(
-          child: DropdownButtonFormField(
-            value: controller.taskReceiveStrategy.value,
-            decoration: InputDecoration(
-              labelText: '领取方式',
-              enabled: !readOnly,
-              icon: Icon(Icons.gas_meter),
+          child: _buildMaybeIgnorePointerDropDown(
+            DropdownButtonFormField(
+              value: controller.taskReceiveStrategy.value,
+              decoration: InputDecoration(
+                labelText: '领取方式',
+                icon: Icon(Icons.gas_meter),
+              ),
+              items:
+                  ReceiveTaskStrategy.values
+                      .map(
+                        (item) => DropdownMenuItem(
+                          value: item,
+                          child: Text(item.i18name),
+                        ),
+                      )
+                      .toList(),
+              onChanged: (v) {
+                if (readOnly) {
+                  return;
+                }
+                controller.taskReceiveStrategy.value = v!;
+              },
             ),
-            items:
-                ReceiveTaskStrategy.values
-                    .map(
-                      (item) => DropdownMenuItem(
-                        value: item,
-                        child: Text(item.i18name),
-                      ),
-                    )
-                    .toList(),
-            onChanged: (v) {
-              if (readOnly) {
-                return;
-              }
-              controller.taskReceiveStrategy.value = v!;
-            },
           ),
         ),
         Expanded(
@@ -649,7 +654,7 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     final widgets = [
       _buildTaskName(context),
       _buildTaskContent(context),
-      _buildTaskSubmitCycleCredits(context),
+      _buildMaybeIgnorePointerDropDown(_buildTaskSubmitCycleCredits(context)),
       _buildTaskContacts(context),
       _buildPlanDt(context),
       _buildReceiveTask(context),
