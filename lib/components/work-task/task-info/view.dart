@@ -61,14 +61,19 @@ class TaskInfoView extends StatelessWidget {
         return _PublishTaskView(
           publishTaskParams.parentId,
           publishTaskParams.task!.id,
-          true,
+          readOnly: true,
         );
       case TaskOperationCategory.publishTask:
-        return _PublishTaskView(Int64.ZERO, Int64.ZERO);
+        return _PublishTaskView(
+          Int64.ZERO,
+          Int64.ZERO,
+          showChildrenTasks: false,
+        );
       case TaskOperationCategory.updateTask:
         return _PublishTaskView(
           publishTaskParams.parentId,
           publishTaskParams.task!.id,
+          showChildrenTasks: false,
         );
       case TaskOperationCategory.submitTask:
         // TODO: Handle this case.
@@ -78,11 +83,17 @@ class TaskInfoView extends StatelessWidget {
 }
 
 class _PublishTaskView extends GetView<PublishTaskController> {
-  _PublishTaskView(Int64 parentId, Int64 taskId, [this.readOnly = false]) {
+  _PublishTaskView(
+    Int64 parentId,
+    Int64 taskId, {
+    this.readOnly = false,
+    this.showChildrenTasks = true,
+  }) {
     Get.put(PublishTaskController(parentId, taskId));
   }
 
   final bool readOnly;
+  final bool showChildrenTasks;
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +117,12 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     return SegmentedButton(
       segments:
           TaskAttributeCategory.values
+              .where(
+                (e) =>
+                    showChildrenTasks
+                        ? true
+                        : e != TaskAttributeCategory.childrenTask,
+              )
               .map((e) => ButtonSegment(value: e, label: Text(e.i18name)))
               .toList(),
       onSelectionChanged: (s) {
