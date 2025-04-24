@@ -67,13 +67,13 @@ class TaskInfoView extends StatelessWidget {
         return _PublishTaskView(
           Int64.ZERO,
           Int64.ZERO,
-          showChildrenTasks: false,
+          enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.updateTask:
         return _PublishTaskView(
           publishTaskParams.parentId,
           publishTaskParams.task!.id,
-          showChildrenTasks: false,
+          enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.submitTask:
         // TODO: Handle this case.
@@ -87,13 +87,13 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     Int64 parentId,
     Int64 taskId, {
     this.readOnly = false,
-    this.showChildrenTasks = true,
+    this.enableSelectChildrenTasks = true,
   }) {
     Get.put(PublishTaskController(parentId, taskId));
   }
 
   final bool readOnly;
-  final bool showChildrenTasks;
+  final bool enableSelectChildrenTasks;
 
   @override
   Widget build(BuildContext context) {
@@ -117,12 +117,12 @@ class _PublishTaskView extends GetView<PublishTaskController> {
     return SegmentedButton(
       segments:
           TaskAttributeCategory.values
-              .where(
-                (e) =>
-                    showChildrenTasks
-                        ? true
-                        : e != TaskAttributeCategory.childrenTask,
-              )
+              // .where(
+              //   (e) =>
+              //       enableSelectChildrenTasks
+              //           ? true
+              //           : e != TaskAttributeCategory.childrenTask,
+              // )
               .map((e) => ButtonSegment(value: e, label: Text(e.i18name)))
               .toList(),
       onSelectionChanged: (s) {
@@ -229,22 +229,6 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   Widget _publishTaskChildrenInfoView(BuildContext context) {
     return Column(
       children: [
-        if (!readOnly)
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade50, // 背景色
-                foregroundColor: Colors.black,
-                padding: EdgeInsets.all(4),
-                // 文字颜色
-              ),
-              onPressed: () {
-                debugPrint("选择子任务成功");
-              },
-              child: const Text("选择"),
-            ),
-          ),
         Expanded(
           child: TaskListView(
             tasks: controller.childrenTask.value,
