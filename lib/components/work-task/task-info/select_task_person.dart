@@ -19,7 +19,9 @@ class SelectTaskPersonView extends StatefulWidget {
 
 class SelectTaskPersonState extends State<SelectTaskPersonView> {
   final TreeNode<CheckableOrganizationOrUser> _checkableTree =
-      TreeNode<CheckableOrganizationOrUser>.root();
+      TreeNode<CheckableOrganizationOrUser>.root(
+        data: CheckableOrganizationOrUser(newFakeEmptyOrg()),
+      );
 
   // 每个组织对应的用户
   final _orgUsers = HashMap<Int64, List<User>>();
@@ -59,18 +61,33 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
     }
   }
 
+  void _recursiveCheckOneNodeByDfs(
+    ITreeNode<CheckableOrganizationOrUser> node,
+    bool check,
+  ) {
+    setState(() {
+      node.data!.checked = check;
+    });
+    for (var child in node.childrenAsList) {
+      _recursiveCheckOneNodeByDfs(
+        child as ITreeNode<CheckableOrganizationOrUser>,
+        check,
+      );
+    }
+  }
+
   int _recursiveSearchUserNameByDfs(
     ITreeNode<CheckableOrganizationOrUser> node,
     String search,
   ) {
-    final check = search.isEmpty ? true : node.data!.name.contains(search);
+    final hidden = search.isEmpty ? false : !node.data!.name.contains(search);
     if (node.isLeaf) {
       setState(() {
-        node.data!.checked = check;
+        node.data!.hidden = hidden;
       });
-      return check ? 1 : 0;
+      return hidden ? 0 : 1;
     }
-    final checkNum = node.childrenAsList
+    final hiddenNum = node.childrenAsList
         .map(
           (e) => _recursiveSearchUserNameByDfs(
             e as ITreeNode<CheckableOrganizationOrUser>,
@@ -79,9 +96,9 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
         )
         .fold(0, (prev, cur) => prev + cur);
     setState(() {
-      node.data!.checked = checkNum > 0;
+      node.data!.hidden = hiddenNum == 0;
     });
-    return checkNum;
+    return hiddenNum;
   }
 
   @override
@@ -155,15 +172,17 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
         final colorIdx =
             Random(node.data!.id.toInt()).nextInt(10000) % loadingColors.length;
         // 把颜色做成随机透明的
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 2),
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          decoration: BoxDecoration(
-            color: loadingColors[colorIdx].withAlpha(40),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: _buildReadonlyItemHeader(context, node),
-        );
+        return node.data!.hidden
+            ? SizedBox.shrink()
+            : Container(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              decoration: BoxDecoration(
+                color: loadingColors[colorIdx].withAlpha(40),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: _buildReadonlyItemHeader(context, node),
+            );
       },
       onItemTap: (node) {
         debugPrint("${node.level}");
@@ -180,12 +199,11 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(width: 20),
+        // if (node.data!.data is User)
         Checkbox(
           value: node.data!.checked,
           onChanged: (v) {
-            setState(() {
-              node.data!.checked = v!;
-            });
+            _recursiveCheckOneNodeByDfs(node, v!);
           },
         ),
 
@@ -194,7 +212,9 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
             message: node.data!.name,
             child: Row(
               children: [
-                const Icon(Icons.person),
+                Icon(
+                  node.data!.data is User ? Icons.person : Icons.insert_chart,
+                ),
                 Text(
                   node.data!.name,
                   style: TextStyle(
@@ -208,12 +228,19 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
         ),
       ],
     );
-    final cnt = node.children.length;
+    final cnt = node.childrenAsList
+        .map(
+          (e) =>
+              (e as TreeNode<CheckableOrganizationOrUser>).data!.hidden
+                  ? 0
+                  : 1,
+        )
+        .fold(0, (prev, cur) => prev + cur);
     return cnt == 0
         ? item
         : Badge.count(
           alignment: Alignment.topLeft,
-          count: node.children.length,
+          count: cnt,
           child: item,
         );
   }

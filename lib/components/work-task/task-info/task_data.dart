@@ -71,6 +71,7 @@ User newFakeEmptyUser({String? name}) {
 class CheckableOrganizationOrUser {
   final Object data;
   bool checked;
+  bool hidden;
 
   String get name {
     if (data is User)
@@ -92,5 +93,9 @@ class CheckableOrganizationOrUser {
     }
   }
 
-  CheckableOrganizationOrUser(this.data, {this.checked = false});
+  CheckableOrganizationOrUser(
+    this.data, {
+    this.checked = false,
+    this.hidden = false,
+  });
 }
