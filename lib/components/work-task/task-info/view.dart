@@ -187,7 +187,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
   Widget _publishTaskParentInfoView(BuildContext context) {
     return Column(
       children: [
-        if (!readOnly)
+        // 已有父任务的任务就不能再选择父任务了
+        if (!readOnly && controller.parentId == Int64.ZERO)
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
