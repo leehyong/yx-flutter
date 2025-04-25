@@ -17,7 +17,7 @@ class SelectParentTaskView extends StatefulWidget {
 
 class SelectParentTaskState extends State<SelectParentTaskView> {
   final TreeNode<CheckableWorkTask> _checkableTree =
-      TreeNode<CheckableWorkTask>.root();
+      TreeNode<CheckableWorkTask>.root(data: CheckableWorkTask(newFakeEmptyWorkTask()));
 
   WorkTask? curCheckedTask;
 
@@ -189,12 +189,19 @@ class SelectParentTaskState extends State<SelectParentTaskView> {
         ),
       ],
     );
-    final cnt = node.children.length;
+    final cnt = node.childrenAsList
+        .map(
+          (e) =>
+      (e as TreeNode<CheckableWorkTask>).data!.hidden
+          ? 0
+          : 1,
+    )
+        .fold(0, (prev, cur) => prev + cur);
     return cnt == 0
         ? item
         : Badge.count(
           alignment: Alignment.topLeft,
-          count: node.children.length,
+          count: cnt,
           child: item,
         );
   }
