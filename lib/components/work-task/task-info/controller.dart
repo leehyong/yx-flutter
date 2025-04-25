@@ -4,12 +4,23 @@ import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
+import 'select_parent_task.dart';
+import 'select_task_person.dart';
 
 class PublishTaskController extends GetxController {
   final GlobalKey formKey = GlobalKey<FormState>();
+  final GlobalKey<SelectParentTaskState> selectParentTaskKey =
+      GlobalKey<SelectParentTaskState>();
+
+  final GlobalKey<SelectTaskPersonState> selectTaskUsersKey =
+      GlobalKey<SelectTaskPersonState>();
   late final Int64 taskId;
   late final Int64 parentId;
-  PublishTaskController( this.parentId, this.taskId);
+  final checkedParentTask = (null as WorkTask?).obs;
+  final checkedTaskUsers =  (null as List<User>?).obs;
+
+  PublishTaskController(this.parentId, this.taskId);
+
   final taskNameController = TextEditingController();
   final taskContentController = TextEditingController();
   final taskPlanStartDtController = TextEditingController();

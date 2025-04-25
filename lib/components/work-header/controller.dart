@@ -144,7 +144,6 @@ class PublishItemsDetailController extends GetxController {
   final isLoadingSubmitItem = false.obs;
 }
 
-const innerNodeKey = "::__inner";
 
 class PublishItemsCrudController extends GetxController {
   final isLoadingSubmitItem = false.obs;

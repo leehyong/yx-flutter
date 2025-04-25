@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -11,6 +12,8 @@ import 'package:yx/utils/common_widget.dart';
 import '../../work-header/nested_header2.dart';
 import '../task-list/view.dart';
 import 'controller.dart';
+import 'select_parent_task.dart';
+import 'select_task_person.dart';
 
 class TaskInfoView extends StatelessWidget {
   TaskInfoView({
@@ -199,7 +202,67 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                 // 文字颜色
               ),
               onPressed: () {
-                debugPrint("选择父任务成功");
+                // todo 什么样的任务才能选为父任务呢 ？
+                WoltModalSheet.show(
+                  onModalDismissedWithBarrierTap: () {
+                    Navigator.of(context).maybePop();
+                  },
+                  useSafeArea: true,
+                  context: context,
+                  modalTypeBuilder: woltModalType,
+                  pageListBuilder:
+                      (modalSheetContext) => [
+                        WoltModalSheetPage(
+                          topBarTitle: Center(
+                            child: Text(
+                              "请选择父任务",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                              ),
+                            ),
+                          ),
+                          hasTopBarLayer: true,
+                          // hasSabGradient: false,
+                          isTopBarLayerAlwaysVisible: true,
+                          leadingNavBarWidget: IconButton(
+                            padding: const EdgeInsets.all(4),
+                            icon: Text("重置"),
+                            onPressed: () {
+                              Navigator.of(modalSheetContext).pop();
+                            },
+                          ),
+                          trailingNavBarWidget: IconButton(
+                            padding: const EdgeInsets.all(4),
+                            icon: Text(
+                              "确定",
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                            // icon: Text("确定"),
+                            onPressed: () {
+                              controller.checkedParentTask.value =
+                                  controller
+                                      .selectParentTaskKey
+                                      .currentState
+                                      ?.curCheckedTask;
+                              Navigator.of(modalSheetContext).maybePop();
+                            },
+                          ),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: GetPlatform.isMobile ? 500 : 800,
+                            ),
+                            child: RepaintBoundary(
+                              child: SelectParentTaskView(
+                                key: controller.selectParentTaskKey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // child: ,
+                      ],
+                );
               },
               child: const Text("选择"),
             ),
@@ -511,7 +574,63 @@ class _PublishTaskView extends GetView<PublishTaskController> {
             if (readOnly) {
               return;
             }
-            //   todo  增加选择人员的功能
+            WoltModalSheet.show(
+              onModalDismissedWithBarrierTap: () {
+                Navigator.of(context).maybePop();
+              },
+              useSafeArea: true,
+              context: context,
+              modalTypeBuilder: woltModalType,
+              pageListBuilder:
+                  (modalSheetContext) => [
+                    WoltModalSheetPage(
+                      topBarTitle: Center(
+                        child: Text(
+                          "请选择人员",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                          ),
+                        ),
+                      ),
+                      hasTopBarLayer: true,
+                      // hasSabGradient: false,
+                      isTopBarLayerAlwaysVisible: true,
+                      leadingNavBarWidget: IconButton(
+                        padding: const EdgeInsets.all(4),
+                        icon: Text("重置"),
+                        onPressed: () {
+                          Navigator.of(modalSheetContext).pop();
+                        },
+                      ),
+                      trailingNavBarWidget: IconButton(
+                        padding: const EdgeInsets.all(4),
+                        icon: Text("确定", style: TextStyle(color: Colors.blue)),
+                        // icon: Text("确定"),
+                        onPressed: () {
+                          controller.checkedTaskUsers.value =
+                              controller
+                                  .selectTaskUsersKey
+                                  .currentState
+                                  ?.selectedUsers;
+                          Navigator.of(modalSheetContext).maybePop();
+                        },
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: GetPlatform.isMobile ? 500 : 800,
+                        ),
+                        child: RepaintBoundary(
+                          child: SelectTaskPersonView(
+                            key: controller.selectTaskUsersKey,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // child: ,
+                  ],
+            );
           },
           child: const Text("选择人员"),
         ),

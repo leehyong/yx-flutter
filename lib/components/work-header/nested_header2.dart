@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/toast.dart';
 
 import '../../utils/common_widget.dart';
@@ -81,16 +82,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                 },
                 useSafeArea: true,
                 context: context,
-                modalTypeBuilder: (BuildContext context) {
-                  final width = MediaQuery.sizeOf(context).width;
-                  if (width < 600) {
-                    return const WoltBottomSheetType(showDragHandle: false);
-                  } else if (width < 1000) {
-                    return WoltModalType.dialog();
-                  } else {
-                    return WoltModalType.sideSheet();
-                  }
-                },
+                modalTypeBuilder: woltModalType,
                 pageListBuilder:
                     (modalSheetContext) => [
                       WoltModalSheetPage(

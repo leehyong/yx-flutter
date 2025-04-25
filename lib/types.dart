@@ -37,6 +37,8 @@ const accessStorageKey = "accessToken";
 const refreshStorageKey = "refreshToken";
 const userStorageKey = "user";
 
+const innerNodeKey = "::__inner";
+
 enum TaskListCategory {
   allPublished, // 所有发布的
   myPublished, //我发布的
