@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/tab_controller.dart';
-import '../controllers/web_menu_controller.dart';
 
-class RootWebMenuView extends GetView<RootWebMenuController> {
+class RootWebMenuView extends GetView<RootTabController> {
   const RootWebMenuView({super.key});
 
   @override
