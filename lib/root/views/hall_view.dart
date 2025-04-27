@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/components/hall/view.dart';
 import 'package:yx/components/work-task/task-info/view.dart';
-import 'package:yx/components/work-task/task_hall_view.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 
-import '../../components/work-task/hall_binding.dart';
+import '../../components/hall/binding.dart';
 import '../../types.dart';
 
 class HallView extends GetView {

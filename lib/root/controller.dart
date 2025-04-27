@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../nest_nav_key.dart' show NestedNavigatorKeyId;
-import '../views/dashboard_view.dart';
-import '../views/hall_view.dart';
-import '../views/home_view.dart';
-import '../views/profile_view.dart';
+import 'nest_nav_key.dart' show NestedNavigatorKeyId;
+import 'views/dashboard_view.dart';
+import 'views/hall_view.dart';
+import 'views/home_view.dart';
+import 'views/profile_view.dart';
+
+class RootController extends GetxController {}
 
 class RootTabController extends GetxController {
   final curTab = 1.obs;

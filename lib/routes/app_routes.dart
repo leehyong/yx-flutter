@@ -17,4 +17,7 @@ abstract class WorkTaskRoutes {
   static const hallList = '/hall';
   static const hallTaskDetail = '/hall/task/detail';
   static const hallTaskPublish = '/hall/task/publish';
+
+  static const homeList = '/home';
+  static const homeTaskSubmit = '/home/task/submit';
 }

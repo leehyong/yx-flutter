@@ -6,7 +6,6 @@ import 'package:yx/types.dart';
 class TaskHallController extends GetxController {
   // final selections = ['参与的','历史的', '委派的', '发布的'];
   // final actions = ['已发布','我的发布', '我的草稿',];
-  final actions = TaskListCategoryExtension.hallTaskList;
   final selectedSet = {TaskListCategory.allPublished}.obs;
   final tasks = <WorkTask>[].obs;
   final isLoading = false.obs;

@@ -5,8 +5,8 @@ import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
 
-import 'hall_controller.dart';
-import 'task-list/view.dart';
+import '../work-task/task-list/view.dart';
+import 'controller.dart';
 
 class TaskHallView extends GetView<TaskHallController> {
   const TaskHallView({super.key});
@@ -44,7 +44,7 @@ class TaskHallView extends GetView<TaskHallController> {
                 alignment: Alignment.topLeft,
                 child: SegmentedButton(
                   segments:
-                      controller.actions
+                      TaskListCategoryExtension.hallTaskList
                           .map(
                             (e) =>
                                 ButtonSegment(value: e, label: Text(e.i18name)),
