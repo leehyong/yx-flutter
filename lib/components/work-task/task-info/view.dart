@@ -63,19 +63,19 @@ class TaskInfoView extends StatelessWidget {
   Widget _buildBodyView(BuildContext context) {
     switch (title) {
       case TaskOperationCategory.detailTask:
-        return _PublishTaskView(
+        return _TaskInfoView(
           publishTaskParams.parentId,
           publishTaskParams.task!.id,
           readOnly: true,
         );
       case TaskOperationCategory.publishTask:
-        return _PublishTaskView(
+        return _TaskInfoView(
           Int64.ZERO,
           Int64.ZERO,
           enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.updateTask:
-        return _PublishTaskView(
+        return _TaskInfoView(
           publishTaskParams.parentId,
           publishTaskParams.task!.id,
           enableSelectChildrenTasks: false,
@@ -90,8 +90,8 @@ class TaskInfoView extends StatelessWidget {
   }
 }
 
-class _PublishTaskView extends GetView<PublishTaskController> {
-  _PublishTaskView(
+class _TaskInfoView extends GetView<PublishTaskController> {
+  _TaskInfoView(
     Int64 parentId,
     Int64 taskId, {
     this.readOnly = false,
