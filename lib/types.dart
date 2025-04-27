@@ -43,7 +43,6 @@ enum TaskListCategory {
   allPublished, // 所有发布的
   myPublished, //我发布的
   myManuscript, // 我的草稿
-  myLeading, // 我牵头的
   myParticipant, // 我参与的
   finished, //已完成的
   delegatedToMe, //委派我的
@@ -60,8 +59,6 @@ extension TaskListCategoryExtension on TaskListCategory {
         return "我发布的";
       case TaskListCategory.myManuscript:
         return "我的草稿";
-      case TaskListCategory.myLeading:
-        return "牵头的";
       case TaskListCategory.myParticipant:
         return "参与的";
       case TaskListCategory.finished:
@@ -82,11 +79,9 @@ extension TaskListCategoryExtension on TaskListCategory {
   ];
 
   static List<TaskListCategory> get homeTaskList => [
-    TaskListCategory.myLeading,
     TaskListCategory.myParticipant,
-    TaskListCategory.finished,
     TaskListCategory.delegatedToMe,
-    TaskListCategory.myPublished,
+    TaskListCategory.finished,
   ];
 }
 

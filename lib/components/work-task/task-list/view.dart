@@ -91,7 +91,6 @@ class OneTaskView extends GetView<OneTaskController> {
               break;
             // 这些是在填报任务项的时候的
             case TaskListCategory.finished:
-            case TaskListCategory.myLeading:
             case TaskListCategory.myParticipant:
             case TaskListCategory.delegatedToMe:
               op = TaskOperationCategory.submitTask;
@@ -409,7 +408,6 @@ class OneTaskView extends GetView<OneTaskController> {
           ),
         ];
         break;
-      case TaskListCategory.myLeading:
       case TaskListCategory.myParticipant:
       case TaskListCategory.finished:
         final routeId = Get.find<RootTabController>().curRouteId;
