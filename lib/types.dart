@@ -85,7 +85,7 @@ extension TaskListCategoryExtension on TaskListCategory {
   ];
 }
 
-enum TaskOperationCategory { detailTask, publishTask, submitTask, updateTask }
+enum TaskOperationCategory { detailTask, publishTask, submitTask, delegateTask, updateTask }
 
 extension TaskOperationCategoryExtension on TaskOperationCategory {
   String get i18name {
@@ -96,6 +96,8 @@ extension TaskOperationCategoryExtension on TaskOperationCategory {
         return '发布任务';
       case TaskOperationCategory.submitTask:
         return '填报任务';
+      case TaskOperationCategory.delegateTask:
+        return '委派任务';
       case TaskOperationCategory.updateTask:
         return '修改任务';
     }
@@ -147,8 +149,8 @@ extension TaskCreditStrategyExtension on TaskCreditStrategy {
   }
 }
 
-class HallPublishTaskParams {
-  const HallPublishTaskParams(this.parentId, this.task, {this.opCat});
+class WorkTaskPageParams {
+  const WorkTaskPageParams(this.parentId, this.task, {this.opCat});
 
   final Int64 parentId;
   final WorkTask? task;

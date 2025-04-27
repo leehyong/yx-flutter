@@ -24,7 +24,7 @@ class TaskHallView extends GetView<TaskHallController> {
                 WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
 
-                arguments: const HallPublishTaskParams(
+                arguments: const WorkTaskPageParams(
                   Int64.ZERO,
                   null,
                 ),

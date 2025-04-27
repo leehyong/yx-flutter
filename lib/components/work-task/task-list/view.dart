@@ -89,10 +89,12 @@ class OneTaskView extends GetView<OneTaskController> {
             case TaskListCategory.myPublished:
               op = TaskOperationCategory.detailTask;
               break;
+            case TaskListCategory.delegatedToMe:
+              op = TaskOperationCategory.delegateTask;
+              break;
             // 这些是在填报任务项的时候的
             case TaskListCategory.finished:
             case TaskListCategory.myParticipant:
-            case TaskListCategory.delegatedToMe:
               op = TaskOperationCategory.submitTask;
               break;
             //   我的草稿状态的任务
@@ -109,7 +111,7 @@ class OneTaskView extends GetView<OneTaskController> {
               throw UnimplementedError();
           }
           final routeId = Get.find<RootTabController>().curRouteId;
-          final args = HallPublishTaskParams(Int64.ZERO, task, opCat: op);
+          final args = WorkTaskPageParams(Int64.ZERO, task, opCat: op);
 
           String page;
           switch (routeId) {
@@ -117,7 +119,12 @@ class OneTaskView extends GetView<OneTaskController> {
               page = WorkTaskRoutes.hallTaskDetail;
               break;
             case NestedNavigatorKeyId.homeId:
+              // 默认是跳到任务提交页
               page = WorkTaskRoutes.homeTaskSubmit;
+              if (taskCategory == TaskListCategory.delegatedToMe) {
+                // 委托页的话，需要查看详情之后再确认是否接受还是拒绝
+                page = WorkTaskRoutes.homeTaskDetail;
+              }
               break;
             default:
               throw UnsupportedError("不支持的操作:$routeId");
@@ -418,7 +425,7 @@ class OneTaskView extends GetView<OneTaskController> {
               debugPrint("${task.name}任务详情！");
               Get.toNamed(
                 '/task_detail',
-                arguments: HallPublishTaskParams(Int64.ZERO, task),
+                arguments: WorkTaskPageParams(Int64.ZERO, task),
                 id: routeId,
               );
             },

@@ -20,4 +20,5 @@ abstract class WorkTaskRoutes {
 
   static const homeList = '/home';
   static const homeTaskSubmit = '/home/task/submit';
+  static const homeTaskDetail = '/home/task/detail';
 }

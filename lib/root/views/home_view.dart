@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/components/home/binding.dart';
 import 'package:yx/components/home/view.dart';
+import 'package:yx/components/work-task/task-info/view.dart';
 import 'package:yx/routes/app_pages.dart';
+import 'package:yx/types.dart';
 
 import '../controllers/home_controller.dart';
 import '../nest_nav_key.dart';
@@ -25,15 +27,15 @@ class HomeView extends GetView<HomeController> {
               transition: Transition.topLevel,
             );
           case WorkTaskRoutes.homeTaskSubmit:
-            throw UnimplementedError();
-            // final params = settings.arguments! as HallPublishTaskParams;
-            // return GetPageRoute(
-            //   settings: settings,
-            //   // bindings: [TaskBinding()],
-            //   bindings: [],
-            //   page: () => TaskInfoView(publishTaskParams: params),
-            //   transition: Transition.leftToRight,
-            // );
+          case WorkTaskRoutes.homeTaskDetail:
+            final params = settings.arguments! as WorkTaskPageParams;
+            return GetPageRoute(
+              settings: settings,
+              // bindings: [TaskBinding()],
+              bindings: [],
+              page: () => TaskInfoView(publishTaskParams: params),
+              transition: Transition.leftToRight,
+            );
         }
         return null;
       },

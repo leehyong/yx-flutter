@@ -26,7 +26,7 @@ class HallView extends GetView {
               transition: Transition.topLevel,
             );
           case WorkTaskRoutes.hallTaskDetail:
-            final params = settings.arguments! as HallPublishTaskParams;
+            final params = settings.arguments! as WorkTaskPageParams;
             return GetPageRoute(
               settings: settings,
               // bindings: [TaskBinding()],
@@ -36,7 +36,7 @@ class HallView extends GetView {
             );
 
           case WorkTaskRoutes.hallTaskPublish:
-            final params = settings.arguments! as HallPublishTaskParams;
+            final params = settings.arguments! as WorkTaskPageParams;
             return GetPageRoute(
               settings: settings,
               bindings: [],

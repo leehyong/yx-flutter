@@ -41,7 +41,7 @@ class TaskInfoView extends StatelessWidget {
     title = _title;
   }
 
-  final HallPublishTaskParams publishTaskParams;
+  final WorkTaskPageParams publishTaskParams;
 
   // final int parentId;
   // final WorkTask? task;
@@ -81,6 +81,9 @@ class TaskInfoView extends StatelessWidget {
           enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.submitTask:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case TaskOperationCategory.delegateTask:
         // TODO: Handle this case.
         throw UnimplementedError();
     }
