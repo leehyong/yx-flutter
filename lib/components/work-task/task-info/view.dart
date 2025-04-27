@@ -15,6 +15,7 @@ import '../task-list/view.dart';
 import 'controller.dart';
 import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
+import 'views/submit_task.dart';
 
 class TaskInfoView extends StatelessWidget {
   TaskInfoView({
@@ -81,7 +82,7 @@ class TaskInfoView extends StatelessWidget {
           enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.submitTask:
-        throw UnimplementedError();
+        return SubmitTasksView();
 
       case TaskOperationCategory.delegateTask:
         return _TaskInfoView(

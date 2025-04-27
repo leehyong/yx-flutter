@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,6 +7,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
 import '../../work-header/data.dart';
+import 'data.dart';
 import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
 
@@ -12,7 +15,6 @@ class SubmitTasksController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isLoadingSubmitItem = false.obs;
 }
-
 
 class TaskInfoController extends GetxController {
   final GlobalKey formKey = GlobalKey<FormState>();
@@ -24,7 +26,7 @@ class TaskInfoController extends GetxController {
   late final Int64 taskId;
   late final Int64 parentId;
   final checkedParentTask = (null as WorkTask?).obs;
-  final checkedTaskUsers =  (null as List<User>?).obs;
+  final checkedTaskUsers = (null as List<User>?).obs;
 
   TaskInfoController(this.parentId, this.taskId);
 
@@ -108,43 +110,34 @@ class TaskInfoController extends GetxController {
   // final actions = ['已发布','我的发布', '我的草稿',];
 }
 
+class SubmitOneTaskHeaderItemController extends GetxController {
+  late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
 
-class WorkHeaderController extends GetxController {
-  final List<WorkHeaderTree> children;
-
-  WorkHeaderController(this.children);
-
-  int get maxColumns {
-    // dfs 求最大列数
-    return 0;
+  SubmitOneTaskHeaderItemController(List<WorkHeaderTree> children) {
+    this.children = LinkedHashMap<int, SubmitOneWorkTaskHeader>();
+    if (children.isEmpty) {
+      this.children[0] = SubmitOneWorkTaskHeader();
+    } else {
+      _buildSubmitWorkHeaders(children);
+    }
   }
 
-  int get maxRows {
-    // dfs 求最大行数
-    // int calculateMaxRows(List<WorkHeaderTree> children) {
-    //   return children.fold(
-    //     0,
-    //     (acc, cur) =>
-    //         acc +
-    //         (cur.children.isEmpty
-    //             ? 1
-    //             : calculateMaxRows(cur.value.children)),
-    //   );
-    // }
-
-    // return calculateMaxRows(children);
-    return 0;
+  void _buildSubmitWorkHeaders(
+    List<WorkHeaderTree> headers, {
+    SubmitOneWorkTaskHeader? rootHeader,
+  }) {
+    for (var entry in headers.asMap().entries) {
+      final tmpRootHeader = rootHeader ?? SubmitOneWorkTaskHeader();
+      if (entry.value.children.isEmpty) {
+        children.putIfAbsent(entry.key, () => tmpRootHeader);
+        tmpRootHeader.head = entry.value.task;
+      } else {
+        tmpRootHeader.parentHeads.add(entry.value.task);
+        _buildSubmitWorkHeaders(
+          entry.value.children,
+          rootHeader: tmpRootHeader,
+        );
+      }
+    }
   }
-}
-
-class OneWorkHeaderItemController extends GetxController {
-  final List<WorkHeaderTree> children;
-  final Rx<WorkHeader> task;
-
-  OneWorkHeaderItemController(this.task, this.children);
-
-// @override
-// void onInit() {
-//   super.onInit();
-// }
 }
