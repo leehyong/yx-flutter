@@ -153,10 +153,9 @@ extension TaskCreditStrategyExtension on TaskCreditStrategy {
 }
 
 class HallPublishTaskParams {
-  const HallPublishTaskParams(this.parentId, this.routeId, this.task, {this.opCat});
+  const HallPublishTaskParams(this.parentId, this.task, {this.opCat});
 
   final Int64 parentId;
-  final int routeId;
   final WorkTask? task;
   final TaskOperationCategory? opCat;
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/root/controller.dart';
+import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -15,13 +17,11 @@ class TaskListView extends StatelessWidget {
     super.key,
     required this.tasks,
     required this.taskCategory,
-    required this.routeId,
     required this.isLoading,
   });
 
   final List<WorkTask> tasks;
   final TaskListCategory taskCategory;
-  final int routeId;
   final bool isLoading;
 
   @override
@@ -42,11 +42,7 @@ class TaskListView extends StatelessWidget {
           ),
           itemBuilder: (BuildContext context, int index) {
             return index < tasks.length
-                ? OneTaskView(
-                  task: tasks[index],
-                  taskCategory: taskCategory,
-                  routeId: routeId,
-                )
+                ? OneTaskView(task: tasks[index], taskCategory: taskCategory)
                 : Center(
                   child: SizedBox(
                     height: 80,
@@ -68,12 +64,7 @@ class TaskListView extends StatelessWidget {
 }
 
 class OneTaskView extends GetView<OneTaskController> {
-  OneTaskView({
-    super.key,
-    required this.task,
-    required this.taskCategory,
-    required this.routeId,
-  }) {
+  OneTaskView({super.key, required this.task, required this.taskCategory}) {
     Get.put(
       OneTaskController(deadline: task.receiveDeadline.toInt()),
       tag: '${task.id}',
@@ -85,7 +76,6 @@ class OneTaskView extends GetView<OneTaskController> {
 
   final WorkTask task;
   final TaskListCategory taskCategory;
-  final int routeId;
 
   @override
   Widget build(BuildContext context) {
@@ -119,13 +109,21 @@ class OneTaskView extends GetView<OneTaskController> {
               // TODO: Handle this case.
               throw UnimplementedError();
           }
-          final args = HallPublishTaskParams(
-            Int64.ZERO,
-            routeId,
-            task,
-            opCat: op,
-          );
-          Get.toNamed(WorkTaskRoutes.hallTaskDetail, arguments: args, id: routeId);
+          final routeId = Get.find<RootTabController>().curRouteId;
+          final args = HallPublishTaskParams(Int64.ZERO, task, opCat: op);
+
+          String page;
+          switch (routeId) {
+            case NestedNavigatorKeyId.hallId:
+              page = WorkTaskRoutes.hallTaskDetail;
+              break;
+            case NestedNavigatorKeyId.homeId:
+              page = WorkTaskRoutes.homeTaskSubmit;
+              break;
+            default:
+              throw UnsupportedError("不支持的操作:$routeId");
+          }
+          Get.toNamed(page, arguments: args, id: routeId);
         },
         child: Column(
           children: [
@@ -414,13 +412,15 @@ class OneTaskView extends GetView<OneTaskController> {
       case TaskListCategory.myLeading:
       case TaskListCategory.myParticipant:
       case TaskListCategory.finished:
+        final routeId = Get.find<RootTabController>().curRouteId;
+
         children = [
           InkWell(
             onTap: () {
               debugPrint("${task.name}任务详情！");
               Get.toNamed(
                 '/task_detail',
-                arguments: HallPublishTaskParams(Int64.ZERO, routeId, task),
+                arguments: HallPublishTaskParams(Int64.ZERO, task),
                 id: routeId,
               );
             },

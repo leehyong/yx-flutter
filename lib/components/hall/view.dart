@@ -26,7 +26,6 @@ class TaskHallView extends GetView<TaskHallController> {
 
                 arguments: const HallPublishTaskParams(
                   Int64.ZERO,
-                  NestedNavigatorKeyId.hallId,
                   null,
                 ),
               );
@@ -67,7 +66,6 @@ class TaskHallView extends GetView<TaskHallController> {
                     return TaskListView(
                       tasks: controller.tasks.value,
                       taskCategory: controller.selectedSet.first,
-                      routeId: NestedNavigatorKeyId.hallId,
                       isLoading: controller.isLoading.value,
                     );
                   },

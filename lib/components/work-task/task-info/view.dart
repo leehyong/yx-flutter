@@ -4,6 +4,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -21,13 +22,14 @@ class TaskInfoView extends StatelessWidget {
     // required this.taskCategory,
     required this.publishTaskParams,
   }) {
+    final routeId = Get.find<RootTabController>().curRouteId;
     var _title = TaskOperationCategory.detailTask;
     if (publishTaskParams.opCat == null) {
-      if (publishTaskParams.routeId == NestedNavigatorKeyId.hallId) {
+      if (routeId == NestedNavigatorKeyId.hallId) {
         if (publishTaskParams.task == null || publishTaskParams.task!.id == 0) {
           _title = TaskOperationCategory.publishTask;
         }
-      } else if (publishTaskParams.routeId == NestedNavigatorKeyId.myTaskId) {
+      } else if (routeId == NestedNavigatorKeyId.homeId) {
         // 我的任务那里的话就是填报任务了，此时 task 肯定满足以下条件
         assert(publishTaskParams.task != null);
         assert(publishTaskParams.task!.id > 0);
@@ -273,7 +275,6 @@ class _PublishTaskView extends GetView<PublishTaskController> {
               child: TaskListView(
                 tasks: [controller.parentTask.value],
                 taskCategory: TaskListCategory.parentTaskInfo,
-                routeId: NestedNavigatorKeyId.hallId,
                 isLoading: false,
               ),
             ),
@@ -297,7 +298,6 @@ class _PublishTaskView extends GetView<PublishTaskController> {
           child: TaskListView(
             tasks: controller.childrenTask.value,
             taskCategory: TaskListCategory.childrenTaskInfo,
-            routeId: NestedNavigatorKeyId.hallId,
             isLoading: false,
           ),
         ),
@@ -613,7 +613,8 @@ class _PublishTaskView extends GetView<PublishTaskController> {
                               controller
                                   .selectTaskUsersKey
                                   .currentState
-                                  ?.selectedUsers;
+                                  ?.selectedUsers ??
+                              [];
                           Navigator.of(modalSheetContext).maybePop();
                         },
                       ),
