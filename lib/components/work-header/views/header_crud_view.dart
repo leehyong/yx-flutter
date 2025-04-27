@@ -8,7 +8,7 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_widget.dart';
 import 'package:yx/utils/toast.dart';
 
-import 'controller.dart';
+import '../controller.dart';
 
 class PublishItemsViewSimpleCrud extends StatefulWidget {
   const PublishItemsViewSimpleCrud(

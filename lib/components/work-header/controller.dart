@@ -7,9 +7,9 @@ import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
-import 'header_crud.dart';
-import 'header_data.dart';
-import 'select_submit_item.dart';
+import 'data.dart';
+import 'views/header_crud_view.dart';
+import 'views/select_submit_item_view.dart';
 
 const maxSubmitItemDepth = 3;
 final submitItems = <WorkHeaderTree>[

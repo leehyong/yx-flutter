@@ -10,7 +10,7 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../../work-header/nested_header2.dart';
+import '../../work-header/view.dart';
 import '../task-list/view.dart';
 import 'controller.dart';
 import 'select_parent_task.dart';

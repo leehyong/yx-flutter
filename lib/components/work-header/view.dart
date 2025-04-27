@@ -11,9 +11,9 @@ import 'package:yx/utils/toast.dart';
 
 import '../../utils/common_widget.dart';
 import 'controller.dart';
-import 'header_crud.dart';
-import 'header_data.dart';
-import 'select_submit_item.dart';
+import 'data.dart';
+import 'views/header_crud_view.dart';
+import 'views/select_submit_item_view.dart';
 
 class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
   PublishSubmitItemsCrudView(Int64 curTaskId, this.readOnly, {super.key}) {
