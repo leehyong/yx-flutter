@@ -44,6 +44,9 @@ class OneTaskController extends GetxController {
 
   // 启动倒计时
   void _startTimer() {
+    if (left.value < 1) {
+      return;
+    }
     // 大于30分钟时，倒计时间隔 60秒，否则间隔1秒
     final interval = left.value > left30Minutes ? 60 : 1;
     _timer = Timer.periodic(Duration(seconds: interval), (timer) {
