@@ -8,8 +8,8 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
 import 'data.dart';
-import 'views/header_crud_view.dart';
-import 'views/select_submit_item_view.dart';
+import 'views/header_crud.dart';
+import 'views/select_submit_item.dart';
 
 const maxSubmitItemDepth = 3;
 final submitItems = <WorkHeaderTree>[
@@ -139,7 +139,7 @@ final submitItems = <WorkHeaderTree>[
   ),
 ];
 
-class PublishItemsDetailController extends GetxController {
+class SubmitTasksController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isLoadingSubmitItem = false.obs;
 }

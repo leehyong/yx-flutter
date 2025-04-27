@@ -12,8 +12,8 @@ import 'package:yx/utils/toast.dart';
 import '../../utils/common_widget.dart';
 import 'controller.dart';
 import 'data.dart';
-import 'views/header_crud_view.dart';
-import 'views/select_submit_item_view.dart';
+import 'views/header_crud.dart';
+import 'views/select_submit_item.dart';
 
 class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
   PublishSubmitItemsCrudView(Int64 curTaskId, this.readOnly, {super.key}) {
@@ -155,9 +155,9 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
 }
 
 // todo: 后续 填报任务项的时候使用它
-class PublishItemsViewDetail extends GetView<PublishItemsDetailController> {
-  PublishItemsViewDetail({super.key}) {
-    Get.put(PublishItemsDetailController());
+class SubmitTasksView extends GetView<SubmitTasksController> {
+  SubmitTasksView({super.key}) {
+    Get.put(SubmitTasksController());
   }
 
   Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {

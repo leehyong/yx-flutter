@@ -6,7 +6,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import 'task_data.dart';
+import '../data.dart';
 
 class SelectParentTaskView extends StatefulWidget {
   const SelectParentTaskView({super.key});

@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
-import 'select_parent_task.dart';
-import 'select_task_person.dart';
+import 'views/select_parent_task.dart';
+import 'views/select_task_person.dart';
 
 class PublishTaskController extends GetxController {
   final GlobalKey formKey = GlobalKey<FormState>();

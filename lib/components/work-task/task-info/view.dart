@@ -13,8 +13,8 @@ import 'package:yx/utils/common_widget.dart';
 import '../../work-header/view.dart';
 import '../task-list/view.dart';
 import 'controller.dart';
-import 'select_parent_task.dart';
-import 'select_task_person.dart';
+import 'views/select_parent_task.dart';
+import 'views/select_task_person.dart';
 
 class TaskInfoView extends StatelessWidget {
   TaskInfoView({
