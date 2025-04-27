@@ -240,3 +240,10 @@ extension TaskTextTypeExtension on TaskTextType {
     );
   }
 }
+
+
+enum TaskInfoAction{
+  detail,
+  write,
+  delegate;
+}

@@ -66,7 +66,7 @@ class TaskInfoView extends StatelessWidget {
         return _TaskInfoView(
           publishTaskParams.parentId,
           publishTaskParams.task!.id,
-          readOnly: true,
+          action: TaskInfoAction.detail,
         );
       case TaskOperationCategory.publishTask:
         return _TaskInfoView(
@@ -81,11 +81,15 @@ class TaskInfoView extends StatelessWidget {
           enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.submitTask:
-        // TODO: Handle this case.
         throw UnimplementedError();
+
       case TaskOperationCategory.delegateTask:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return _TaskInfoView(
+          publishTaskParams.parentId,
+          publishTaskParams.task!.id,
+          enableSelectChildrenTasks: false,
+          action: TaskInfoAction.delegate,
+        );
     }
   }
 }
@@ -94,17 +98,30 @@ class _TaskInfoView extends GetView<PublishTaskController> {
   _TaskInfoView(
     Int64 parentId,
     Int64 taskId, {
-    this.readOnly = false,
+    this.action = TaskInfoAction.write,
     this.enableSelectChildrenTasks = true,
   }) {
     Get.put(PublishTaskController(parentId, taskId));
   }
 
-  final bool readOnly;
+  final TaskInfoAction action;
   final bool enableSelectChildrenTasks;
+
+  bool get readOnly => action != TaskInfoAction.write;
 
   @override
   Widget build(BuildContext context) {
+    Widget actions = SizedBox.shrink();
+    switch (action) {
+      case TaskInfoAction.write:
+        actions = maybeOneThirdCenterHorizontal(_buildActions(context));
+        break;
+      case TaskInfoAction.delegate:
+        actions = maybeOneThirdCenterHorizontal(_buildDelegateActions(context));
+      default:
+        break;
+    }
+
     return Obx(() {
       return Form(
         key: controller.formKey,
@@ -113,8 +130,7 @@ class _TaskInfoView extends GetView<PublishTaskController> {
           children: [
             _buildRelationAttributes(context),
             Expanded(child: _buildTaskRelates(context)),
-            if (!readOnly)
-              maybeOneThirdCenterHorizontal(_buildActions(context)),
+            actions,
           ],
         ),
       );
@@ -125,12 +141,6 @@ class _TaskInfoView extends GetView<PublishTaskController> {
     return SegmentedButton(
       segments:
           TaskAttributeCategory.values
-              // .where(
-              //   (e) =>
-              //       enableSelectChildrenTasks
-              //           ? true
-              //           : e != TaskAttributeCategory.childrenTask,
-              // )
               .map((e) => ButtonSegment(value: e, label: Text(e.i18name)))
               .toList(),
       onSelectionChanged: (s) {
@@ -187,6 +197,40 @@ class _TaskInfoView extends GetView<PublishTaskController> {
             debugPrint("发布");
           },
           child: const Text("发布"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDelegateActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      spacing: 10,
+      children: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade50, // 背景色
+            foregroundColor: Colors.black,
+            padding: EdgeInsets.all(4),
+            // 文字颜色
+          ),
+          onPressed: () {
+            debugPrint("拒绝");
+          },
+          child: const Text("拒绝"),
+        ),
+
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue, // 背景色
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.all(4),
+            // 文字颜色
+          ),
+          onPressed: () {
+            debugPrint("接受");
+          },
+          child: const Text("接受"),
         ),
       ],
     );
