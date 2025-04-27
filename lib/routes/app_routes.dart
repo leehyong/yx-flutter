@@ -13,7 +13,7 @@ abstract class Routes {
       '$login?then=${Uri.encodeQueryComponent(afterSuccessfulLogin)}';
 }
 
-abstract class HallRoutes {
+abstract class WorkTaskRoutes {
   static const hallList = '/hall';
   static const hallTaskDetail = '/hall/task/detail';
   static const hallTaskPublish = '/hall/task/publish';

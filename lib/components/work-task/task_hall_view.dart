@@ -21,7 +21,7 @@ class TaskHallView extends GetView<TaskHallController> {
             onPressed: () {
               debugPrint("发布了");
               Get.toNamed(
-                HallRoutes.hallTaskPublish,
+                WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
 
                 arguments: const HallPublishTaskParams(

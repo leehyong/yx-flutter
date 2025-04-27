@@ -125,7 +125,7 @@ class OneTaskView extends GetView<OneTaskController> {
             task,
             opCat: op,
           );
-          Get.toNamed(HallRoutes.hallTaskDetail, arguments: args, id: routeId);
+          Get.toNamed(WorkTaskRoutes.hallTaskDetail, arguments: args, id: routeId);
         },
         child: Column(
           children: [

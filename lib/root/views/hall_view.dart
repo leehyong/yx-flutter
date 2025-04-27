@@ -15,17 +15,17 @@ class HallView extends GetView {
   Widget build(context) {
     return Navigator(
       key: Get.nestedKey(NestedNavigatorKeyId.hallId),
-      initialRoute: HallRoutes.hallList,
+      initialRoute: WorkTaskRoutes.hallList,
       onGenerateRoute: (RouteSettings settings) {
         switch (settings.name) {
-          case HallRoutes.hallList:
+          case WorkTaskRoutes.hallList:
             return GetPageRoute(
               settings: settings,
               page: () => TaskHallView(),
               bindings: [TaskHallBinding()],
               transition: Transition.topLevel,
             );
-          case HallRoutes.hallTaskDetail:
+          case WorkTaskRoutes.hallTaskDetail:
             final params = settings.arguments! as HallPublishTaskParams;
             return GetPageRoute(
               settings: settings,
@@ -35,7 +35,7 @@ class HallView extends GetView {
               transition: Transition.leftToRight,
             );
 
-          case HallRoutes.hallTaskPublish:
+          case WorkTaskRoutes.hallTaskPublish:
             final params = settings.arguments! as HallPublishTaskParams;
             return GetPageRoute(
               settings: settings,
