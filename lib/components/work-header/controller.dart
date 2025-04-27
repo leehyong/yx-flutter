@@ -139,12 +139,6 @@ final submitItems = <WorkHeaderTree>[
   ),
 ];
 
-class SubmitTasksController extends GetxController {
-  ScrollController scrollController = ScrollController(initialScrollOffset: 0);
-  final isLoadingSubmitItem = false.obs;
-}
-
-
 class PublishItemsCrudController extends GetxController {
   final isLoadingSubmitItem = false.obs;
   final expandAll = false.obs;
@@ -182,45 +176,6 @@ class PublishItemsCrudController extends GetxController {
   }
 }
 
-class WorkHeaderController extends GetxController {
-  final List<WorkHeaderTree> children;
-
-  WorkHeaderController(this.children);
-
-  int get maxColumns {
-    // dfs 求最大列数
-    return 0;
-  }
-
-  int get maxRows {
-    // dfs 求最大行数
-    // int calculateMaxRows(List<WorkHeaderTree> children) {
-    //   return children.fold(
-    //     0,
-    //     (acc, cur) =>
-    //         acc +
-    //         (cur.children.isEmpty
-    //             ? 1
-    //             : calculateMaxRows(cur.value.children)),
-    //   );
-    // }
-
-    // return calculateMaxRows(children);
-    return 0;
-  }
-}
-
-class OneWorkHeaderItemController extends GetxController {
-  final List<WorkHeaderTree> children;
-  final Rx<WorkHeader> task;
-
-  OneWorkHeaderItemController(this.task, this.children);
-
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  // }
-}
 
 WorkHeader newEmptyWorkHeader({String? name}) {
   final id = Int64(DateTime.now().microsecondsSinceEpoch);

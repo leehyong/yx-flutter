@@ -94,14 +94,14 @@ class TaskInfoView extends StatelessWidget {
   }
 }
 
-class _TaskInfoView extends GetView<PublishTaskController> {
+class _TaskInfoView extends GetView<TaskInfoController> {
   _TaskInfoView(
     Int64 parentId,
     Int64 taskId, {
     this.action = TaskInfoAction.write,
     this.enableSelectChildrenTasks = true,
   }) {
-    Get.put(PublishTaskController(parentId, taskId));
+    Get.put(TaskInfoController(parentId, taskId));
   }
 
   final TaskInfoAction action;

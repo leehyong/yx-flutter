@@ -4,10 +4,17 @@ import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
+import '../../work-header/data.dart';
 import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
 
-class PublishTaskController extends GetxController {
+class SubmitTasksController extends GetxController {
+  ScrollController scrollController = ScrollController(initialScrollOffset: 0);
+  final isLoadingSubmitItem = false.obs;
+}
+
+
+class TaskInfoController extends GetxController {
   final GlobalKey formKey = GlobalKey<FormState>();
   final GlobalKey<SelectParentTaskState> selectParentTaskKey =
       GlobalKey<SelectParentTaskState>();
@@ -19,7 +26,7 @@ class PublishTaskController extends GetxController {
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers =  (null as List<User>?).obs;
 
-  PublishTaskController(this.parentId, this.taskId);
+  TaskInfoController(this.parentId, this.taskId);
 
   final taskNameController = TextEditingController();
   final taskContentController = TextEditingController();
@@ -99,4 +106,45 @@ class PublishTaskController extends GetxController {
 
   // final selections = ['参与的','历史的', '委派的', '发布的'];
   // final actions = ['已发布','我的发布', '我的草稿',];
+}
+
+
+class WorkHeaderController extends GetxController {
+  final List<WorkHeaderTree> children;
+
+  WorkHeaderController(this.children);
+
+  int get maxColumns {
+    // dfs 求最大列数
+    return 0;
+  }
+
+  int get maxRows {
+    // dfs 求最大行数
+    // int calculateMaxRows(List<WorkHeaderTree> children) {
+    //   return children.fold(
+    //     0,
+    //     (acc, cur) =>
+    //         acc +
+    //         (cur.children.isEmpty
+    //             ? 1
+    //             : calculateMaxRows(cur.value.children)),
+    //   );
+    // }
+
+    // return calculateMaxRows(children);
+    return 0;
+  }
+}
+
+class OneWorkHeaderItemController extends GetxController {
+  final List<WorkHeaderTree> children;
+  final Rx<WorkHeader> task;
+
+  OneWorkHeaderItemController(this.task, this.children);
+
+// @override
+// void onInit() {
+//   super.onInit();
+// }
 }
