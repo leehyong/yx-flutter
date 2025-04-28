@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +12,15 @@ import 'views/select_task_person.dart';
 class SubmitTasksController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isLoadingSubmitItem = false.obs;
+
+  @override
+  void onInit() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 在页面加载完成后滚动到第一个元素
+      scrollController.jumpTo(0);
+    });
+    super.onInit();
+  }
 }
 
 class TaskInfoController extends GetxController {
@@ -103,40 +110,34 @@ class TaskInfoController extends GetxController {
     // _timer.cancel(); // 在控制器销毁时取消定时器
     super.onClose();
   }
-
-  // 定时器
-
-  // final selections = ['参与的','历史的', '委派的', '发布的'];
-  // final actions = ['已发布','我的发布', '我的草稿',];
 }
 
 class SubmitOneTaskHeaderItemController extends GetxController {
-  late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
+  late final List<SubmitOneWorkTaskHeader> children;
+
+  // late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
 
   SubmitOneTaskHeaderItemController(List<WorkHeaderTree> children) {
-    this.children = LinkedHashMap<int, SubmitOneWorkTaskHeader>();
+    // this.children = LinkedHashMap<int, SubmitOneWorkTaskHeader>();
     if (children.isEmpty) {
-      this.children[0] = SubmitOneWorkTaskHeader();
+      this.children = [SubmitOneWorkTaskHeader()];
     } else {
+      this.children = <SubmitOneWorkTaskHeader>[];
       _buildSubmitWorkHeaders(children);
     }
   }
 
   void _buildSubmitWorkHeaders(
     List<WorkHeaderTree> headers, {
-    SubmitOneWorkTaskHeader? rootHeader,
+    List<WorkHeader>? parents,
   }) {
     for (var entry in headers.asMap().entries) {
-      final tmpRootHeader = rootHeader ?? SubmitOneWorkTaskHeader();
+      final tmpParents = parents ?? [];
       if (entry.value.children.isEmpty) {
-        children.putIfAbsent(entry.key, () => tmpRootHeader);
-        tmpRootHeader.head = entry.value.task;
+        children.add(SubmitOneWorkTaskHeader(entry.value.task, tmpParents));
       } else {
-        tmpRootHeader.parentHeads.add(entry.value.task);
-        _buildSubmitWorkHeaders(
-          entry.value.children,
-          rootHeader: tmpRootHeader,
-        );
+        tmpParents.add(entry.value.task);
+        _buildSubmitWorkHeaders(entry.value.children, parents: tmpParents);
       }
     }
   }

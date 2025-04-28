@@ -35,7 +35,9 @@ Widget commonCard(
   Color? color,
   double? borderRadius,
   double? sideWidth,
+  EdgeInsetsGeometry? margin,
 }) => Card(
+  margin: margin,
   color: color ?? Colors.blueGrey.shade50,
   // 设置卡片的阴影高度
   elevation: elevation ?? 12.0,

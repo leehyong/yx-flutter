@@ -1,8 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yx/types.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import '../../../work-header/controller.dart';
@@ -11,8 +8,9 @@ import '../controller.dart';
 import '../data.dart';
 
 // 填报任务项的时候使用它
-class SubmitTasksView extends GetView<SubmitTasksController> {
-  SubmitTasksView({super.key}) {
+// todo： title 展示任务名， 并且可以查看任务的信息
+class MobileSubmitTasksView extends GetView<SubmitTasksController> {
+  MobileSubmitTasksView({super.key}) {
     Get.put(SubmitTasksController());
   }
 
@@ -67,9 +65,6 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
         final cnt = submitItems.length;
         return Obx(
           () => ListView.builder(
-            // return GridView.builder(
-            shrinkWrap: false,
-            reverse: true,
             cacheExtent: 100,
             controller: controller.scrollController,
             // addRepaintBoundaries:t,
@@ -83,8 +78,11 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
                   headerTree.children,
                 ),
               );
-              // return Column(children: oneItem);
-              return commonCard(Column(children: oneItem), borderRadius: 0);
+              return commonCard(
+                Column(children: oneItem),
+                borderRadius: 0,
+                margin: EdgeInsets.only(bottom: 16),
+              );
             },
           ),
         );
@@ -112,81 +110,90 @@ class SubmitWorkHeaderItemView
   Widget build(BuildContext context) {
     return Column(
       children:
-          controller.children.values
-              .map((e) => _buildSubmitHeader(context, e))
-              .toList(),
+          controller.children.map((e) => _buildSubmitItem(context, e)).toList(),
     );
   }
 
-  Widget _buildSubmitHeaderItems(
+  Widget? _buildSubmitHeaders(
     BuildContext context,
     SubmitOneWorkTaskHeader node,
   ) {
     if (node.head == null) {
-      return SizedBox.shrink();
+      return null;
     }
-    final wrapChildren = <Widget>[];
-    for (var ph in node.parentHeads) {
-      wrapChildren.add(Text(ph.name, style: TextStyle(fontSize: 10)));
-      wrapChildren.add(const Text("/", style: TextStyle(fontSize: 10)));
-    }
-    wrapChildren.add(
-      Text(
-        node.head!.name,
-        style: TextStyle(
-          color: Colors.blue,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
+
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 1),
+      decoration: BoxDecoration(
+        border: Border.fromBorderSide(
+          BorderSide(width: 1.0, color: Colors.white),
         ),
+        color: Colors.yellow.withAlpha(40),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ...node.parentHeads.map(
+            (e) => Row(
+              children: [
+                Text(e.name, style: TextStyle(fontSize: 10, color: Colors.black)),
+                const Text("/", style: TextStyle(fontSize: 10, color: Colors.black)),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                node.head!.name,
+                style: TextStyle(
+                  color: Colors.purpleAccent,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+                softWrap: true,
+                // overflow: TextOverflow.ellipsis,
+              ),
+              if (node.head!.required)
+                const Text(
+                  "*",
+                  style: TextStyle(
+                    color: Colors.purpleAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
-    if (node.head!.required) {
-      wrapChildren.add(
-        const Text(
-          "*",
-          style: TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-      );
-    }
-    return Wrap(runAlignment: WrapAlignment.end, children: wrapChildren);
   }
 
-  Widget _buildSubmitHeader(
-    BuildContext context,
-    SubmitOneWorkTaskHeader node,
-  ) {
-    final w = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildSubmitHeaderItems(context, node),
-        TextField(
+  Widget _buildSubmitItem(BuildContext context, SubmitOneWorkTaskHeader node) {
+    final h = _buildSubmitHeaders(context, node);
+    final children = <Widget>[];
+    if (h != null) {
+      children.add(Expanded(flex: 1, child: h));
+    }
+    children.add(
+      Expanded(
+        flex: h != null ? 3 : 1,
+        child: TextField(
           controller: node.textEditingController,
-          textInputAction: TextInputAction.send,
+          textInputAction: TextInputAction.done,
           autofocus: true,
           maxLines: 4,
           textAlign: TextAlign.start,
           textAlignVertical: TextAlignVertical.top,
         ),
-      ],
-    );
-
-    final colorIdx =
-        (node.head?.id.toInt() ?? Random().nextInt(1000)) %
-        loadingColors.length;
-    // 把颜色做成随机透明的
-    final ra = 20 + 230 * Random().nextDouble().toInt();
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.fromBorderSide(
-          BorderSide(width: 1.0, color: Colors.black),
-        ),
-        color: loadingColors[colorIdx].withAlpha(ra),
       ),
-      child: w,
     );
+    final w = IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: children,
+      ),
+    );
+    return w;
   }
 }

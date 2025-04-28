@@ -103,8 +103,8 @@ class CheckableOrganizationOrUser {
 
 class SubmitOneWorkTaskHeader {
   WorkHeader? head;
-  final List<WorkHeader> parentHeads = <WorkHeader>[];
+  List<WorkHeader> parentHeads;
   final TextEditingController textEditingController = TextEditingController();
 
-  SubmitOneWorkTaskHeader([this.head]);
+  SubmitOneWorkTaskHeader([this.head, this.parentHeads = const []]);
 }

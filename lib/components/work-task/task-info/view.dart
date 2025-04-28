@@ -82,7 +82,7 @@ class TaskInfoView extends StatelessWidget {
           enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.submitTask:
-        return SubmitTasksView();
+        return MobileSubmitTasksView();
 
       case TaskOperationCategory.delegateTask:
         return _TaskInfoView(
