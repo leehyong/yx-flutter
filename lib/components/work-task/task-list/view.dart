@@ -428,20 +428,20 @@ class OneTaskView extends GetView<OneTaskController> {
         final routeId = Get.find<RootTabController>().curRouteId;
 
         children = [
-          InkWell(
-            onTap: () {
-              debugPrint("${task.name}任务详情！");
-              Get.toNamed(
-                '/task_detail',
-                arguments: WorkTaskPageParams(Int64.ZERO, task),
-                id: routeId,
-              );
-            },
-            child: const Text(
-              "点击查看详情",
-              style: TextStyle(color: Colors.blue, fontSize: 16),
-            ),
-          ),
+          // InkWell(
+          //   onTap: () {
+          //     debugPrint("${task.name}任务详情！");
+          //     Get.toNamed(
+          //       '/task_detail',
+          //       arguments: WorkTaskPageParams(Int64.ZERO, task),
+          //       id: routeId,
+          //     );
+          //   },
+          //   child: const Text(
+          //     "点击查看详情",
+          //     style: TextStyle(color: Colors.blue, fontSize: 16),
+          //   ),
+          // ),
         ];
         break;
       case TaskListCategory.delegatedToMe:
@@ -457,6 +457,7 @@ class OneTaskView extends GetView<OneTaskController> {
               ],
             ),
           ),
+          Spacer(),
           InkWell(
             onTap: () {
               debugPrint("接受${task.name}成功！");

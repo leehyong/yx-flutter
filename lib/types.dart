@@ -54,7 +54,7 @@ extension TaskListCategoryExtension on TaskListCategory {
   String get i18name {
     switch (this) {
       case TaskListCategory.allPublished:
-        return "全部";
+        return "任务列表";
       case TaskListCategory.myPublished:
         return "我发布的";
       case TaskListCategory.myManuscript:
