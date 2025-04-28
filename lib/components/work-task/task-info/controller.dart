@@ -13,14 +13,6 @@ class SubmitTasksController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isLoadingSubmitItem = false.obs;
 
-  @override
-  void onInit() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 在页面加载完成后滚动到第一个元素
-      scrollController.jumpTo(0);
-    });
-    super.onInit();
-  }
 }
 
 class TaskInfoController extends GetxController {
