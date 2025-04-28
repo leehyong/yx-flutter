@@ -10,8 +10,8 @@ import '../data.dart';
 // 填报任务项的时候使用它
 // todo： title 展示任务名， 并且可以查看任务的信息
 class MobileSubmitTasksView extends GetView<SubmitTasksController> {
-  MobileSubmitTasksView({super.key}) {
-    Get.put(SubmitTasksController());
+  MobileSubmitTasksView(bool readOnly, {super.key}) {
+    Get.put(SubmitTasksController(readOnly));
   }
 
   Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {
@@ -106,6 +106,8 @@ class SubmitWorkHeaderItemView
   @override
   String get tag => rootHeaderTreeId;
 
+  bool get readOnly => Get.find<SubmitTasksController>().readOnly;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -136,8 +138,14 @@ class SubmitWorkHeaderItemView
           ...node.parentHeads.map(
             (e) => Row(
               children: [
-                Text(e.name, style: TextStyle(fontSize: 10, color: Colors.black)),
-                const Text("/", style: TextStyle(fontSize: 10, color: Colors.black)),
+                Text(
+                  e.name,
+                  style: TextStyle(fontSize: 10, color: Colors.black),
+                ),
+                const Text(
+                  "/",
+                  style: TextStyle(fontSize: 10, color: Colors.black),
+                ),
               ],
             ),
           ),
@@ -178,14 +186,21 @@ class SubmitWorkHeaderItemView
     children.add(
       Expanded(
         flex: h != null ? 3 : 1,
-        child: TextField(
-          controller: node.textEditingController,
-          textInputAction: TextInputAction.done,
-          autofocus: true,
-          maxLines: 4,
-          textAlign: TextAlign.start,
-          textAlignVertical: TextAlignVertical.top,
-        ),
+        child:
+            readOnly
+                // todo 文本内容为对应填报的内容
+                ? Container(
+                  decoration: BoxDecoration(color: Colors.white),
+                  child: Text('iuiuuuu', maxLines: 10, softWrap: true),
+                )
+                : TextField(
+                  controller: node.textEditingController,
+                  textInputAction: TextInputAction.done,
+                  autofocus: true,
+                  maxLines: 5,
+                  textAlign: TextAlign.start,
+                  textAlignVertical: TextAlignVertical.top,
+                ),
       ),
     );
     final w = IntrinsicHeight(

@@ -12,6 +12,8 @@ import 'views/select_task_person.dart';
 class SubmitTasksController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isLoadingSubmitItem = false.obs;
+  late final bool readOnly;
+  SubmitTasksController(this.readOnly);
 }
 
 class TaskInfoController extends GetxController {
