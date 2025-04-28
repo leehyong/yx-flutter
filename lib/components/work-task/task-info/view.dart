@@ -24,36 +24,90 @@ class TaskInfoView extends StatelessWidget {
     required this.publishTaskParams,
   }) {
     final routeId = Get.find<RootTabController>().curRouteId;
-    var _title = TaskOperationCategory.detailTask;
+    var _opCategory = TaskOperationCategory.detailTask;
     if (publishTaskParams.opCat == null) {
       if (routeId == NestedNavigatorKeyId.hallId) {
         if (publishTaskParams.task == null || publishTaskParams.task!.id == 0) {
-          _title = TaskOperationCategory.publishTask;
+          _opCategory = TaskOperationCategory.publishTask;
         }
       } else if (routeId == NestedNavigatorKeyId.homeId) {
         // 我的任务那里的话就是填报任务了，此时 task 肯定满足以下条件
         assert(publishTaskParams.task != null);
         assert(publishTaskParams.task!.id > 0);
-        _title = TaskOperationCategory.submitTask;
+        _opCategory = TaskOperationCategory.submitTask;
       }
     } else {
-      _title = publishTaskParams.opCat!;
+      _opCategory = publishTaskParams.opCat!;
     }
-    title = _title;
+    opCategory = _opCategory;
   }
 
   final WorkTaskPageParams publishTaskParams;
 
-  // final int parentId;
-  // final WorkTask? task;
-  // final TaskListCategory taskCategory;
-  // final int routeId;
-  late final TaskOperationCategory title;
+  late final TaskOperationCategory opCategory;
+
+  Widget get title {
+    final children = <Widget>[];
+    switch (opCategory) {
+      case TaskOperationCategory.detailTask:
+        children.add(
+          const Text(
+            '详情:',
+            style: TextStyle(color: Colors.black, fontSize: 12),
+          ),
+        );
+        break;
+      case TaskOperationCategory.publishTask:
+        children.add(Text(opCategory.i18name, style: defaultTitleStyle));
+        break;
+      case TaskOperationCategory.submitTask:
+        children.add(
+          const Text(
+            '填报:',
+            style: TextStyle(color: Colors.black, fontSize: 12),
+          ),
+        );
+        break;
+      case TaskOperationCategory.delegateTask:
+        children.add(
+          const Text(
+            '委派:',
+            style: TextStyle(color: Colors.black, fontSize: 12),
+          ),
+        );
+        break;
+      case TaskOperationCategory.updateTask:
+        children.add(
+          const Text(
+            '修改:',
+            style: TextStyle(color: Colors.black, fontSize: 12),
+          ),
+        );
+        break;
+    }
+    if (publishTaskParams.task != null) {
+      children.add(
+        Container(
+          padding: EdgeInsets.only(bottom: 2, left: 3), // 控制下划线与文本的距离
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: defaultTitleStyle.color!,
+                width: 1, // 下划线粗细
+              ),
+            ),
+          ),
+          child: Text(publishTaskParams.task!.name, style: defaultTitleStyle),
+        ),
+      );
+    }
+    return Row(children: children);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title.i18name, style: defaultTitleStyle)),
+      appBar: AppBar(title: title),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: _buildBodyView(context),
@@ -62,7 +116,7 @@ class TaskInfoView extends StatelessWidget {
   }
 
   Widget _buildBodyView(BuildContext context) {
-    switch (title) {
+    switch (opCategory) {
       case TaskOperationCategory.detailTask:
         return _TaskInfoView(
           publishTaskParams.parentId,
