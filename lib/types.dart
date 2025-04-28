@@ -245,5 +245,6 @@ extension TaskTextTypeExtension on TaskTextType {
 enum TaskInfoAction{
   detail,
   write,
+  submit,
   delegate;
 }

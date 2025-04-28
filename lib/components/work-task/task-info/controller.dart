@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,7 +13,6 @@ import 'views/select_task_person.dart';
 class SubmitTasksController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isLoadingSubmitItem = false.obs;
-
 }
 
 class TaskInfoController extends GetxController {
@@ -24,10 +24,19 @@ class TaskInfoController extends GetxController {
       GlobalKey<SelectTaskPersonState>();
   late final Int64 taskId;
   late final Int64 parentId;
+  final TaskInfoAction action;
+
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers = (null as List<User>?).obs;
 
-  TaskInfoController(this.parentId, this.taskId);
+  TaskInfoController(this.parentId, this.taskId, this.action) {
+    final defaultCat =
+        action == TaskInfoAction.submit
+            ? TaskAttributeCategory.submitItem
+            : TaskAttributeCategory.basic;
+    selectedAttrSet.value.clear();
+    selectedAttrSet.value.add(defaultCat);
+  }
 
   final taskNameController = TextEditingController();
   final taskContentController = TextEditingController();

@@ -136,7 +136,12 @@ class TaskInfoView extends StatelessWidget {
           enableSelectChildrenTasks: false,
         );
       case TaskOperationCategory.submitTask:
-        return MobileSubmitTasksView();
+        return _TaskInfoView(
+          publishTaskParams.parentId,
+          publishTaskParams.task!.id,
+          enableSelectChildrenTasks: false,
+          action: TaskInfoAction.submit,
+        );
 
       case TaskOperationCategory.delegateTask:
         return _TaskInfoView(
@@ -153,21 +158,20 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   _TaskInfoView(
     Int64 parentId,
     Int64 taskId, {
-    this.action = TaskInfoAction.write,
+    TaskInfoAction action = TaskInfoAction.write,
     this.enableSelectChildrenTasks = true,
   }) {
-    Get.put(TaskInfoController(parentId, taskId));
+    Get.put(TaskInfoController(parentId, taskId, action));
   }
 
-  final TaskInfoAction action;
   final bool enableSelectChildrenTasks;
 
-  bool get readOnly => action != TaskInfoAction.write;
+  bool get readOnly => controller.action != TaskInfoAction.write;
 
   @override
   Widget build(BuildContext context) {
     Widget actions = SizedBox.shrink();
-    switch (action) {
+    switch (controller.action) {
       case TaskInfoAction.write:
         actions = maybeOneThirdCenterHorizontal(_buildActions(context));
         break;
@@ -192,10 +196,20 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     });
   }
 
+  List<TaskAttributeCategory> get segmentedBtnCategories =>
+      controller.action == TaskInfoAction.submit
+          ? [
+            TaskAttributeCategory.submitItem,
+            TaskAttributeCategory.basic,
+            TaskAttributeCategory.parentTask,
+            TaskAttributeCategory.childrenTask,
+          ]
+          : TaskAttributeCategory.values;
+
   Widget _buildRelationAttributes(BuildContext context) {
     return SegmentedButton(
       segments:
-          TaskAttributeCategory.values
+          segmentedBtnCategories
               .map((e) => ButtonSegment(value: e, label: Text(e.i18name)))
               .toList(),
       onSelectionChanged: (s) {
@@ -214,7 +228,9 @@ class _TaskInfoView extends GetView<TaskInfoController> {
           _publishTaskBasicInfoView(context),
         );
       case TaskAttributeCategory.submitItem:
-        return PublishSubmitItemsCrudView(controller.taskId, readOnly);
+        return controller.action == TaskInfoAction.submit
+            ? MobileSubmitTasksView()
+            : PublishSubmitItemsCrudView(controller.taskId, readOnly);
 
       case TaskAttributeCategory.parentTask:
         return _publishTaskParentInfoView(context);
