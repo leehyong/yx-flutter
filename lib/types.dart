@@ -85,7 +85,14 @@ extension TaskListCategoryExtension on TaskListCategory {
   ];
 }
 
-enum TaskOperationCategory { detailTask, publishTask, submitTask, delegateTask, updateTask }
+enum TaskOperationCategory {
+  detailTask,
+  publishTask,
+  submitTask,
+  submitDetailTask,
+  delegateTask,
+  updateTask,
+}
 
 extension TaskOperationCategoryExtension on TaskOperationCategory {
   String get i18name {
@@ -96,6 +103,8 @@ extension TaskOperationCategoryExtension on TaskOperationCategory {
         return '发布任务';
       case TaskOperationCategory.submitTask:
         return '填报任务';
+      case TaskOperationCategory.submitDetailTask:
+        return '填报详情';
       case TaskOperationCategory.delegateTask:
         return '委派任务';
       case TaskOperationCategory.updateTask:
@@ -241,10 +250,4 @@ extension TaskTextTypeExtension on TaskTextType {
   }
 }
 
-
-enum TaskInfoAction{
-  detail,
-  write,
-  submit,
-  delegate;
-}
+enum TaskInfoAction { detail, write, submit, delegate, submitDetail }

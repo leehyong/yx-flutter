@@ -50,6 +50,7 @@ class TaskInfoView extends StatelessWidget {
     final children = <Widget>[];
     switch (opCategory) {
       case TaskOperationCategory.detailTask:
+      case TaskOperationCategory.submitDetailTask:
         children.add(
           const Text(
             '详情:',
@@ -150,6 +151,13 @@ class TaskInfoView extends StatelessWidget {
           enableSelectChildrenTasks: false,
           action: TaskInfoAction.delegate,
         );
+      case TaskOperationCategory.submitDetailTask:
+        return _TaskInfoView(
+          publishTaskParams.parentId,
+          publishTaskParams.task!.id,
+          enableSelectChildrenTasks: false,
+          action: TaskInfoAction.submitDetail,
+        );
     }
   }
 }
@@ -197,7 +205,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   }
 
   List<TaskAttributeCategory> get segmentedBtnCategories =>
-      controller.action == TaskInfoAction.submit
+      controller.isSubmitRelated
           ? [
             TaskAttributeCategory.submitItem,
             TaskAttributeCategory.basic,
@@ -228,7 +236,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
           _publishTaskBasicInfoView(context),
         );
       case TaskAttributeCategory.submitItem:
-        return controller.action == TaskInfoAction.submit
+        return controller.isSubmitRelated
             ? MobileSubmitTasksView()
             : PublishSubmitItemsCrudView(controller.taskId, readOnly);
 

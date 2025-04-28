@@ -94,6 +94,8 @@ class OneTaskView extends GetView<OneTaskController> {
               break;
             // 这些是在填报任务项的时候的
             case TaskListCategory.finished:
+              op = TaskOperationCategory.submitDetailTask;
+              break;
             case TaskListCategory.myParticipant:
               op = TaskOperationCategory.submitTask;
               break;
@@ -120,10 +122,16 @@ class OneTaskView extends GetView<OneTaskController> {
               break;
             case NestedNavigatorKeyId.homeId:
               // 默认是跳到任务提交页
-              page = WorkTaskRoutes.homeTaskSubmit;
-              if (taskCategory == TaskListCategory.delegatedToMe) {
-                // 委托页的话，需要查看详情之后再确认是否接受还是拒绝
-                page = WorkTaskRoutes.homeTaskDetail;
+              switch (taskCategory) {
+                case TaskListCategory.delegatedToMe:
+                  page = WorkTaskRoutes.homeTaskDetail;
+                  break;
+                case TaskListCategory.finished:
+                  //   todo: 此时要展示任务的填报内容
+                  page = WorkTaskRoutes.homeTaskDetail;
+                  break;
+                default:
+                  page = WorkTaskRoutes.homeTaskSubmit;
               }
               break;
             default:

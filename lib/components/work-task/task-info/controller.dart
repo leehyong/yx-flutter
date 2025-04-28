@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,9 +28,12 @@ class TaskInfoController extends GetxController {
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers = (null as List<User>?).obs;
 
+  bool get isSubmitRelated =>
+      action == TaskInfoAction.submit || action == TaskInfoAction.submitDetail;
+
   TaskInfoController(this.parentId, this.taskId, this.action) {
     final defaultCat =
-        action == TaskInfoAction.submit
+        isSubmitRelated
             ? TaskAttributeCategory.submitItem
             : TaskAttributeCategory.basic;
     selectedAttrSet.value.clear();
