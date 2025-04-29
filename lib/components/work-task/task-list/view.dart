@@ -28,7 +28,7 @@ class TaskListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (ctx, constraints) {
-        final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
+        final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
         final cnt = tasks.length;
         return GridView.builder(
           primary: true,
@@ -38,7 +38,7 @@ class TaskListView extends StatelessWidget {
             crossAxisCount: crossCount,
             crossAxisSpacing: crossCount == 1 ? 0 : 6,
             mainAxisSpacing: 1,
-            childAspectRatio: 2,
+            childAspectRatio: crossCount == 1 ? 2 : 1.5,
           ),
           itemBuilder: (BuildContext context, int index) {
             return index < tasks.length
