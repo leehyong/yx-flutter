@@ -139,9 +139,9 @@ class SubmitOneTaskHeaderItemController extends GetxController {
     for (var entry in headers.asMap().entries) {
       final tmpParents = parents ?? [];
       if (entry.value.children.isEmpty) {
-        children.add(SubmitOneWorkTaskHeader(entry.value.task, tmpParents));
+        children.add(SubmitOneWorkTaskHeader(entry.value.header, tmpParents));
       } else {
-        tmpParents.add(entry.value.task);
+        tmpParents.add(entry.value.header);
         _buildSubmitWorkHeaders(entry.value.children, parents: tmpParents);
       }
     }

@@ -25,12 +25,12 @@ class MobileSubmitTasksView extends GetView<SubmitTasksController> {
             child: Padding(
               padding: EdgeInsets.only(left: 4),
               child: Tooltip(
-                message: root.task.name,
+                message: root.header.name,
                 child: Row(
                   spacing: 4,
                   children: [
                     Text(
-                      root.task.name,
+                      root.header.name,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
@@ -46,7 +46,7 @@ class MobileSubmitTasksView extends GetView<SubmitTasksController> {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    buildTaskOpenRangeAndContentType(root.task, isRow: true),
+                    buildTaskOpenRangeAndContentType(root.header, isRow: true),
                   ],
                 ),
               ),
@@ -74,7 +74,7 @@ class MobileSubmitTasksView extends GetView<SubmitTasksController> {
               final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
               oneItem.add(
                 SubmitWorkHeaderItemView(
-                  headerTree.task.id.toString(),
+                  headerTree.header.id.toString(),
                   headerTree.children,
                 ),
               );
@@ -191,7 +191,7 @@ class SubmitWorkHeaderItemView
                 // todo 文本内容为对应填报的内容
                 ? Container(
                   decoration: BoxDecoration(color: Colors.white),
-                  child: Text('iuiuuuu', maxLines: 10, softWrap: true),
+                  child: Text('iuiuuuu', softWrap: true),
                 )
                 : TextField(
                   controller: node.textEditingController,

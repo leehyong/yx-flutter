@@ -161,8 +161,8 @@ class PublishItemsCrudController extends GetxController {
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(WorkHeaderTree tree) {
       // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
       final node = TreeNode(
-        key: "${tree.task.id}$innerNodeKey",
-        data: tree.task,
+        key: "${tree.header.id}$innerNodeKey",
+        data: tree.header,
       );
       node.addAll(
         tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
