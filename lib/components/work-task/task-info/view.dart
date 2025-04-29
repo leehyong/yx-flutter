@@ -189,8 +189,8 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         break;
     }
 
-    return Obx(() {
-      return Form(
+    return Obx(
+      () => Form(
         key: controller.formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,8 +200,8 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             actions,
           ],
         ),
-      );
-    });
+      ),
+    );
   }
 
   List<TaskAttributeCategory> get segmentedBtnCategories =>

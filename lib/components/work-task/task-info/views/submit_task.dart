@@ -61,40 +61,35 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (ctx, constraints) {
-        // final crossCount = constraints.maxWidth >= 720 ? 4 : 1;
-        final cnt = submitItems.length;
-        final isBigScreen = MediaQuery.of(ctx).size.width > 720;
-        return Obx(
-          () => ListView.builder(
-            cacheExtent: 100,
-            controller: controller.scrollController,
-            // addRepaintBoundaries:t,
-            itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
-            itemBuilder: (ctx, idx) {
-              final headerTree = submitItems[idx];
-              final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
-              oneItem.add(
-                isBigScreen
-                    ? _WebSubmitWorkHeaderItemView(
-                      headerTree.header.id.toString(),
-                      headerTree.children,
-                    )
-                    : _MobileSubmitWorkHeaderItemView(
-                      headerTree.header.id.toString(),
-                      headerTree.children,
-                    ),
-              );
-              return commonCard(
-                Column(children: oneItem),
-                borderRadius: 0,
-                margin: EdgeInsets.only(bottom: 16),
-              );
-            },
-          ),
-        );
-      },
+    final cnt = submitItems.length;
+    final isBigScreen = MediaQuery.of(context).size.width > 720;
+    return Obx(
+      () => ListView.builder(
+        cacheExtent: 100,
+        controller: controller.scrollController,
+        // addRepaintBoundaries:t,
+        itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
+        itemBuilder: (ctx, idx) {
+          final headerTree = submitItems[idx];
+          final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
+          oneItem.add(
+            isBigScreen
+                ? _WebSubmitWorkHeaderItemView(
+                  headerTree.header.id.toString(),
+                  headerTree.children,
+                )
+                : _MobileSubmitWorkHeaderItemView(
+                  headerTree.header.id.toString(),
+                  headerTree.children,
+                ),
+          );
+          return commonCard(
+            Column(children: oneItem),
+            borderRadius: 0,
+            margin: EdgeInsets.only(bottom: 16),
+          );
+        },
+      ),
     );
   }
 }
@@ -246,6 +241,15 @@ class _WebSubmitWorkHeaderItemView
 
   @override
   Widget build(BuildContext context) {
+    if (controller.children.isEmpty) {
+      return TextFormField(
+        textInputAction: TextInputAction.done,
+        autofocus: true,
+        maxLines: 4,
+        textAlign: TextAlign.start,
+        textAlignVertical: TextAlignVertical.top,
+      );
+    }
     return Column(
       children:
           controller.children
@@ -265,7 +269,6 @@ class _WebSubmitWorkHeaderItemView
     WorkHeaderTree node,
     Color? parentColor,
   ) {
-    final w;
     if (node.children.isEmpty) {
       final headerColor = node.header.required ? Colors.red : Colors.black;
       // 没有子节点时，独占一行
@@ -323,7 +326,7 @@ class _WebSubmitWorkHeaderItemView
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: EdgeInsets.symmetric(vertical: 4),
+              margin: EdgeInsets.symmetric(vertical: depth == 0 ? 4 : 0),
               decoration: BoxDecoration(color: parentColor),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
