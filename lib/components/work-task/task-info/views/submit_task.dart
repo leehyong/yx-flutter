@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import '../../../work-header/controller.dart';
@@ -62,7 +63,6 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
   @override
   Widget build(BuildContext context) {
     final cnt = submitItems.length;
-    final isBigScreen = MediaQuery.of(context).size.width > 720;
     return Obx(
       () => ListView.builder(
         cacheExtent: 100,
@@ -73,7 +73,7 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
           final headerTree = submitItems[idx];
           final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
           oneItem.add(
-            isBigScreen
+            isBigScreen(context)
                 ? _WebSubmitWorkHeaderItemView(
                   headerTree.header.id.toString(),
                   headerTree.children,

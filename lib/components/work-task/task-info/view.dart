@@ -109,7 +109,11 @@ class TaskInfoView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: title),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
+        padding: EdgeInsets.only(
+          left: 4,
+          right: 4,
+          bottom: isBigScreen(context) ? 10 : 4,
+        ),
         child: _buildBodyView(context),
       ),
     );
@@ -199,6 +203,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             _buildRelationAttributes(context),
             Expanded(child: _buildTaskRelates(context)),
             actions,
+            // Align(alignment: Alignment.center, child: actions,),
           ],
         ),
       ),
@@ -251,7 +256,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
 
   Widget _buildActions(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment:
+          isBigScreen(context)
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.end,
       spacing: 10,
       children: [
         ElevatedButton(
@@ -285,7 +293,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
 
   Widget _buildDelegateActions(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment:
+          isBigScreen(context)
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.end,
       spacing: 10,
       children: [
         ElevatedButton(

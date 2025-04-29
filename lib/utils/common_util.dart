@@ -120,3 +120,5 @@ WoltModalType woltModalType(BuildContext context){
     return WoltModalType.sideSheet();
   }
 }
+
+bool isBigScreen(BuildContext context) => MediaQuery.of(context).size.width > 720;
