@@ -237,7 +237,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         );
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
-            ? MobileSubmitTasksView(controller.action == TaskInfoAction.submitDetail)
+            ? SubmitTasksView(controller.action == TaskInfoAction.submitDetail)
             : PublishSubmitItemsCrudView(controller.taskId, readOnly);
 
       case TaskAttributeCategory.parentTask:

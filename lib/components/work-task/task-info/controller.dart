@@ -117,12 +117,12 @@ class TaskInfoController extends GetxController {
   }
 }
 
-class SubmitOneTaskHeaderItemController extends GetxController {
+class MobileSubmitOneTaskHeaderItemController extends GetxController {
   late final List<SubmitOneWorkTaskHeader> children;
 
   // late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
 
-  SubmitOneTaskHeaderItemController(List<WorkHeaderTree> children) {
+  MobileSubmitOneTaskHeaderItemController(List<WorkHeaderTree> children) {
     // this.children = LinkedHashMap<int, SubmitOneWorkTaskHeader>();
     if (children.isEmpty) {
       this.children = [SubmitOneWorkTaskHeader()];
@@ -146,4 +146,10 @@ class SubmitOneTaskHeaderItemController extends GetxController {
       }
     }
   }
+}
+
+
+class WebSubmitOneTaskHeaderItemController extends GetxController {
+  final List<WorkHeaderTree> children;
+  WebSubmitOneTaskHeaderItemController(this.children);
 }
