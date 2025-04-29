@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yx/types.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import '../../../work-header/controller.dart';
@@ -247,40 +246,55 @@ class _WebSubmitWorkHeaderItemView
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-          () => Column(
-        children:
-        controller.children
-            .asMap()
-            .entries
-            .map(
-              (e) => _buildHeaderTreeByDfs(context, e.key, 0,  e.value),
-        )
-            .toList(),
-      ),
+    return Column(
+      children:
+          controller.children
+              .asMap()
+              .entries
+              .map(
+                (e) => _buildHeaderTreeByDfs(context, e.key, 0, e.value, null),
+              )
+              .toList(),
     );
   }
 
   Widget _buildHeaderTreeByDfs(
-      BuildContext context,
-      int idx,
-      int depth,
-      WorkHeaderTree node,
-      ) {
+    BuildContext context,
+    int idx,
+    int depth,
+    WorkHeaderTree node,
+    Color? parentColor,
+  ) {
     final w;
     if (node.children.isEmpty) {
+      final headerColor = node.header.required ? Colors.red : Colors.black;
       // 没有子节点时，独占一行
       return Column(
         children: [
-          Row(
-            children: [
-              if (node.header.required)
-              const Text("*"), // 是否必填
-              Text(
-                node.header.name,
-                style: TextStyle(overflow: TextOverflow.ellipsis),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: headerColor,
+                  width: 1, // 下划线粗细
+                ),
               ),
-            ],
+            ),
+            child: Row(
+              spacing: 4,
+              children: [
+                Icon(Icons.swipe_right_alt, color: headerColor),
+                Text(
+                  node.header.name,
+                  style: TextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    color: headerColor,
+                  ),
+                ),
+                buildTaskOpenRangeAndContentType(node.header, isRow: true),
+              ],
+            ),
           ),
           TextFormField(
             textInputAction: TextInputAction.done,
@@ -292,32 +306,51 @@ class _WebSubmitWorkHeaderItemView
         ],
       );
     } else {
-      w = Row(
-        // spacing: 4,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children:
-        node.children.asMap().entries.map((e) {
-          return _buildHeaderTreeByDfs(
-            context,
-            e.key,
-            depth + 1,
-            e.value,
-          );
-        }).toList(),
+      if (parentColor == null) {
+        parentColor = Colors.blue;
+      } else {
+        // 把颜色做成随机透明的
+        int alpha = min(255, (idx + depth + 1) * 10);
+        if (alpha == 255) {
+          alpha = 20 + 230 * Random().nextDouble().toInt();
+        }
+        parentColor = parentColor.withAlpha(alpha);
+      }
+
+      return IntrinsicHeight(
+        child: Row(
+          // spacing: 4,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 4),
+              decoration: BoxDecoration(color: parentColor),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(node.header.name),
+                  buildTaskOpenRangeAndContentType(node.header, isRow: true),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  ...node.children.asMap().entries.map((e) {
+                    return _buildHeaderTreeByDfs(
+                      context,
+                      e.key,
+                      depth + 1,
+                      e.value,
+                      parentColor,
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ],
+        ),
       );
     }
-
-    final colorIdx = (idx + depth) % loadingColors.length;
-    // 把颜色做成随机透明的
-    final ra = 20 + 230 * Random().nextDouble().toInt();
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.fromBorderSide(
-          BorderSide(width: 1.0, color: Colors.black),
-        ),
-        color: loadingColors[colorIdx].withAlpha(ra),
-      ),
-      child: w,
-    );
   }
 }

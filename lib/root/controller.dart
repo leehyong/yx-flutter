@@ -10,7 +10,7 @@ import 'views/profile_view.dart';
 class RootController extends GetxController {}
 
 class RootTabController extends GetxController {
-  final curTab = 1.obs;
+  final curTab = 0.obs;
   final menuOpen = false.obs;
 
   static RootTabController get to => Get.find();
