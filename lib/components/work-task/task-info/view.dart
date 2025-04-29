@@ -8,7 +8,6 @@ import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
-import 'package:yx/utils/common_widget.dart';
 
 import '../../work-header/view.dart';
 import '../task-list/view.dart';
@@ -181,10 +180,12 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     Widget actions = SizedBox.shrink();
     switch (controller.action) {
       case TaskInfoAction.write:
-        actions = maybeOneThirdCenterHorizontal(_buildActions(context));
+        // actions = maybeOneThirdCenterHorizontal(_buildActions(context));
+        actions = _buildActions(context);
         break;
       case TaskInfoAction.delegate:
-        actions = maybeOneThirdCenterHorizontal(_buildDelegateActions(context));
+        // actions = maybeOneThirdCenterHorizontal(_buildDelegateActions(context));
+        actions = _buildDelegateActions(context);
       default:
         break;
     }
@@ -232,9 +233,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   Widget _buildTaskRelates(BuildContext context) {
     switch (controller.selectedAttrSet.first) {
       case TaskAttributeCategory.basic:
-        return maybeOneThirdCenterHorizontal(
-          _publishTaskBasicInfoView(context),
-        );
+        // return maybeOneThirdCenterHorizontal(
+        //   _publishTaskBasicInfoView(context),
+        // );
+        return _publishTaskBasicInfoView(context);
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
             ? SubmitTasksView(controller.action == TaskInfoAction.submitDetail)

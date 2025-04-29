@@ -6,7 +6,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
-import 'package:yx/utils/common_widget.dart';
 
 import '../data.dart';
 
@@ -113,38 +112,37 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
   }
 
   Widget _buildSearchableTask(BuildContext context) {
-    return maybeOneThirdCenterHorizontal(
-      Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _searchNameController,
-              decoration: InputDecoration(
-                labelText: "请输入用户名称",
-                icon: Icon(Icons.people),
-              ),
+    // return maybeOneThirdCenterHorizontal(
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _searchNameController,
+            decoration: InputDecoration(
+              labelText: "请输入用户名称",
+              icon: Icon(Icons.people),
             ),
           ),
-          ElevatedButton.icon(
-            onPressed: () {
-              //   搜索用户
-              _recursiveSearchUserNameByDfs(
-                _checkableTree,
-                _searchNameController.text.trim(),
-              );
-            },
-            label: Row(children: [const Icon(Icons.search), const Text("搜索")]),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              //   重置用户
-              _searchNameController.text = '';
-              _recursiveSearchUserNameByDfs(_checkableTree, '');
-            },
-            label: Row(children: [const Icon(Icons.search), const Text("重置")]),
-          ),
-        ],
-      ),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            //   搜索用户
+            _recursiveSearchUserNameByDfs(
+              _checkableTree,
+              _searchNameController.text.trim(),
+            );
+          },
+          label: Row(children: [const Icon(Icons.search), const Text("搜索")]),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            //   重置用户
+            _searchNameController.text = '';
+            _recursiveSearchUserNameByDfs(_checkableTree, '');
+          },
+          label: Row(children: [const Icon(Icons.search), const Text("重置")]),
+        ),
+      ],
     );
   }
 
@@ -231,17 +229,11 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
     final cnt = node.childrenAsList
         .map(
           (e) =>
-              (e as TreeNode<CheckableOrganizationOrUser>).data!.hidden
-                  ? 0
-                  : 1,
+              (e as TreeNode<CheckableOrganizationOrUser>).data!.hidden ? 0 : 1,
         )
         .fold(0, (prev, cur) => prev + cur);
     return cnt == 0
         ? item
-        : Badge.count(
-          alignment: Alignment.topLeft,
-          count: cnt,
-          child: item,
-        );
+        : Badge.count(alignment: Alignment.topLeft, count: cnt, child: item);
   }
 }

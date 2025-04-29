@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
@@ -23,11 +22,11 @@ Widget emptyWidget(
   ),
 );
 
-Widget maybeOneThirdCenterHorizontal(Widget w) =>
-    GetPlatform.isMobile ? w : Row(children: [Spacer(), w, Spacer()]);
-
-Widget maybeOneThirdCenterVertical(Widget w) =>
-    GetPlatform.isMobile ? w : Column(children: [Spacer(), w, Spacer()]);
+// Widget maybeOneThirdCenterHorizontal(Widget w) =>
+//     GetPlatform.isMobile ? w : Row(children: [Spacer(), Expanded(child: w), Spacer()]);
+//
+// Widget maybeOneThirdCenterVertical(Widget w) =>
+//     GetPlatform.isMobile ? w : Column(children: [Spacer(), Expanded(child: w), Spacer()]);
 
 Widget commonCard(
   Widget w, {
