@@ -94,25 +94,33 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
   }
 }
 
-class _MobileSubmitWorkHeaderItemView
-    extends GetView<MobileSubmitOneTaskHeaderItemController> {
-  _MobileSubmitWorkHeaderItemView(
-    this.rootHeaderTreeId,
-    List<WorkHeaderTree> children, {
-    super.key,
-  }) {
-    Get.put(
-      MobileSubmitOneTaskHeaderItemController(children),
-      tag: rootHeaderTreeId,
-    );
-  }
-
+abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
+    extends GetView<T> {
   final String rootHeaderTreeId;
+
+  const _AbstractSubmitWorkHeaderItemView(this.rootHeaderTreeId, {super.key});
 
   @override
   String get tag => rootHeaderTreeId;
 
   bool get readOnly => Get.find<SubmitTasksController>().readOnly;
+}
+
+class _MobileSubmitWorkHeaderItemView
+    extends
+        _AbstractSubmitWorkHeaderItemView<
+          MobileSubmitOneTaskHeaderItemController
+        > {
+  _MobileSubmitWorkHeaderItemView(
+    super.rootHeaderTreeId,
+    List<WorkHeaderTree> children, {
+    super.key,
+  }) {
+    Get.put(
+      MobileSubmitOneTaskHeaderItemController(children),
+      tag: tag,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,24 +228,20 @@ class _MobileSubmitWorkHeaderItemView
 }
 
 class _WebSubmitWorkHeaderItemView
-    extends GetView<WebSubmitOneTaskHeaderItemController> {
+    extends
+        _AbstractSubmitWorkHeaderItemView<
+          WebSubmitOneTaskHeaderItemController
+        > {
   _WebSubmitWorkHeaderItemView(
-    this.rootHeaderTreeId,
+    super.rootHeaderTreeId,
     List<WorkHeaderTree> children, {
     super.key,
   }) {
     Get.put(
       WebSubmitOneTaskHeaderItemController(children),
-      tag: rootHeaderTreeId,
+      tag: tag,
     );
   }
-
-  final String rootHeaderTreeId;
-
-  @override
-  String get tag => rootHeaderTreeId;
-
-  bool get readOnly => Get.find<SubmitTasksController>().readOnly;
 
   @override
   Widget build(BuildContext context) {
