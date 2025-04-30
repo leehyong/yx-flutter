@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:timer_count_down/timer_count_down.dart';
-import 'package:yx/modules/login/controllers/phone_login_controller.dart';
+
+import '../controllers/phone_login_controller.dart';
 
 class PhoneLoginView extends GetView<PhoneLoginController> {
   const PhoneLoginView({super.key});
@@ -104,6 +105,7 @@ class PhoneLoginView extends GetView<PhoneLoginController> {
       ),
     );
   }
+
   Widget buildPhoneCaptchaTextField(BuildContext context) {
     return TextFormField(
       onChanged: (v) => controller.captcha.value = v!,

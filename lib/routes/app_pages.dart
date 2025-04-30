@@ -3,13 +3,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../components/change-pwd/bindings/change_pwd_binding.dart';
+import '../components/change-pwd/views/change_pwd_view.dart';
+import '../components/login/bindings/login_binding.dart';
+import '../components/login/views/login_view.dart';
+import '../components/settings/bindings/settings_binding.dart';
+import '../components/settings/views/settings_view.dart';
 import '../middlewares/auth_middleware.dart';
-import '../modules/change-pwd/bindings/change_pwd_binding.dart';
-import '../modules/change-pwd/views/change_pwd_view.dart';
-import '../modules/login/bindings/login_binding.dart';
-import '../modules/login/views/login_view.dart';
-import '../modules/settings/bindings/settings_binding.dart';
-import '../modules/settings/views/settings_view.dart';
 import '../root/binding.dart';
 import '../root/view.dart';
 

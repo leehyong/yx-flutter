@@ -1,10 +1,9 @@
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
-import 'package:yx/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/services/auth_service.dart';
 
 import '../../../components/user/change_pwd_comp.dart';
-import '../../../routes/app_pages.dart';
 
 class ChangePwdView extends GetView<GetxController> {
   const ChangePwdView({super.key});

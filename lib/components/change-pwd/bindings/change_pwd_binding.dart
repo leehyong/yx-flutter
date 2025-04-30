@@ -1,5 +1,5 @@
-import 'package:yx/api/user_provider.dart';
 import 'package:get/get.dart';
+import 'package:yx/api/user_provider.dart';
 
 import '../../../components/user/controller/change_pwd.dart';
 
