@@ -173,11 +173,12 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     this.enableSelectChildrenTasks = true,
   }) {
     Get.put(TaskInfoController(parentId, taskId, action));
+    Get.put(SubmitTasksController());
   }
 
   final bool enableSelectChildrenTasks;
 
-  bool get readOnly => controller.action != TaskInfoAction.write;
+  bool get readOnly => controller.readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -198,9 +199,12 @@ class _TaskInfoView extends GetView<TaskInfoController> {
       () => Form(
         key: controller.formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildRelationAttributes(context),
+            Align(
+              alignment: Alignment.topLeft,
+              child: _buildRelationAttributes(context),
+            ),
+            SizedBox(height: 10),
             Expanded(child: _buildTaskRelates(context)),
             actions,
             // Align(alignment: Alignment.center, child: actions,),
@@ -227,7 +231,6 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               .map((e) => ButtonSegment(value: e, label: Text(e.i18name)))
               .toList(),
       onSelectionChanged: (s) {
-        debugPrint(s.toString());
         controller.selectedAttrSet.value = s;
       },
       selected: controller.selectedAttrSet.value,
@@ -244,7 +247,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         return _publishTaskBasicInfoView(context);
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
-            ? SubmitTasksView(controller.action == TaskInfoAction.submitDetail)
+            ? SubmitTasksView()
             : PublishSubmitItemsCrudView(controller.taskId, readOnly);
 
       case TaskAttributeCategory.parentTask:

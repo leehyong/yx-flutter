@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../../../work-header/controller.dart';
 import '../../../work-header/data.dart';
 import '../controller.dart';
 import '../data.dart';
@@ -13,9 +15,7 @@ import '../data.dart';
 // 填报任务项的时候使用它
 // todo： title 展示任务名， 并且可以查看任务的信息
 class SubmitTasksView extends GetView<SubmitTasksController> {
-  SubmitTasksView(bool readOnly, {super.key}) {
-    Get.put(SubmitTasksController(readOnly));
-  }
+  const SubmitTasksView({super.key});
 
   Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {
     return Container(
@@ -62,48 +62,69 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
 
   @override
   Widget build(BuildContext context) {
-    final cnt = submitItems.length;
-    return Obx(
-      () => ListView.builder(
-        cacheExtent: 100,
-        controller: controller.scrollController,
-        // addRepaintBoundaries:t,
-        itemCount: controller.isLoadingSubmitItem.value ? cnt + 1 : cnt,
-        itemBuilder: (ctx, idx) {
-          final headerTree = submitItems[idx];
-          final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
-          oneItem.add(
-            isBigScreen(context)
-                ? _WebSubmitWorkHeaderItemView(
-                  headerTree.header.id.toString(),
-                  headerTree.children,
-                )
-                : _MobileSubmitWorkHeaderItemView(
-                  headerTree.header.id.toString(),
-                  headerTree.children,
+    return FutureBuilder(
+      future: controller.initTaskSubmitItems(),
+      builder: (context, snapshot) {
+        return Obx(() {
+          if (controller.isLoadingSubmitItem.value !=
+              DataLoadingStatus.loaded) {
+            return Center(
+              child: SizedBox(
+                width: 200,
+                height: 200,
+                child: LoadingIndicator(
+                  indicatorType: Indicator.ballScaleRipple,
+
+                  /// Required, The loading type of the widget
+                  colors: loadingColors,
+                  strokeWidth: 3,
                 ),
+              ),
+            );
+          }
+          final cnt = controller.taskSubmitItems.value!.length;
+
+          return ListView.builder(
+            cacheExtent: 100,
+            controller: controller.scrollController,
+            itemCount: cnt,
+            itemBuilder: (ctx, idx) {
+              final headerTree = controller.taskSubmitItems.value![idx];
+              final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
+              oneItem.add(
+                isBigScreen(context)
+                    ? _WebSubmitWorkHeaderItemView(
+                      headerTree.header.id,
+                      headerTree.children,
+                    )
+                    : _MobileSubmitWorkHeaderItemView(
+                      headerTree.header.id,
+                      headerTree.children,
+                    ),
+              );
+              return commonCard(
+                Column(children: oneItem),
+                borderRadius: 0,
+                margin: EdgeInsets.only(bottom: 16),
+              );
+            },
           );
-          return commonCard(
-            Column(children: oneItem),
-            borderRadius: 0,
-            margin: EdgeInsets.only(bottom: 16),
-          );
-        },
-      ),
+        });
+      },
     );
   }
 }
 
 abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
     extends GetView<T> {
-  final String rootHeaderTreeId;
+  final Int64 rootHeaderTreeId;
 
   const _AbstractSubmitWorkHeaderItemView(this.rootHeaderTreeId, {super.key});
 
   @override
-  String get tag => rootHeaderTreeId;
+  String get tag => rootHeaderTreeId.toString();
 
-  bool get readOnly => Get.find<SubmitTasksController>().readOnly;
+  bool get readOnly => Get.find<TaskInfoController>().readOnly;
 }
 
 class _MobileSubmitWorkHeaderItemView
@@ -116,10 +137,7 @@ class _MobileSubmitWorkHeaderItemView
     List<WorkHeaderTree> children, {
     super.key,
   }) {
-    Get.put(
-      MobileSubmitOneTaskHeaderItemController(children),
-      tag: tag,
-    );
+    Get.put(MobileSubmitOneTaskHeaderItemController(children), tag: tag);
   }
 
   @override
@@ -208,7 +226,8 @@ class _MobileSubmitWorkHeaderItemView
                   child: Text('iuiuuuu', softWrap: true),
                 )
                 : TextField(
-                  controller: node.textEditingController,
+                  controller: controller.submitTasksController
+                      .getLeafTextEditingController(node.head!.id),
                   textInputAction: TextInputAction.done,
                   autofocus: true,
                   maxLines: 5,
@@ -237,22 +256,23 @@ class _WebSubmitWorkHeaderItemView
     List<WorkHeaderTree> children, {
     super.key,
   }) {
-    Get.put(
-      WebSubmitOneTaskHeaderItemController(children),
-      tag: tag,
-    );
+    Get.put(WebSubmitOneTaskHeaderItemController(children), tag: tag);
   }
 
   @override
   Widget build(BuildContext context) {
     if (controller.children.isEmpty) {
-      return TextFormField(
-        textInputAction: TextInputAction.done,
-        autofocus: true,
-        maxLines: 4,
-        textAlign: TextAlign.start,
-        textAlignVertical: TextAlignVertical.top,
-      );
+      return controller.submitTasksController.readOnly
+          ? Text("112233")
+          : TextFormField(
+            controller: controller.submitTasksController
+                .getLeafTextEditingController(rootHeaderTreeId),
+            textInputAction: TextInputAction.done,
+            autofocus: true,
+            maxLines: 4,
+            textAlign: TextAlign.start,
+            textAlignVertical: TextAlignVertical.top,
+          );
     }
     return Column(
       children:
@@ -303,13 +323,17 @@ class _WebSubmitWorkHeaderItemView
               ],
             ),
           ),
-          TextFormField(
-            textInputAction: TextInputAction.done,
-            autofocus: true,
-            maxLines: 4,
-            textAlign: TextAlign.start,
-            textAlignVertical: TextAlignVertical.top,
-          ),
+          controller.submitTasksController.readOnly
+              ? Text("112233")
+              : TextFormField(
+                controller: controller.submitTasksController
+                    .getLeafTextEditingController(node.header.id),
+                textInputAction: TextInputAction.done,
+                autofocus: true,
+                maxLines: 4,
+                textAlign: TextAlign.start,
+                textAlignVertical: TextAlignVertical.top,
+              ),
         ],
       );
     } else {
@@ -330,7 +354,7 @@ class _WebSubmitWorkHeaderItemView
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: EdgeInsets.symmetric(vertical: depth == 0 ? 4 : 0),
+              // margin: EdgeInsets.symmetric(vertical: depth == 0 ? 4 : 0),
               decoration: BoxDecoration(color: parentColor),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

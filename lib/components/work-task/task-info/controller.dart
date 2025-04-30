@@ -1,20 +1,16 @@
+import 'dart:collection';
+
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/components/work-header/controller.dart';
 import 'package:yx/types.dart';
 
 import '../../work-header/data.dart';
 import 'data.dart';
 import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
-
-class SubmitTasksController extends GetxController {
-  ScrollController scrollController = ScrollController(initialScrollOffset: 0);
-  final isLoadingSubmitItem = false.obs;
-  late final bool readOnly;
-  SubmitTasksController(this.readOnly);
-}
 
 class TaskInfoController extends GetxController {
   final GlobalKey formKey = GlobalKey<FormState>();
@@ -26,6 +22,8 @@ class TaskInfoController extends GetxController {
   late final Int64 taskId;
   late final Int64 parentId;
   final TaskInfoAction action;
+
+  bool get readOnly => action != TaskInfoAction.write;
 
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers = (null as List<User>?).obs;
@@ -117,11 +115,62 @@ class TaskInfoController extends GetxController {
   }
 }
 
-class MobileSubmitOneTaskHeaderItemController extends GetxController {
+class SubmitTasksController extends GetxController {
+  ScrollController scrollController = ScrollController(initialScrollOffset: 0);
+  final isLoadingSubmitItem = DataLoadingStatus.none.obs;
+
+  final taskSubmitItems = (null as List<WorkHeaderTree>?).obs;
+  final _leafTaskSubmitItemsTextEditingControllers =
+      HashMap<Int64, TextEditingController>();
+
+  TaskInfoController get taskInfoController => Get.find<TaskInfoController>();
+
+  bool get readOnly => taskInfoController.action == TaskInfoAction.submitDetail;
+
+  TextEditingController getLeafTextEditingController(Int64 headerId) =>
+      _leafTaskSubmitItemsTextEditingControllers[headerId]!;
+
+  Future<void> initTaskSubmitItems() async {
+    if (isLoadingSubmitItem.value == DataLoadingStatus.loaded) {
+      // 避免重复加载
+      return;
+    }
+    isLoadingSubmitItem.value = DataLoadingStatus.loading;
+    Future.delayed(Duration(seconds: 1), () {
+      taskSubmitItems.value = submitItems;
+      _buildLeafSubmitItemTextEditingController(taskSubmitItems.value!);
+      isLoadingSubmitItem.value = DataLoadingStatus.loaded;
+
+    });
+  }
+
+
+  void _buildLeafSubmitItemTextEditingController(List<WorkHeaderTree> headers) {
+    if (readOnly) {
+      return;
+    }
+    for (var entry in headers) {
+      if (entry.children.isEmpty) {
+        // todo: 给 TextEditingController 填充初始值
+        _leafTaskSubmitItemsTextEditingControllers[entry.header.id] =
+            TextEditingController();
+      } else {
+        _buildLeafSubmitItemTextEditingController(entry.children);
+      }
+    }
+  }
+}
+
+abstract class _SubmitOneTaskHeaderItemController extends GetxController {
+  SubmitTasksController get submitTasksController =>
+      Get.find<SubmitTasksController>();
+}
+
+class MobileSubmitOneTaskHeaderItemController
+    extends _SubmitOneTaskHeaderItemController {
   late final List<SubmitOneWorkTaskHeader> children;
 
   // late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
-
   MobileSubmitOneTaskHeaderItemController(List<WorkHeaderTree> children) {
     // this.children = LinkedHashMap<int, SubmitOneWorkTaskHeader>();
     if (children.isEmpty) {
@@ -136,20 +185,21 @@ class MobileSubmitOneTaskHeaderItemController extends GetxController {
     List<WorkHeaderTree> headers, {
     List<WorkHeader>? parents,
   }) {
-    for (var entry in headers.asMap().entries) {
+    for (var entry in headers) {
       final tmpParents = parents ?? [];
-      if (entry.value.children.isEmpty) {
-        children.add(SubmitOneWorkTaskHeader(entry.value.header, tmpParents));
+      if (entry.children.isEmpty) {
+        children.add(SubmitOneWorkTaskHeader(entry.header, tmpParents));
       } else {
-        tmpParents.add(entry.value.header);
-        _buildSubmitWorkHeaders(entry.value.children, parents: tmpParents);
+        tmpParents.add(entry.header);
+        _buildSubmitWorkHeaders(entry.children, parents: tmpParents);
       }
     }
   }
 }
 
-
-class WebSubmitOneTaskHeaderItemController extends GetxController {
+class WebSubmitOneTaskHeaderItemController
+    extends _SubmitOneTaskHeaderItemController {
   final List<WorkHeaderTree> children;
+
   WebSubmitOneTaskHeaderItemController(this.children);
 }

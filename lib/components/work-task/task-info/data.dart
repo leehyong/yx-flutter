@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
@@ -104,7 +103,5 @@ class CheckableOrganizationOrUser {
 class SubmitOneWorkTaskHeader {
   WorkHeader? head;
   List<WorkHeader> parentHeads;
-  final TextEditingController textEditingController = TextEditingController();
-
   SubmitOneWorkTaskHeader([this.head, this.parentHeads = const []]);
 }
