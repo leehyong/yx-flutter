@@ -4,6 +4,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -94,11 +95,11 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
               oneItem.add(
                 isBigScreen(context)
                     ? _WebSubmitWorkHeaderItemView(
-                      headerTree.header.id,
+                      headerTree.header,
                       headerTree.children,
                     )
                     : _MobileSubmitWorkHeaderItemView(
-                      headerTree.header.id,
+                      headerTree.header,
                       headerTree.children,
                     ),
               );
@@ -117,12 +118,12 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
 
 abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
     extends GetView<T> {
-  final Int64 rootHeaderTreeId;
+  final WorkHeader rootHeader;
 
-  const _AbstractSubmitWorkHeaderItemView(this.rootHeaderTreeId, {super.key});
+  const _AbstractSubmitWorkHeaderItemView(this.rootHeader, {super.key});
 
   @override
-  String get tag => rootHeaderTreeId.toString();
+  String get tag => rootHeader.id.toString();
 
   bool get readOnly => Get.find<SubmitTasksController>().readOnly;
 }
@@ -133,7 +134,7 @@ class _MobileSubmitWorkHeaderItemView
           MobileSubmitOneTaskHeaderItemController
         > {
   _MobileSubmitWorkHeaderItemView(
-    super.rootHeaderTreeId,
+    super.rootHeader,
     List<WorkHeaderTree> children, {
     super.key,
   }) {
@@ -225,7 +226,7 @@ class _MobileSubmitWorkHeaderItemView
                   decoration: BoxDecoration(color: Colors.white),
                   child: Text('iuiuuuu', softWrap: true),
                 )
-                : TextField(
+                : TextFormField(
                   controller: controller.submitTasksController
                       .getLeafTextEditingController(node.head!.id),
                   textInputAction: TextInputAction.done,
@@ -233,6 +234,12 @@ class _MobileSubmitWorkHeaderItemView
                   maxLines: 5,
                   textAlign: TextAlign.start,
                   textAlignVertical: TextAlignVertical.top,
+                  validator: (v) {
+                    if (rootHeader.required && v!.trim().isEmpty) {
+                      return "该项不能空";
+                    }
+                    return null;
+                  },
                 ),
       ),
     );
@@ -266,12 +273,18 @@ class _WebSubmitWorkHeaderItemView
           ? Text("112233")
           : TextFormField(
             controller: controller.submitTasksController
-                .getLeafTextEditingController(rootHeaderTreeId),
+                .getLeafTextEditingController(rootHeader.id),
             textInputAction: TextInputAction.done,
             autofocus: true,
             maxLines: 4,
             textAlign: TextAlign.start,
             textAlignVertical: TextAlignVertical.top,
+            validator: (v) {
+              if (rootHeader.required && v!.trim().isEmpty) {
+                return "该项不能空";
+              }
+              return null;
+            },
           );
     }
     return Column(
@@ -333,6 +346,12 @@ class _WebSubmitWorkHeaderItemView
                 maxLines: 4,
                 textAlign: TextAlign.start,
                 textAlignVertical: TextAlignVertical.top,
+                validator: (v) {
+                  if (node.header.required && v!.trim().isEmpty) {
+                    return "该项不能空";
+                  }
+                  return null;
+                },
               ),
         ],
       );
