@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -228,7 +227,9 @@ class _MobileSubmitWorkHeaderItemView
                 )
                 : TextFormField(
                   controller: controller.submitTasksController
-                      .getLeafTextEditingController(node.head!.id),
+                      .getLeafTextEditingController(
+                        node.head?.id ?? rootHeader.id,
+                      ),
                   textInputAction: TextInputAction.done,
                   autofocus: true,
                   maxLines: 5,
