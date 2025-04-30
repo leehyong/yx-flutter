@@ -185,11 +185,9 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     Widget actions = SizedBox.shrink();
     switch (controller.action) {
       case TaskInfoAction.write:
-        // actions = maybeOneThirdCenterHorizontal(_buildActions(context));
         actions = _buildActions(context);
         break;
       case TaskInfoAction.delegate:
-        // actions = maybeOneThirdCenterHorizontal(_buildDelegateActions(context));
         actions = _buildDelegateActions(context);
       default:
         break;
@@ -214,20 +212,28 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     );
   }
 
-  List<TaskAttributeCategory> get segmentedBtnCategories =>
-      controller.isSubmitRelated
-          ? [
-            TaskAttributeCategory.submitItem,
-            TaskAttributeCategory.basic,
-            TaskAttributeCategory.parentTask,
-            TaskAttributeCategory.childrenTask,
-          ]
-          : TaskAttributeCategory.values;
+  List<TaskAttributeCategory> segmentedBtnCategories(BuildContext context) {
+    if (isBigScreen(context)) {
+      return [
+        TaskAttributeCategory.basic,
+        TaskAttributeCategory.parentTask,
+        TaskAttributeCategory.childrenTask,
+      ];
+    }
+    return controller.isSubmitRelated
+        ? [
+          TaskAttributeCategory.submitItem,
+          TaskAttributeCategory.basic,
+          TaskAttributeCategory.parentTask,
+          TaskAttributeCategory.childrenTask,
+        ]
+        : TaskAttributeCategory.values;
+  }
 
   Widget _buildRelationAttributes(BuildContext context) {
     return SegmentedButton(
       segments:
-          segmentedBtnCategories
+          segmentedBtnCategories(context)
               .map((e) => ButtonSegment(value: e, label: Text(e.i18name)))
               .toList(),
       onSelectionChanged: (s) {
@@ -241,10 +247,27 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   Widget _buildTaskRelates(BuildContext context) {
     switch (controller.selectedAttrSet.first) {
       case TaskAttributeCategory.basic:
-        // return maybeOneThirdCenterHorizontal(
-        //   _publishTaskBasicInfoView(context),
-        // );
+        if (isBigScreen(context)) {
+          return Row(
+            children: [
+              SizedBox(width: 4),
+              Expanded(child: _publishTaskBasicInfoView(context)),
+              SizedBox(width: 4),
+              Expanded(
+                child:
+                controller.isSubmitRelated
+                    ? SubmitTasksView()
+                    : PublishSubmitItemsCrudView(
+                  controller.taskId,
+                  readOnly,
+                ),
+              ),
+              SizedBox(width: 4),
+            ],
+          );
+        }
         return _publishTaskBasicInfoView(context);
+
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
             ? SubmitTasksView()

@@ -33,7 +33,7 @@ class TaskInfoController extends GetxController {
 
   TaskInfoController(this.parentId, this.taskId, this.action) {
     final defaultCat =
-        isSubmitRelated
+        isSubmitRelated && GetPlatform.isMobile
             ? TaskAttributeCategory.submitItem
             : TaskAttributeCategory.basic;
     selectedAttrSet.value.clear();
@@ -140,10 +140,8 @@ class SubmitTasksController extends GetxController {
       taskSubmitItems.value = submitItems;
       _buildLeafSubmitItemTextEditingController(taskSubmitItems.value!);
       isLoadingSubmitItem.value = DataLoadingStatus.loaded;
-
     });
   }
-
 
   void _buildLeafSubmitItemTextEditingController(List<WorkHeaderTree> headers) {
     if (readOnly) {

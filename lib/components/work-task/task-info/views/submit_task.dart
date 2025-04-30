@@ -124,7 +124,7 @@ abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
   @override
   String get tag => rootHeaderTreeId.toString();
 
-  bool get readOnly => Get.find<TaskInfoController>().readOnly;
+  bool get readOnly => Get.find<SubmitTasksController>().readOnly;
 }
 
 class _MobileSubmitWorkHeaderItemView
