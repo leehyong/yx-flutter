@@ -107,7 +107,20 @@ class TaskInfoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: title),
+      appBar: AppBar(
+        title: title,
+        actions: [
+          if (opCategory == TaskOperationCategory.submitTask)
+            ElevatedButton(
+              onPressed: () {
+                debugPrint("提交");
+              },
+              // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
+              child: Row(children: [const Text('提交'), Icon(Icons.check)]),
+            ),
+        ],
+      ),
+
       body: Padding(
         padding: EdgeInsets.only(
           left: 4,
@@ -255,12 +268,12 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               SizedBox(width: 4),
               Expanded(
                 child:
-                controller.isSubmitRelated
-                    ? SubmitTasksView()
-                    : PublishSubmitItemsCrudView(
-                  controller.taskId,
-                  readOnly,
-                ),
+                    controller.isSubmitRelated
+                        ? SubmitTasksView()
+                        : PublishSubmitItemsCrudView(
+                          controller.taskId,
+                          readOnly,
+                        ),
               ),
               SizedBox(width: 4),
             ],
