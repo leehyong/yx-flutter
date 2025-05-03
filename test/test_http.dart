@@ -1,12 +1,4 @@
-import 'dart:convert';
 
-import 'package:dart_sm/dart_sm.dart';
-import 'package:yx/api/department_provider.dart';
-import 'package:yx/config.dart';
-import 'package:yx/api/user_provider.dart';
-import 'package:yx/utils/encrypt.dart';
-import 'package:yx/vo/common_vo.dart';
-import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   // test("test get", () async {

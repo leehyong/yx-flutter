@@ -5,7 +5,7 @@ import 'package:yx/routes/app_pages.dart';
 import '../types.dart';
 
 class AuthService extends GetxService {
-  static AuthService get to => Get.find();
+  static AuthService get instance => Get.find();
 
   final _storage = GetStorage(userStorage);
 

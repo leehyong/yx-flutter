@@ -1,10 +1,10 @@
-import 'package:yx/api/comment_provider.dart';
-import 'package:yx/utils/toast.dart';
-import 'package:yx/vo/comment_vo.dart';
-import 'package:yx/vo/graph_vo.dart' as graph_vo;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:toastification/toastification.dart';
+import 'package:yx/api/comment_api.dart';
+import 'package:yx/utils/toast.dart';
+import 'package:yx/vo/comment_vo.dart';
+import 'package:yx/vo/graph_vo.dart' as graph_vo;
 
 import 'popup.dart';
 
@@ -90,17 +90,12 @@ class GraphTaskCommentController extends GetxController {
         break;
       case FetchDataAction.curLayerMore:
       case FetchDataAction.refresh:
-        id = isReply ? popupModel.value.curCommentVodData!.id! : curTaskId.value;
+        id =
+            isReply ? popupModel.value.curCommentVodData!.id! : curTaskId.value;
         break;
     }
     // 加载评价数据
-    var d = await TaskCommentProvider.instance.queryAllComments(
-      id,
-      cat,
-      page,
-      limit,
-      isReply: isReply,
-    );
+    var d = await queryAllComments(id, cat, page, limit, isReply: isReply);
     switch (action) {
       case FetchDataAction.popupNew:
         popupModel.value.pushNew(curCommentVo.value, d);
@@ -165,15 +160,11 @@ class GraphTaskCommentController extends GetxController {
     );
   }
 
-  Future<void> closeOrRemoveOnePopupLayer(BuildContext context) async{
+  Future<void> closeOrRemoveOnePopupLayer(BuildContext context) async {
     if (curPopupModel.atLeast2Layers) {
       curPopupModel.popLast();
       if (needRefreshLastLayer.value) {
-        await _fetchCommentsData(
-          1,
-          FetchDataAction.refresh,
-          curCommentCat,
-        );
+        await _fetchCommentsData(1, FetchDataAction.refresh, curCommentCat);
         needRefreshLastLayer.value = false;
       }
     } else {
@@ -207,7 +198,7 @@ class GraphTaskCommentController extends GetxController {
       }
       msg = '修改';
       // 调用修改接口来修改评论
-      success = await TaskCommentProvider.instance.updateGraphComment(
+      success = await updateGraphComment(
         curCommentCat,
         curCommentVo.value!.id!,
         comment,
@@ -216,7 +207,7 @@ class GraphTaskCommentController extends GetxController {
       curCommentVo.value = curPopupModel.curCommentVodData;
     } else {
       // 调用新增接口来修新增评论
-      success = await TaskCommentProvider.instance.addGraphComment(
+      success = await addGraphComment(
         curCommentCat,
         curTaskId.value,
         comment,
@@ -226,7 +217,6 @@ class GraphTaskCommentController extends GetxController {
       // 不管评论还是回复， 不能把curCommentVo置为null， 因为在加载更多页面的时候，
       // 需要 curCommentVo 存在，否则导致状态错误
       // curCommentVo.value = null;
-
     }
     if (success) {
       curInputCommentController.clear();
@@ -246,7 +236,7 @@ class GraphTaskCommentController extends GetxController {
         curDeletingCommentId.value!.isEmpty) {
       return;
     }
-    var success = await TaskCommentProvider.instance.deleteGraphComment(
+    var success = await deleteGraphComment(
       curCommentCat,
       curDeletingCommentId.value!,
     );

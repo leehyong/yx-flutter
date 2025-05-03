@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:yx/api/department_provider.dart';
-import 'package:yx/api/user_provider.dart';
-import 'package:yx/types.dart';
-import 'package:yx/vo/graph_vo.dart' as graph_vo;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Node;
 import 'package:graphview/GraphView.dart';
 import 'package:group_button/group_button.dart';
+import 'package:yx/api/department_api.dart';
+import 'package:yx/api/user_api.dart';
+import 'package:yx/types.dart';
+import 'package:yx/vo/graph_vo.dart' as graph_vo;
 
-import '../../api/graph_provider.dart';
+import '../../api/graph_api.dart';
 import '../../vo/common_vo.dart';
 import '../../vo/room_vo.dart';
 import '../checkable-treeview/treeview.dart';
@@ -66,7 +66,7 @@ class GraphTaskController extends GetxController {
     super.onInit();
 
     await Future.wait([
-      UserProvider.instance.getUserByOrgId('1498548398960148480'),
+      getUserByOrgId('1498548398960148480'),
       setRoomData(),
 
       setGraphViewData()]);
@@ -108,7 +108,7 @@ class GraphTaskController extends GetxController {
 
   Future<void> setRoomData() async {
     var depsData =
-        await DepartmentProvider.instance.getYunWangDepartmentRoomsList();
+        await getYunWangDepartmentRoomsList();
     if (depsData.isNotEmpty) {
       allRooms.value = depsData;
     }
@@ -117,7 +117,7 @@ class GraphTaskController extends GetxController {
   Future<void> setGraphViewData() async {
     loadingData.value = DataLoadingStatus.loading;
     graphVoData.value = null;
-    var data = await GraphTaskProvider.instance.dutyOrganGraphViewData(
+    var data = await dutyOrganGraphViewData(
       selectRoomIds.value,
     );
     if (data != null) {

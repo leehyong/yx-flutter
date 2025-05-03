@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/api/user_api.dart' as user_api;
 import 'package:yx/types.dart';
 
-import '../../../api/user_provider.dart';
 
 class PhoneLoginController extends GetxController {
   var phone = ''.obs;
@@ -13,8 +13,6 @@ class PhoneLoginController extends GetxController {
   var pwd = ''.obs;
   var hasPwdError = false.obs;
   var sendingCaptcha = false.obs;
-
-  final UserProvider _provider = Get.find();
 
   static RegExp pwdReg = RegExp(
     r'^(?:(?=.*[a-z])(?=.*[A-Z])|(?=.*[a-zA-Z])(?=.*\d)|(?=.*[a-zA-Z])(?=.*[\W_])|(?=.*\d)(?=.*[\W_])).{6,}$',
@@ -33,14 +31,14 @@ class PhoneLoginController extends GetxController {
   static PhoneLoginController get to => Get.find();
 
   Future<String> sendCaptchaAction() async {
-    var res =  await _provider.getCaptchaCode(phone.value, phoneCaptchaCode);
+    var res =  await user_api.getCaptchaCode(phone.value, phoneCaptchaCode);
     sentCaptcha.value = res.isEmpty;
     sendingCaptcha.value = false;
     return res;
   }
 
   Future<String> login() async =>
-      _provider.login(phone.value, pwd.value, captcha.value);
+      user_api.login(phone.value, pwd.value, captcha.value);
 
   get canSendCaptcha => !(hasPhoneError.value || hasPwdError.value);
 }

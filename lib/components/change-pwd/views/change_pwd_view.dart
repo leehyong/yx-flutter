@@ -94,7 +94,7 @@ class ChangePwdView extends GetView<GetxController> {
                         child: Icon(Icons.workspaces, size: 28),
                       ),
                       Text(
-                        AuthService.to.isWeak ? '密码已过期，请重新修改' : "修改密码",
+                        AuthService.instance.isWeak ? '密码已过期，请重新修改' : "修改密码",
                         style: TextStyle(fontSize: 22),
                       ),
                     ],

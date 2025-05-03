@@ -28,7 +28,7 @@ class ProfileView extends GetView<ProfileController> {
             child: const Text('退出'),
             onPressed: () {
               //shows a dialog
-              AuthService.to.logout();
+              AuthService.instance.logout();
             },
           ),
         ],

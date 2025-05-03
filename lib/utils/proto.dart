@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:yt_dart/common.pb.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/encrypt.dart';
 
 import '../api/codes.dart';
@@ -15,14 +16,14 @@ CommonPageDataVo _decodeCommonPageVoData(String data) =>
 
 (String?, CommonVo?) decodeCommonVoDataFromResponse(Response<String> response) {
   final h =
-      response.headers?["content-type"] ?? response.headers?["Content-type"];
-  if (response.isOk) {
-    assert(h == protobufResponse);
-    final commonVoData = _decodeCommonVoData(response.body!);
+      response.headers["content-type"] ?? response.headers["Content-type"];
+  if (isOkResponse(response)) {
+    assert(h!.first == protobufResponse);
+    final commonVoData = _decodeCommonVoData(response.data!);
     return (null, commonVoData);
   } else {
-    assert(h == textPlainResponse);
-    return (response.body ?? response.statusText ?? '接口请求失败', null);
+    assert(h!.first == textPlainResponse);
+    return (response.data ?? response.statusMessage ?? '接口请求失败', null);
   }
 }
 
@@ -30,14 +31,14 @@ CommonPageDataVo _decodeCommonPageVoData(String data) =>
   Response<String> response,
 ) {
   final h =
-      response.headers?["content-type"] ?? response.headers?["Content-type"];
-  if (response.isOk) {
-    assert(h == protobufResponse);
-    final commonVoData = _decodeCommonPageVoData(response.body!);
+      response.headers["content-type"] ?? response.headers["Content-type"];
+  if (isOkResponse(response)) {
+    assert(h!.first == protobufResponse);
+    final commonVoData = _decodeCommonPageVoData(response.data!);
     return (null, commonVoData);
   } else {
-    assert(h == textPlainResponse);
-    return (response.body ?? response.statusText ?? '接口请求失败', null);
+    assert(h!.first == textPlainResponse);
+    return (response.data ?? response.statusMessage ?? '接口请求失败', null);
   }
 }
 

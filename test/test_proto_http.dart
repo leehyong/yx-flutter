@@ -1,9 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:yx/api/user_provider.dart';
+import 'package:yx/api/user_api.dart';
 import 'package:yx/errors.dart';
 import 'package:yx/services/auth_service.dart';
+import 'package:yx/services/http_service.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 
 void main() {
   // test("test get", () async {
@@ -13,30 +15,29 @@ void main() {
   //   print(s);
   // });
   Get.put(AuthService());
-  final userProvider = UserProvider();
-  userProvider.onInit();
+  Get.put(HttpDioService());
 
   test("login", () async {
     // 假的验证码
-    final res = await userProvider.loginApi('admin', '123456', '112234');
-    assert(!res.isOk);
-    assert(res.status.code == 401);
+    final res = await loginApi('admin', '123456', '112234');
+    assert(!isOkResponse(res));
+    assert(res.statusCode! == 401);
     // 证明已经正确获取到了提交的参数
-    assert(res.body == captchaExpired);
+    assert(res.data == captchaExpired);
   });
 
   test("user login with captcha", () async {
     // 发送验证码之后再进行登录
     final user = 'admin';
-    final captch = await userProvider.captchaCodeApi(user, userCaptchaCode);
+    final captch = await captchaCodeApi(user, userCaptchaCode);
     assert(captch.$1);
     final captcha = captch.$2.split("::");
     assert(captcha.length == 2);
-    final res = await userProvider.login(user, '123456', captcha[0]);
+    final res = await login(user, '123456', captcha[0]);
     assert(res.isEmpty);
-    assert(AuthService.to.refreshToken.isNotEmpty);
-    assert(AuthService.to.accessToken.isNotEmpty);
-    assert(AuthService.to.user == user);
+    assert(AuthService.instance.refreshToken.isNotEmpty);
+    assert(AuthService.instance.accessToken.isNotEmpty);
+    assert(AuthService.instance.user == user);
     // 证明已经正确获取到了提交的参数
   });
 

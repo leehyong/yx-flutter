@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../api/user_provider.dart';
-
+import 'package:yx/api/user_api.dart' as user_api;
 
 class ChangePwdController extends GetxController {
 
@@ -17,7 +15,6 @@ class ChangePwdController extends GetxController {
   var hasNewPwdError = false.obs;
   var hasCheckPwdError = false.obs;
 
-  final UserProvider _provider = Get.find();
 
   static RegExp pwdReg = RegExp(
     r'^(?:(?=.*[a-z])(?=.*[A-Z])|(?=.*[a-zA-Z])(?=.*\d)|(?=.*[a-zA-Z])(?=.*[\W_])|(?=.*\d)(?=.*[\W_])).{6,}$',
@@ -37,6 +34,6 @@ class ChangePwdController extends GetxController {
   // }
   //
   Future<String> changePwd() async =>
-      _provider.changePwd(oldPwd.value, newPwd.value);
+      user_api.changePwd(oldPwd.value, newPwd.value);
 
 }

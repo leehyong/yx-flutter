@@ -8,10 +8,10 @@ class EnsureAuthMiddleware extends GetMiddleware {
   @override
   RouteSettings? redirect(String? route){
     // 没有登录， 则跳转到登录页
-    if (!AuthService.to.isLoggedInValue && route != Routes.login){
+    if (!AuthService.instance.isLoggedInValue && route != Routes.login){
       return RouteSettings(name: Routes.login, arguments: {});
     }else if( route == Routes.app){
-      if (AuthService.to.isWeak) {
+      if (AuthService.instance.isWeak) {
         // 需要修改密码
         return RouteSettings(name: Routes.changePwd, arguments: {});
       }

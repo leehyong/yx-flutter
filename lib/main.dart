@@ -6,6 +6,7 @@ import 'package:toastification/toastification.dart';
 
 import 'routes/app_pages.dart';
 import 'services/auth_service.dart';
+import 'services/http_service.dart';
 import 'types.dart';
 
 void main() async {
@@ -30,13 +31,14 @@ void main() async {
         useInheritedMediaQuery: true,
         initialBinding: BindingsBuilder(() {
           Get.put(AuthService());
+          Get.put(HttpDioService());
         }),
         getPages: AppPages.routes,
         initialRoute: Routes.app,
         onGenerateRoute: (RouteSettings settings) {
           // 重新设置密码
           if (settings.name == '/') {
-            var service = AuthService.to;
+            var service = AuthService.instance;
             if (service.isWeak) {
               Get.offAndToNamed("/change-pwd");
             }

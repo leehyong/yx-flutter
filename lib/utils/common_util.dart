@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:color_palette_plus/color_palette_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/utils/toast.dart';
+import 'package:yx/vo/common_vo.dart';
 
 final defaultDtFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 final defaultDtFormat1 = DateFormat('yyyy-MM-dd HH:mm');
@@ -55,7 +58,7 @@ Future<DateTime> showCusDateTimePicker(
 }
 
 Future<DateTime> showCusDatePicker(BuildContext context, {DateTime? dt}) async {
-  final now = dt ?? DateTime.now() ;
+  final now = dt ?? DateTime.now();
   return await showDatePicker(
         context: context,
         initialDate: now,
@@ -87,8 +90,6 @@ DateTime? parseDatetimeFromStr(String dtStr) {
   return null;
 }
 
-
-
 Function commonDebounceByTimer(Function fn, Duration duration) {
   Timer? _timer;
   return () {
@@ -98,7 +99,9 @@ Function commonDebounceByTimer(Function fn, Duration duration) {
 }
 
 Color getHighContrastColor(Color baseColor) {
-  final complementaryColors = ColorPalettes.complementary(baseColor); // 生成互补色（高对比度）
+  final complementaryColors = ColorPalettes.complementary(
+    baseColor,
+  ); // 生成互补色（高对比度）
   return complementaryColors.last;
   // final theme = ThemeGenerator.generateTheme(baseColor, config: ThemeConfig(
   //   colorSchemeConfig:  ColorSchemeConfig(harmonyType: HarmonyType.complementary,)
@@ -109,8 +112,7 @@ Color getHighContrastColor(Color baseColor) {
   return hsl.withLightness(hsl.lightness > 0.5 ? 0.1 : 0.9).toColor();
 }
 
-
-WoltModalType woltModalType(BuildContext context){
+WoltModalType woltModalType(BuildContext context) {
   final width = MediaQuery.sizeOf(context).width;
   if (width < 600) {
     return const WoltBottomSheetType(showDragHandle: false);
@@ -121,4 +123,29 @@ WoltModalType woltModalType(BuildContext context){
   }
 }
 
-bool isBigScreen(BuildContext context) => MediaQuery.of(context).size.width > 720;
+bool isBigScreen(BuildContext context) =>
+    MediaQuery.of(context).size.width > 720;
+
+bool isOkResponse(Response<dynamic> resp) =>
+    resp.statusCode != null && resp.statusCode! ~/ 100 == 2;
+
+
+bool handleCommonToastResponse(
+    Response<CommonVo<dynamic, dynamic>?> res,
+    String defaultMsg,
+    ) {
+  return handleCommonToastResponseErr(res, defaultMsg).isEmpty;
+}
+
+String handleCommonToastResponseErr(
+    Response<CommonVo<dynamic, dynamic>?> res,
+    String defaultMsg,
+    ) {
+  final err = isOkResponse(res);
+  var errMsg = '';
+  if (err) {
+    errMsg = res.data?.message ?? res.statusMessage ?? defaultMsg;
+    errToast(errMsg);
+  }
+  return errMsg;
+}

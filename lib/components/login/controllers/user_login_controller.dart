@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yx/api/user_provider.dart';
+import 'package:yx/api/user_api.dart' as user_api;
 import 'package:yx/types.dart';
 
 class UserLoginController extends GetxController {
@@ -23,7 +23,6 @@ class UserLoginController extends GetxController {
   final GlobalKey userFieldKey = GlobalKey<FormFieldState<String>>();
   final GlobalKey formKey = GlobalKey<FormState>();
   static RegExp userReg = RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#]{4,}");
-  final UserProvider _provider = Get.find();
 
   static String userRegErrorTxt =
       "请输入不包括中文的至少5个字符的用户名：首字只能为大小写字母、其它字符包括特殊字符（-、_、@、#）";
@@ -52,7 +51,7 @@ class UserLoginController extends GetxController {
   sendCaptchaAction() async {
     captcha.value = '';
     sendingCaptcha.value = DataLoadingStatus.loading;
-    var res = await _provider.getCaptchaCode(
+    var res = await user_api.getCaptchaCode(
       userEditingController.text,
       userCaptchaCode,
     );
@@ -65,7 +64,7 @@ class UserLoginController extends GetxController {
     // sendingCaptcha.value = false;
   }
 
-  Future<String> login() async => _provider.login(
+  Future<String> login() async => user_api.login(
     userEditingController.text,
     pwdEditingController.text,
     captchaEditingController.text,

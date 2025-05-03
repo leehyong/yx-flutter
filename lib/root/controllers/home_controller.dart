@@ -1,18 +1,12 @@
-import 'package:yx/vo/duty_vo.dart';
 import 'package:get/get.dart';
+import 'package:yx/vo/duty_vo.dart';
 
-import '../../api/duty_provider.dart';
 
 class HomeController extends GetxController {
-  final DutyProvider dutyProvider = Get.find();
   //移动端显示展示的任务类型
   final selectedMobileTaskType = '全部'.obs;
   List<String> taskTypeNameList = ["日常工作", "临时工作", "重点任务"];
   Set<int> selectedSet = {1};
-  var count = 0.obs;
-
-  increment() => count++;
-
   // 定义一个变量来记录当前选中的按钮
   var selectedValue = 0.obs;
   RxMap<String, List<DutyVo>> multiDutyMap = <String, List<DutyVo>>{}.obs;
@@ -28,10 +22,6 @@ class HomeController extends GetxController {
     for (var taskType in taskTypeNameList) {
       multiDutyMap[taskType] = [];
     }
-
-    // 分发任务到不同列表
-    dutyProvider.onInit();
-    await distributeTasksByType(await dutyProvider.getDutyList());
   }
 
   Future<void> distributeTasksByType(List<DutyVo> dutyList) async {
