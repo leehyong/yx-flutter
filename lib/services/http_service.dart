@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:yt_dart/login.pb.dart';
 import 'package:yx/services/auth_service.dart';
@@ -10,6 +9,7 @@ import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/proto.dart';
 
 import '../config.dart';
+import 'adapter/web.dart' if (dart.library.io) 'adapter/native.dart';
 
 class HttpDioService extends GetxService {
   static HttpDioService get instance => Get.find();
@@ -26,7 +26,7 @@ class HttpDioService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    dio.httpClientAdapter = NativeAdapter();
+    dio.httpClientAdapter = YooHttpClientAdapter.adapter;
     final authService = AuthService.instance;
     dio.interceptors.add(
       QueuedInterceptorsWrapper(
