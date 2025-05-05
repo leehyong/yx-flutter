@@ -20,7 +20,7 @@ Future<String> getCaptchaCode(String key, int typ) async {
 
 Future<(bool, String)> captchaCodeApi(String key, int typ) async {
   final resp = await HttpDioService.instance.dio.post<String>(
-    "/api/captcha",
+    "/yoo/api/captcha",
     data:encodeProtoData(SendCaptcha(key: key, typ: typ)),
   );
   if (isOkResponse(resp)) {
@@ -39,7 +39,7 @@ Future<Response<String>> loginApi(
   String pwd,
   String captcha,
 ) async => await HttpDioService.instance.dio.post<String>(
-  "/api/login",
+  "/yoo/api/login",
   data:encryptProtoData(
     Login(captcha: captcha, userLogin: Login_UserLogin(name: user, pwd: pwd)),
   ),
@@ -47,7 +47,7 @@ Future<Response<String>> loginApi(
 
 Future<Response<String>> refreshTokenApi(String token) async =>
     await HttpDioService.instance.dio.post<String>(
-      "/api/token/refresh",
+      "/yoo/api/token/refresh",
       data: encodeProtoData(LoginResponseVo(refreshToken: token)),
     );
 

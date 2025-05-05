@@ -5,7 +5,9 @@ import 'package:timer_count_down/timer_count_down.dart';
 import '../controllers/phone_login_controller.dart';
 
 class PhoneLoginView extends GetView<PhoneLoginController> {
-  const PhoneLoginView({super.key});
+  PhoneLoginView({super.key}){
+    Get.put(PhoneLoginController());
+  }
 
   Widget buildPhoneTextField() {
     return TextFormField(

@@ -10,7 +10,9 @@ import 'package:yx/utils/toast.dart';
 import '../controllers/user_login_controller.dart';
 
 class UserLoginView extends GetView<UserLoginController> {
-  const UserLoginView({super.key});
+  UserLoginView({super.key}){
+    Get.put(UserLoginController());
+  }
 
   Widget buildUserTextField() {
     return TextFormField(

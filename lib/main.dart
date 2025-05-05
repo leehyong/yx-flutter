@@ -37,10 +37,10 @@ void main() async {
         initialRoute: Routes.app,
         onGenerateRoute: (RouteSettings settings) {
           // 重新设置密码
-          if (settings.name == '/') {
+          if (settings.name == Routes.app) {
             var service = AuthService.instance;
             if (service.isWeak) {
-              Get.offAndToNamed("/change-pwd");
+              Get.offAndToNamed(Routes.changePwd);
             }
           }
         },
