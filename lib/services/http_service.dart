@@ -31,7 +31,7 @@ class HttpDioService extends GetxService {
     dio.interceptors.add(
       QueuedInterceptorsWrapper(
         onRequest: (requestOptions, handler) {
-          print('''
+          debugPrint('''
 [onRequest] ${requestOptions.hashCode} / time: ${DateTime.now().toIso8601String()}
 \tPath: ${requestOptions.path}
 \tHeaders: ${requestOptions.headers}
@@ -43,7 +43,7 @@ class HttpDioService extends GetxService {
         },
 
         onResponse: (response, handler) {
-          print('''
+          debugPrint('''
 [onResponse] ${response.requestOptions.hashCode} / time: ${DateTime.now().toIso8601String()}
 \tStatus: ${response.statusCode}
 \tData: ${response.data}
@@ -53,7 +53,7 @@ class HttpDioService extends GetxService {
         },
         onError: (error, handler) async {
           final statusCode = error.response?.statusCode;
-          print('''
+          debugPrint('''
 [onError] ${error.requestOptions.hashCode} / time: ${DateTime.now().toIso8601String()}
 \tStatus: $statusCode
           ''');
