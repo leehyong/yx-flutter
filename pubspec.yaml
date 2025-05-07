@@ -63,7 +63,6 @@ dependencies:
   fixnum: ^1.1.1
   dio: ^5.8.0+1
   native_dio_adapter: ^1.4.0
-  dio_http2_adapter: ^2.6.0
   yt_dart:
     path: ../proto/yt-dart
 
