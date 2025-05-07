@@ -19,7 +19,7 @@ class HttpDioService extends GetxService {
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 30),
       sendTimeout: const Duration(seconds: 30),
-      baseUrl: apiServer,
+      baseUrl: AppConfig.apiServer,
     ),
   );
 
@@ -70,7 +70,7 @@ class HttpDioService extends GetxService {
           final requestedAccessToken =
               error.requestOptions.headers[accessTokenStr];
           if (requestedAccessToken == authService.accessToken) {
-            final tokenRefreshDio = Dio()..options.baseUrl = apiServer;
+            final tokenRefreshDio = Dio()..options.baseUrl = AppConfig.apiServer;
 
             final response = await tokenRefreshDio.post(
               "/api/token/refresh",
