@@ -5,8 +5,7 @@ export 'config/web.dart' if (dart.library.io) 'config/native.dart';
 const publicKey =
     '046fa99b946d5ae8559287057264385b957218ceb09bc3dbff89c0d8fa1c84a73748c9969f2626e8434772972e7188c1aea2db6ed545f3ad0361242e3805141622';
 
-const xxCusHeaderOfAccessToken = 'xx-cus-token';
-const accessTokenStr = 'access-token';
+const accessTokenStr = 'authorization';
 
 List<BoxShadow> getNodeBgColor(String? typ) {
   switch (typ) {
