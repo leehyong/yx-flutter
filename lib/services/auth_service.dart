@@ -26,7 +26,7 @@ class AuthService extends GetxService {
     if (access.isEmpty) {
       access = _storage.read(accessStorageKey) ?? '';
     }
-    return access;
+    return access.isNotEmpty ? 'Bearer $access' : '';
   }
 
   String get refreshToken {
