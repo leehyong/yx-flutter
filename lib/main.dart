@@ -34,7 +34,7 @@ void main() async {
           Get.put(HttpDioService());
         }),
         getPages: AppPages.routes,
-        initialRoute: Routes.app,
+        initialRoute: Routes.login,
         onGenerateRoute: (RouteSettings settings) {
           // 重新设置密码
           if (settings.name == Routes.app) {

@@ -46,8 +46,8 @@ enum TaskListCategory {
   myParticipant, // 我参与的
   finished, //已完成的
   delegatedToMe, //委派我的
-  parentTaskInfo, //委派我的
-  childrenTaskInfo, //委派我的
+  parentTaskInfo, //父任务
+  childrenTaskInfo, //子任务
 }
 
 extension TaskListCategoryExtension on TaskListCategory {
