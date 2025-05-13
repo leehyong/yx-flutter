@@ -4,7 +4,9 @@ import 'package:color_palette_plus/color_palette_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/utils/proto.dart';
 import 'package:yx/utils/toast.dart';
 import 'package:yx/vo/common_vo.dart';
 
@@ -129,23 +131,107 @@ bool isBigScreen(BuildContext context) =>
 bool isOkResponse(Response<dynamic> resp) =>
     resp.statusCode != null && resp.statusCode! ~/ 100 == 2;
 
-
 bool handleCommonToastResponse(
-    Response<CommonVo<dynamic, dynamic>?> res,
-    String defaultMsg,
-    ) {
+  Response<CommonVo<dynamic, dynamic>?> res,
+  String defaultMsg,
+) {
   return handleCommonToastResponseErr(res, defaultMsg).isEmpty;
 }
 
 String handleCommonToastResponseErr(
-    Response<CommonVo<dynamic, dynamic>?> res,
-    String defaultMsg,
-    ) {
+  Response<CommonVo<dynamic, dynamic>?> res,
+  String defaultMsg,
+) {
   final err = isOkResponse(res);
   var errMsg = '';
-  if (err) {
+  if (!err) {
     errMsg = res.data?.message ?? res.statusMessage ?? defaultMsg;
     errToast(errMsg);
   }
   return errMsg;
+}
+
+typedef ProtoBufferParser<T extends $pb.GeneratedMessage> =
+    T Function(List<int>);
+
+(String?, T?) handleProtoInstanceVo<T extends $pb.GeneratedMessage>(
+  Response<String> res,
+  ProtoBufferParser<T> parser,
+) {
+  final ret = decodeCommonVoDataFromResponse(res);
+  var err = ret.$1;
+  if (err == null) {
+    final data = ret.$2!;
+    return (null, parser(data.data.value));
+  } else {
+    errToast(err);
+    return (err, null);
+  }
+}
+
+class ProtoPageVo<T extends $pb.GeneratedMessage> {
+  final String? error;
+  final int page;
+  final int totalPages;
+  final int limit;
+  final List<T>? data;
+
+  ProtoPageVo._({
+    this.data,
+    this.error,
+    this.page = 0,
+    this.totalPages = 0,
+    this.limit = 0,
+  });
+
+  factory ProtoPageVo.success(
+    List<T> data,
+    int page,
+    int totalPages,
+    int limit,
+  ) => ProtoPageVo._(
+    data: data,
+    page: page,
+    totalPages: totalPages,
+    limit: limit,
+  );
+
+  factory ProtoPageVo.fail(String error) => ProtoPageVo._(error: error);
+}
+
+ProtoPageVo<T> handleProtoPageInstanceVo<T extends $pb.GeneratedMessage>(
+  Response<String> res,
+  ProtoBufferParser<T> parser,
+) {
+  final ret = decodeCommonPageVoDataFromResponse(res);
+  var err = ret.$1;
+  if (err == null) {
+    final data = ret.$2!;
+    return ProtoPageVo<T>.success(
+      data.data.map((item) => parser(item.value)).toList(),
+      data.page,
+      data.total,
+      data.limit,
+    );
+  } else {
+    errToast(err);
+    return ProtoPageVo<T>.fail(err);
+  }
+}
+
+String? handleProtoCommonInstanceVo(
+  Response<String> response, {
+  bool toastSuccess = false,
+}) {
+  final res = decodeCommonVoDataFromResponse(response);
+  final err = res.$1;
+  if (err == null) {
+    if (toastSuccess) {
+      okToast(res.$2!.msg);
+    }
+    return null;
+  } else {
+    errToast(err);
+    return err;
+  }
 }

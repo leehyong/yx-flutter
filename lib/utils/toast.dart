@@ -13,3 +13,11 @@ void errToast(String msg){
     autoCloseDuration: const Duration(seconds: 3),
   );
 }
+
+void okToast(String msg){
+  toastification.show(
+    type: ToastificationType.success,
+    title: Text(msg),
+    autoCloseDuration: const Duration(seconds: 3),
+  );
+}

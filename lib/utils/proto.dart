@@ -45,6 +45,7 @@ CommonPageDataVo _decodeCommonPageVoData(String data) =>
 String encodeProtoData<M extends $pb.GeneratedMessage>(M msg) =>
     base64Encode(msg.writeToBuffer());
 
-String encryptProtoData<M extends $pb.GeneratedMessage>(M msg) => base64Encode(
-  EncryptedData(data: encryptWith04Prefix(msg.writeToBuffer())).writeToBuffer(),
-);
+String encryptProtoData<M extends $pb.GeneratedMessage>(M msg) =>
+    encodeProtoData(
+      EncryptedData(data: encryptWith04Prefix(msg.writeToBuffer())),
+    );

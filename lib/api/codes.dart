@@ -12,3 +12,4 @@ const jwtCodeExpired = 450;
 
 const textPlainResponse = "text/plain; charset=utf-8";
 const protobufResponse = "application/base64+protobuf";
+const apiContextPath = "/yoo/api";

@@ -4,8 +4,8 @@ import 'package:yt_dart/login.pb.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/proto.dart';
 import 'package:yx/vo/user_info_vo.dart';
-
-import '../services/http_service.dart';
+import 'package:yx/services/http_service.dart';
+import 'codes.dart';
 
 Future<String> getCaptchaCode(String key, int typ) async {
   try {
@@ -20,7 +20,7 @@ Future<String> getCaptchaCode(String key, int typ) async {
 
 Future<(bool, String)> captchaCodeApi(String key, int typ) async {
   final resp = await HttpDioService.instance.dio.post<String>(
-    "/yoo/api/captcha",
+    "$apiContextPath/captcha",
     data:encodeProtoData(SendCaptcha(key: key, typ: typ)),
   );
   if (isOkResponse(resp)) {
@@ -39,7 +39,7 @@ Future<Response<String>> loginApi(
   String pwd,
   String captcha,
 ) async => await HttpDioService.instance.dio.post<String>(
-  "/yoo/api/login",
+  "$apiContextPath/login",
   data:encryptProtoData(
     Login(captcha: captcha, userLogin: Login_UserLogin(name: user, pwd: pwd)),
   ),
@@ -47,7 +47,7 @@ Future<Response<String>> loginApi(
 
 Future<Response<String>> refreshTokenApi(String token) async =>
     await HttpDioService.instance.dio.post<String>(
-      "/yoo/api/token/refresh",
+      "$apiContextPath/token/refresh",
       data: encodeProtoData(LoginResponseVo(refreshToken: token)),
     );
 
