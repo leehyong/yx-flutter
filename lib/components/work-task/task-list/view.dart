@@ -20,7 +20,7 @@ class TaskListView extends GetView<TaskListController> {
     int parentId = 0,
     required TaskListCategory defaultCat,
   }) {
-    Get.find<CommonTaskListCatController>().cat.value = {defaultCat};
+    Get.find<TaskListController>().curCat.value = {defaultCat};
   }
 
   // 通过不同的tag， 那就可以创建出不同的 TaskListController，
@@ -65,6 +65,7 @@ class TaskListView extends GetView<TaskListController> {
             },
           ),
           controller: RefreshController(initialRefresh: true),
+          // controller: controller.refreshController,
           child: GridView.builder(
             primary: true,
             shrinkWrap: true,
@@ -78,7 +79,7 @@ class TaskListView extends GetView<TaskListController> {
             itemBuilder: (BuildContext context, int index) {
               return OneTaskView(
                 task: controller.tasks[index],
-                taskCategory: controller.curCategory.first,
+                taskCategory: controller.curCat.first,
               );
             },
           ),
