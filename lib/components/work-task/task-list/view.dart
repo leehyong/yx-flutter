@@ -75,7 +75,7 @@ class TaskListView extends GetView<TaskListController> {
                         } else if (mode == LoadStatus.canLoading) {
                           body = Text("释放加载更多");
                         } else {
-                          body = Text("没有数据了");
+                          return emptyWidget(context);
                         }
                         return SizedBox(
                           height: 55.0,

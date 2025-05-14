@@ -53,17 +53,24 @@ class TaskListController extends GetxController {
       );
       if (data.error == null) {
         tasks.value.addAll(data.data!.map((e) => e.task));
-        pageReq.page.value++;
         isLoading.value = false;
         assert(pageReq.limit == data.limit);
         pageReq.hasMore.value = pageReq.page < data.totalPages;
-        if (data.data!.isEmpty) {
+        if (pageReq.page.value == 1) {
+          refreshController?.refreshCompleted(resetFooterState: true);
+        }
+        if (tasks.value.isEmpty) {
           refreshController?.loadNoData();
         } else {
           refreshController?.loadComplete();
         }
+        pageReq.page.value++;
       } else {
-        refreshController?.loadFailed();
+        if (pageReq.page.value == 1) {
+          refreshController?.refreshFailed();
+        } else {
+          refreshController?.loadFailed();
+        }
       }
     }
   }
@@ -96,7 +103,7 @@ class CommonTaskListView extends GetView<TaskListController> {
                   controller.curCat.value = s;
                   controller.reset();
                   controller.loadTaskList().then((v) {
-                    Future.delayed(Duration(milliseconds: 250), (){
+                    Future.delayed(Duration(milliseconds: 100), () {
                       controller.tabChanging.value = false;
                     });
                   });
