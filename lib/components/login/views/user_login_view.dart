@@ -10,7 +10,7 @@ import 'package:yx/utils/toast.dart';
 import '../controllers/user_login_controller.dart';
 
 class UserLoginView extends GetView<UserLoginController> {
-  UserLoginView({super.key}){
+  UserLoginView({super.key}) {
     Get.put(UserLoginController());
   }
 
@@ -19,20 +19,36 @@ class UserLoginView extends GetView<UserLoginController> {
       autofocus: true,
       key: controller.userFieldKey,
       focusNode: controller.userFocusNode,
+      autovalidateMode: AutovalidateMode.always,
       onTapOutside: (p) {
         controller.userFocusNode.unfocus();
         final inputFieldState =
             controller.userFieldKey.currentState as FormFieldState<String>;
         // 如果用户名输入合法，那么就获取验证码
-        if (inputFieldState.validate() ?? false) {
-          controller.enablePwdInput.value = true;
+        if (inputFieldState.validate() && controller.captcha.isEmpty) {
           controller.sendCaptchaAction();
         }
       },
       controller: controller.userEditingController,
       decoration: const InputDecoration(
-        labelText: '用户名',
-        helperText: "首字母大写,且至少5个字符"
+        label: Tooltip(
+          richMessage: TextSpan(
+            children: [
+              TextSpan(text: "用户名遵循以下规则\n", style: TextStyle(fontSize: 14)),
+              TextSpan(text: "1.至少为5个字符\n", style: TextStyle(fontSize: 10)),
+              TextSpan(text: "2.首字只能为大小写字母\n", style: TextStyle(fontSize: 10)),
+              TextSpan(text: "3.不能包含空白字符\n", style: TextStyle(fontSize: 10)),
+              TextSpan(text: "4.可以是其他任意特殊字符", style: TextStyle(fontSize: 10)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Text("用户名"),
+              SizedBox(width: 4),
+              Icon(Icons.info_outline_rounded, color: Colors.red),
+            ],
+          ),
+        ),
       ),
       validator: (v) {
         if (!UserLoginController.userReg.hasMatch(v!)) {
@@ -47,20 +63,51 @@ class UserLoginView extends GetView<UserLoginController> {
   Widget buildPasswordTextField(BuildContext context) {
     return TextFormField(
       controller: controller.pwdEditingController,
-      obscureText: !controller.showPwd.value, // 是否显示文字
+      obscureText: !controller.showPwd.value,
+      // 是否显示文字
       validator: (v) {
-        if (!controller.enablePwdInput.value) {
-          return null;
-        }
         if (!UserLoginController.pwdReg.hasMatch(v!)) {
           return UserLoginController.pwdRegErrorTxt;
         }
+        return null;
         // controller.pwd.value = v!;
       },
+      onTap: () {
+        if (controller.userEditingController.text.isEmpty) {
+          errToast("请先输入用户名");
+        }
+      },
       decoration: InputDecoration(
-        labelText: "密码",
-        helperText: "至少6位",
-        enabled: controller.enablePwdInput.value,
+        label: Tooltip(
+          richMessage: TextSpan(
+            children: [
+              TextSpan(text: "密码遵循以下规则\n", style: TextStyle(fontSize: 14)),
+              TextSpan(text: "1.至少为6位不包括中文的字符\n", style: TextStyle(fontSize: 10)),
+              TextSpan(
+                text: "2.必须至少包括大写、小写、数字、特殊字符中的2类\n",
+                style: TextStyle(fontSize: 10),
+              ),
+              TextSpan(text: "3.不能包含空白字符\n", style: TextStyle(fontSize: 10)),
+              TextSpan(text: "4.可以是其他任意特殊字符", style: TextStyle(fontSize: 10)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Text("密码"),
+              SizedBox(width: 4),
+              Icon(Icons.info_outline_rounded, color: Colors.red),
+            ],
+          ),
+
+          // Column(
+          //   children: [
+          //     Text("密码遵循以下规则:", style: TextStyle(fontSize: 14)),
+          //     Text("至少为6位字符", style: TextStyle(fontSize: 10)),
+          //     Text("必须至少包括大写、小写、数字、特殊字符中的2类", style: TextStyle(fontSize: 10)),
+          //     Text("不能包含空白字符", style: TextStyle(fontSize: 10)),
+          //   ],
+          // ),
+        ),
         suffixIcon: IconButton(
           icon: Icon(
             Icons.remove_red_eye,

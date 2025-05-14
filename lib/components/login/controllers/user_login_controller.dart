@@ -7,7 +7,6 @@ class UserLoginController extends GetxController {
   // var user = ''.obs;
   // var pwd = ''.obs;
   final showPwd = false.obs;
-  final enablePwdInput = false.obs;
   final captcha = ''.obs;
   final sendingCaptcha = DataLoadingStatus.none.obs;
   static RegExp pwdReg = RegExp(
@@ -25,10 +24,10 @@ class UserLoginController extends GetxController {
   static RegExp userReg = RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#]{4,}");
 
   static String userRegErrorTxt =
-      "请输入不包括中文的至少5个字符的用户名：首字只能为大小写字母、其它字符包括特殊字符（-、_、@、#）";
+      "请输入不包括中文的至少5个字符的用户名";
 
   // static String pwdRegErrorTxt = "请输入至少6个字符的密码";
-  static String pwdRegErrorTxt = "请输入至少6为字符的密码";
+  static String pwdRegErrorTxt = "请输入至少6位字符的密码";
 
   static UserLoginController get to => Get.find();
 
