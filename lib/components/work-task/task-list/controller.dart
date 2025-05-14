@@ -44,7 +44,8 @@ class TaskListController extends GetxController {
     super.onInit();
     // 监听切换了cat ，则重新加载数据
     ever(curCategory, (c) {
-      refreshController.requestRefresh();
+      if(c.isNotEmpty)
+        refreshController.requestRefresh();
     });
   }
 

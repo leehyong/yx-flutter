@@ -15,26 +15,29 @@ class PageReq {
 }
 
 class CommonTaskListCatController extends GetxController {
-  final Rx<TaskListCategory?> oldCat = null.obs;
-  final cat = {TaskListCategory.allPublished}.obs;
+  final RxSet<TaskListCategory> cat = <TaskListCategory>{}.obs;
 
-  // bool get needRefresh => oldCat.value != cat.first;
+  CommonTaskListCatController(TaskListCategory defaultCat) {
+    cat.value = {defaultCat};
+  }
 }
 
 abstract class CommonTaskListView extends GetView<CommonTaskListCatController> {
-  const CommonTaskListView({super.key, required this.cats});
+  CommonTaskListView({super.key, required this.cats}) {
+    Get.put(CommonTaskListCatController(cats.first));
+  }
 
   final List<TaskListCategory> cats;
 
   Widget buildTasks(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 3, right: 3),
-      child: Obx(
-        () => Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: SegmentedButton(
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Obx(
+              () => SegmentedButton(
                 segments:
                     cats
                         .map(
@@ -43,16 +46,15 @@ abstract class CommonTaskListView extends GetView<CommonTaskListCatController> {
                         )
                         .toList(),
                 onSelectionChanged: (s) {
-                  controller.oldCat.value = controller.cat.value.first;
                   controller.cat.value = s;
                 },
-                selected: controller.cat,
+                selected: controller.cat.value,
                 multiSelectionEnabled: false,
               ),
             ),
-            Expanded(child: TaskListView()),
-          ],
-        ),
+          ),
+          Expanded(child: TaskListView()),
+        ],
       ),
     );
   }
