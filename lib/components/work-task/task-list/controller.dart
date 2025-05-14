@@ -34,7 +34,12 @@ class TaskListController extends GetxController {
   final refreshController = RefreshController(initialRefresh: true);
   final int parentId;
 
-  TaskListController({this.parentId = 0});
+  TaskListController({
+    this.parentId = 0,
+    required TaskListCategory defaultCat,
+  }) {
+    curCategory.value = {defaultCat};
+  }
 
   RxSet<TaskListCategory> get curCategory =>
       Get.find<CommonTaskListCatController>().cat;
@@ -44,8 +49,7 @@ class TaskListController extends GetxController {
     super.onInit();
     // 监听切换了cat ，则重新加载数据
     ever(curCategory, (c) {
-      if(c.isNotEmpty)
-        refreshController.requestRefresh();
+      if (c.isNotEmpty) refreshController.requestRefresh();
     });
   }
 

@@ -469,9 +469,16 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   }
 
   Widget _publishTaskChildrenInfoView(BuildContext context) {
+    final parentId = controller.parentId.toInt();
+    final taskId = controller.taskId.toInt();
     return Column(
       children: [
-        Expanded(child: TaskListView(parentId: controller.parentId.toInt())),
+        Expanded(
+          child: TaskListView(
+            parentId: parentId,
+            defaultCat: TaskListCategory.childrenTaskInfo,
+          ),
+        ),
       ],
     );
   }

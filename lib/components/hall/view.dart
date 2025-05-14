@@ -7,9 +7,8 @@ import 'package:yx/types.dart';
 
 import '../common.dart';
 
-class TaskHallView extends CommonTaskListView {
-  TaskHallView({super.key})
-    : super(cats: TaskListCategoryExtension.hallTaskList);
+class TaskHallView extends StatelessWidget {
+  const TaskHallView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +22,6 @@ class TaskHallView extends CommonTaskListView {
               Get.toNamed(
                 WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
-
                 arguments: const WorkTaskPageParams(Int64.ZERO, null),
               );
             },
@@ -31,7 +29,7 @@ class TaskHallView extends CommonTaskListView {
           ),
         ],
       ),
-      body: buildTasks(context),
+      body: CommonTaskListView(cats: TaskListCategoryExtension.hallTaskList),
     );
   }
 }

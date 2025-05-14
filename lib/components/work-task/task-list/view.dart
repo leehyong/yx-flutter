@@ -14,9 +14,19 @@ import 'package:yx/utils/common_widget.dart';
 import 'controller.dart';
 
 class TaskListView extends GetView<TaskListController> {
-  TaskListView({super.key, int parentId = 0}) {
-    Get.put(TaskListController(parentId: parentId));
+  TaskListView({
+    super.key,
+    int parentId = 0,
+    required TaskListCategory defaultCat,
+  }) {
+    Get.put(
+      TaskListController(parentId: parentId, defaultCat: defaultCat),
+    );
   }
+
+  // 通过不同的tag， 那就可以创建出不同的 TaskListController，
+  // 从而保证 RefreshController 也就不一样了，
+  // 确保了 SmartRefresher 的 refreshController 是不同的
 
   @override
   Widget build(BuildContext context) {

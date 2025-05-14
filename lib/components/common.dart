@@ -16,20 +16,16 @@ class PageReq {
 
 class CommonTaskListCatController extends GetxController {
   final RxSet<TaskListCategory> cat = <TaskListCategory>{}.obs;
-
-  CommonTaskListCatController(TaskListCategory defaultCat) {
-    cat.value = {defaultCat};
-  }
 }
 
-abstract class CommonTaskListView extends GetView<CommonTaskListCatController> {
+class CommonTaskListView extends GetView<CommonTaskListCatController> {
   CommonTaskListView({super.key, required this.cats}) {
-    Get.put(CommonTaskListCatController(cats.first));
+    Get.put(CommonTaskListCatController());
   }
-
   final List<TaskListCategory> cats;
 
-  Widget buildTasks(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 3, right: 3),
       child: Column(
@@ -53,7 +49,11 @@ abstract class CommonTaskListView extends GetView<CommonTaskListCatController> {
               ),
             ),
           ),
-          Expanded(child: TaskListView()),
+          Expanded(
+            child: TaskListView(
+              defaultCat: cats.first,
+            ),
+          ),
         ],
       ),
     );
