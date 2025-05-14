@@ -29,63 +29,82 @@ class TaskListView extends GetView<TaskListController> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (ctx, constraints) {
-        final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
-        return SmartRefresher(
-          key: controller.smartRefreshKey,
-          enablePullDown: true,
-          enablePullUp: true,
-          header: WaterDropHeader(refresh: const Text("下拉刷新")),
-          onLoading: controller.loadTaskList,
-          onRefresh: () async {
-            controller.reset();
-            await controller.loadTaskList();
-          },
-          footer: CustomFooter(
-            builder: (BuildContext context, LoadStatus? mode) {
-              Widget body;
-              if (mode == LoadStatus.idle) {
-                body = Text("上拉加载更多");
-              } else if (mode == LoadStatus.loading) {
-                body = LoadingIndicator(
-                  indicatorType: Indicator.ballGridBeat,
+    final s = GetPlatform.isMobile ? 80.0 : 200.0;
+    return Obx(
+      () =>
+          controller.tabChanging.value
+              ? Center(
+                child: SizedBox(
+                  height: s,
+                  width: s,
+                  child: LoadingIndicator(
+                    indicatorType: Indicator.lineSpinFadeLoader,
+                    colors: loadingColors,
+                    strokeWidth: 2,
+                  ),
+                ),
+              )
+              : LayoutBuilder(
+                builder: (ctx, constraints) {
+                  final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
+                  return SmartRefresher(
+                    key: controller.smartRefreshKey,
+                    enablePullDown: true,
+                    enablePullUp: true,
+                    header: WaterDropHeader(refresh: const Text("下拉刷新")),
+                    onLoading: controller.loadTaskList,
+                    onRefresh: () async {
+                      controller.reset();
+                      await controller.loadTaskList();
+                    },
+                    footer: CustomFooter(
+                      builder: (BuildContext context, LoadStatus? mode) {
+                        Widget body;
+                        if (mode == LoadStatus.idle) {
+                          body = Text("上拉加载更多");
+                        } else if (mode == LoadStatus.loading) {
+                          body = LoadingIndicator(
+                            indicatorType: Indicator.ballGridBeat,
 
-                  /// Required, The loading type of the widget
-                  colors: loadingColors,
-                  strokeWidth: 2,
-                );
-              } else if (mode == LoadStatus.failed) {
-                body = Text("加载失败，请重试");
-              } else if (mode == LoadStatus.canLoading) {
-                body = Text("释放加载更多");
-              } else {
-                body = Text("没有更多数据了");
-              }
-              return SizedBox(height: 55.0, child: Center(child: body));
-            },
-          ),
-          controller: RefreshController(initialRefresh: true),
-          // controller: controller.refreshController,
-          child: GridView.builder(
-            primary: true,
-            shrinkWrap: true,
-            itemCount: controller.tasks.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossCount,
-              crossAxisSpacing: crossCount == 1 ? 0 : 6,
-              mainAxisSpacing: 1,
-              childAspectRatio: crossCount == 1 ? 2 : 1.5,
-            ),
-            itemBuilder: (BuildContext context, int index) {
-              return OneTaskView(
-                task: controller.tasks[index],
-                taskCategory: controller.curCat.first,
-              );
-            },
-          ),
-        );
-      },
+                            /// Required, The loading type of the widget
+                            colors: loadingColors,
+                            strokeWidth: 2,
+                          );
+                        } else if (mode == LoadStatus.failed) {
+                          body = Text("加载失败，请重试");
+                        } else if (mode == LoadStatus.canLoading) {
+                          body = Text("释放加载更多");
+                        } else {
+                          body = Text("没有更多数据了");
+                        }
+                        return SizedBox(
+                          height: 55.0,
+                          child: Center(child: body),
+                        );
+                      },
+                    ),
+                    controller: RefreshController(initialRefresh: true),
+                    // controller: controller.refreshController,
+                    child: GridView.builder(
+                      primary: true,
+                      shrinkWrap: true,
+                      itemCount: controller.tasks.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossCount,
+                        crossAxisSpacing: crossCount == 1 ? 0 : 6,
+                        mainAxisSpacing: 1,
+                        childAspectRatio: crossCount == 1 ? 2 : 1.5,
+                      ),
+                      itemBuilder: (BuildContext context, int index) {
+                        return OneTaskView(
+                          task: controller.tasks[index],
+                          taskCategory: controller.curCat.first,
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
     );
   }
 }

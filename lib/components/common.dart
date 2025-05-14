@@ -22,6 +22,8 @@ class TaskListController extends GetxController {
   final curCat = <TaskListCategory>{}.obs;
   final tasks = <WorkTask>[].obs;
   final isLoading = false.obs;
+  final tabChanging = false.obs;
+
   final pageReq = PageReq();
   final smartRefreshKey = GlobalKey<SmartRefresherState>();
   final int parentId;
@@ -90,9 +92,14 @@ class CommonTaskListView extends GetView<TaskListController> {
                         )
                         .toList(),
                 onSelectionChanged: (s) {
+                  controller.tabChanging.value = true;
                   controller.curCat.value = s;
                   controller.reset();
-                  controller.loadTaskList();
+                  controller.loadTaskList().then((v) {
+                    Future.delayed(Duration(milliseconds: 250), (){
+                      controller.tabChanging.value = false;
+                    });
+                  });
                 },
                 selected: controller.curCat.value,
                 multiSelectionEnabled: false,
