@@ -42,7 +42,7 @@ class TaskListController extends GetxController {
     final refreshController = smartRefreshKey.currentState?.widget.controller;
     if (!pageReq.hasMore.value) {
       warnToast("没有更多数据了");
-      // refreshController.loadNoData();
+      refreshController?.loadNoData();
     } else {
       isLoading.value = true;
       final data = await task_api.queryWorkTasks(

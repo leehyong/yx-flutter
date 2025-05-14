@@ -51,7 +51,7 @@ class TaskListView extends GetView<TaskListController> {
                     key: controller.smartRefreshKey,
                     enablePullDown: true,
                     enablePullUp: true,
-                    header: WaterDropHeader(refresh: const Text("下拉刷新")),
+                    header: WaterDropHeader(),
                     onLoading: controller.loadTaskList,
                     onRefresh: () async {
                       controller.reset();
@@ -75,7 +75,7 @@ class TaskListView extends GetView<TaskListController> {
                         } else if (mode == LoadStatus.canLoading) {
                           body = Text("释放加载更多");
                         } else {
-                          body = Text("没有更多数据了");
+                          body = Text("没有数据了");
                         }
                         return SizedBox(
                           height: 55.0,
