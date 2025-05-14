@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/types.dart';
@@ -31,15 +31,11 @@ class TaskListController extends GetxController {
   final tasks = <WorkTask>[].obs;
   final isLoading = false.obs;
   final pageReq = PageReq();
-  final refreshController = RefreshController(initialRefresh: true);
+
+  // final refreshController = RefreshController(initialRefresh: true);
   final int parentId;
 
-  TaskListController({
-    this.parentId = 0,
-    required TaskListCategory defaultCat,
-  }) {
-    curCategory.value = {defaultCat};
-  }
+  TaskListController({this.parentId = 0});
 
   RxSet<TaskListCategory> get curCategory =>
       Get.find<CommonTaskListCatController>().cat;
@@ -49,7 +45,8 @@ class TaskListController extends GetxController {
     super.onInit();
     // 监听切换了cat ，则重新加载数据
     ever(curCategory, (c) {
-      if (c.isNotEmpty) refreshController.requestRefresh();
+      debugPrint("curCategory:${c}");
+      // if (c.isNotEmpty) refreshController.requestRefresh();
     });
   }
 
@@ -63,7 +60,7 @@ class TaskListController extends GetxController {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
     if (!pageReq.hasMore.value) {
       warnToast("没有更多数据了");
-      refreshController.loadNoData();
+      // refreshController.loadNoData();
     } else {
       isLoading.value = true;
       final data = await task_api.queryWorkTasks(
@@ -79,12 +76,12 @@ class TaskListController extends GetxController {
         assert(pageReq.limit == data.limit);
         pageReq.hasMore.value = pageReq.page < data.totalPages;
         if (data.data!.isEmpty) {
-          refreshController.loadNoData();
+          // refreshController.loadNoData();
         } else {
-          refreshController.loadComplete();
+          // refreshController.loadComplete();
         }
       } else {
-        refreshController.loadFailed();
+        // refreshController.loadFailed();
       }
     }
   }

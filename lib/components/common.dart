@@ -19,9 +19,8 @@ class CommonTaskListCatController extends GetxController {
 }
 
 class CommonTaskListView extends GetView<CommonTaskListCatController> {
-  CommonTaskListView({super.key, required this.cats}) {
-    Get.put(CommonTaskListCatController());
-  }
+  CommonTaskListView({super.key, required this.cats});
+
   final List<TaskListCategory> cats;
 
   @override
@@ -49,11 +48,7 @@ class CommonTaskListView extends GetView<CommonTaskListCatController> {
               ),
             ),
           ),
-          Expanded(
-            child: TaskListView(
-              defaultCat: cats.first,
-            ),
-          ),
+          Expanded(child: TaskListView(defaultCat: cats.first)),
         ],
       ),
     );

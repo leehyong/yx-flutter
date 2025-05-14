@@ -11,6 +11,7 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
+import '../../common.dart';
 import 'controller.dart';
 
 class TaskListView extends GetView<TaskListController> {
@@ -19,9 +20,7 @@ class TaskListView extends GetView<TaskListController> {
     int parentId = 0,
     required TaskListCategory defaultCat,
   }) {
-    Get.put(
-      TaskListController(parentId: parentId, defaultCat: defaultCat),
-    );
+    Get.find<CommonTaskListCatController>().cat.value = {defaultCat};
   }
 
   // 通过不同的tag， 那就可以创建出不同的 TaskListController，
@@ -65,7 +64,7 @@ class TaskListView extends GetView<TaskListController> {
               return SizedBox(height: 55.0, child: Center(child: body));
             },
           ),
-          controller: controller.refreshController,
+          controller: RefreshController(initialRefresh: true),
           child: GridView.builder(
             primary: true,
             shrinkWrap: true,
