@@ -11,11 +11,17 @@ Future<ProtoPageVo<UserTaskHistory>> queryWorkTasks(
   TaskListCategory cat,
   int page,
   int limit,
+  int parentId,
 ) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
       "$apiContextPath/work-task/all",
-      queryParameters: {"page": page, "limit": limit, "cat": cat.index},
+      queryParameters: {
+        "page": page,
+        "limit": limit,
+        "cat": cat.index,
+        "parent_id": parentId,
+      },
     );
     return handleProtoPageInstanceVo<UserTaskHistory>(
       resp,

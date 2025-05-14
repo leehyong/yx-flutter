@@ -21,3 +21,11 @@ void okToast(String msg){
     autoCloseDuration: const Duration(seconds: 3),
   );
 }
+
+void warnToast(String msg){
+  toastification.show(
+    type: ToastificationType.warning,
+    title: Text(msg),
+    autoCloseDuration: const Duration(seconds: 3),
+  );
+}

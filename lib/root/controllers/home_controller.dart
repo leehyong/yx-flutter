@@ -14,10 +14,10 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    initTaskList();
+    loadTaskList();
   }
 
-  Future<void> initTaskList() async {
+  Future<void> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
     for (var taskType in taskTypeNameList) {
       multiDutyMap[taskType] = [];

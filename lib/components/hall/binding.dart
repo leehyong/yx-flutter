@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 
-import 'controller.dart';
+import '../common.dart';
 
 class TaskHallBinding implements Bindings {
   @override
   void dependencies() {
     // Get.lazyPut(() => UserProvider());
     // Get.lazyPut(() => DutyProvider());
-    Get.lazyPut(()=> TaskHallController());
+    Get.lazyPut(()=> CommonTaskListCatController());
   }
 }

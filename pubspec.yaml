@@ -63,6 +63,7 @@ dependencies:
   fixnum: ^1.1.1
   dio: ^5.8.0+1
   native_dio_adapter: ^1.4.0
+  pull_to_refresh_flutter3: ^2.0.2
   yt_dart:
     path: ../proto/yt-dart
 

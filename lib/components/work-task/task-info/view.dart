@@ -450,10 +450,9 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         Row(
           children: [
             Expanded(
-              child: TaskListView(
-                tasks: [controller.parentTask.value],
+              child: OneTaskView(
+                task: controller.parentTask.value,
                 taskCategory: TaskListCategory.parentTaskInfo,
-                isLoading: false,
               ),
             ),
           ],
@@ -472,13 +471,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   Widget _publishTaskChildrenInfoView(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-          child: TaskListView(
-            tasks: controller.childrenTask.value,
-            taskCategory: TaskListCategory.childrenTaskInfo,
-            isLoading: false,
-          ),
-        ),
+        Expanded(child: TaskListView(parentId: controller.parentId.toInt())),
       ],
     );
   }

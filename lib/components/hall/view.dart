@@ -5,11 +5,11 @@ import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
 
-import '../work-task/task-list/view.dart';
-import 'controller.dart';
+import '../common.dart';
 
-class TaskHallView extends GetView<TaskHallController> {
-  const TaskHallView({super.key});
+class TaskHallView extends CommonTaskListView {
+  TaskHallView({super.key})
+    : super(cats: TaskListCategoryExtension.hallTaskList);
 
   @override
   Widget build(BuildContext context) {
@@ -24,57 +24,14 @@ class TaskHallView extends GetView<TaskHallController> {
                 WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
 
-                arguments: const WorkTaskPageParams(
-                  Int64.ZERO,
-                  null,
-                ),
+                arguments: const WorkTaskPageParams(Int64.ZERO, null),
               );
             },
             child: Row(children: [const Text('发布'), Icon(Icons.add)]),
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.only(left: 3, right: 3),
-        child: Obx(
-          () => Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: SegmentedButton(
-                  segments:
-                      TaskListCategoryExtension.hallTaskList
-                          .map(
-                            (e) =>
-                                ButtonSegment(value: e, label: Text(e.i18name)),
-                          )
-                          .toList(),
-                  onSelectionChanged: (s) {
-                    controller.selectedSet.value = s;
-                  },
-                  selected: controller.selectedSet,
-                  multiSelectionEnabled: false,
-                ),
-              ),
-              Expanded(
-                child: FutureBuilder(
-                  future: controller.initTaskList(),
-                  builder: (context, snapshot) {
-                    // if (controller.isLoading.value) {
-                    //   return Center(child: CircularProgressIndicator());
-                    // }
-                    return TaskListView(
-                      tasks: controller.tasks.value,
-                      taskCategory: controller.selectedSet.first,
-                      isLoading: controller.isLoading.value,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: buildTasks(context),
     );
   }
 }
