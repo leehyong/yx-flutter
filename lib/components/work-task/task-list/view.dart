@@ -33,6 +33,7 @@ class TaskListView extends GetView<TaskListController> {
       builder: (ctx, constraints) {
         final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
         return SmartRefresher(
+          key: controller.smartRefreshKey,
           enablePullDown: true,
           enablePullUp: true,
           header: WaterDropHeader(refresh: const Text("下拉刷新")),
