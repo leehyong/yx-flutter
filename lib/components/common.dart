@@ -26,9 +26,7 @@ class TaskListController extends GetxController {
 
   final pageReq = PageReq();
   final smartRefreshKey = GlobalKey<SmartRefresherState>();
-  final int parentId;
-
-  TaskListController({this.parentId = 0});
+  final parentId = 0.obs;
 
   void reset() {
     pageReq.hasMore.value = true;
@@ -38,7 +36,8 @@ class TaskListController extends GetxController {
 
   Future<void> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
-    final cat = parentId < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
+    final cat =
+        parentId.value < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
     final refreshController = smartRefreshKey.currentState?.widget.controller;
     if (!pageReq.hasMore.value) {
       warnToast("没有更多数据了");
@@ -49,7 +48,7 @@ class TaskListController extends GetxController {
         cat,
         pageReq.page.value,
         pageReq.limit,
-        parentId,
+        parentId.value,
       );
       if (data.error == null) {
         tasks.value.addAll(data.data!.map((e) => e.task));

@@ -195,6 +195,26 @@ class _TaskInfoView extends GetView<TaskInfoController> {
 
   @override
   Widget build(BuildContext context) {
+    return Form(
+      key: controller.formKey,
+      child: Obx(
+        () => Column(
+          children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: _buildRelationAttributes(context),
+            ),
+            SizedBox(height: 10),
+            Expanded(child: _buildTaskRelates(context)),
+            _buildInfoActions(context),
+            // Align(alignment: Alignment.center, child: actions,),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoActions(BuildContext context) {
     Widget actions = SizedBox.shrink();
     switch (controller.action) {
       case TaskInfoAction.write:
@@ -205,24 +225,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
       default:
         break;
     }
-
-    return Obx(
-      () => Form(
-        key: controller.formKey,
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: _buildRelationAttributes(context),
-            ),
-            SizedBox(height: 10),
-            Expanded(child: _buildTaskRelates(context)),
-            actions,
-            // Align(alignment: Alignment.center, child: actions,),
-          ],
-        ),
-      ),
-    );
+    return actions;
   }
 
   List<TaskAttributeCategory> segmentedBtnCategories(BuildContext context) {
@@ -373,7 +376,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         // 已有父任务的任务就不能再选择父任务了
         if (!readOnly && controller.parentId == Int64.ZERO)
           Align(
-            alignment: Alignment.centerRight,
+            alignment:
+                GetPlatform.isMobile
+                    ? Alignment.centerRight
+                    : Alignment.topLeft,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue.shade50, // 背景色
@@ -447,24 +453,18 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               child: const Text("选择"),
             ),
           ),
-        Row(
-          children: [
-            Expanded(
-              child: OneTaskView(
-                task: controller.parentTask.value,
-                taskCategory: TaskListCategory.parentTaskInfo,
-              ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 500,
+            height: 200,
+            child: OneTaskView(
+              task: controller.parentTask.value,
+              taskCategory: TaskListCategory.parentTaskInfo,
             ),
-          ],
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildHeaderActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [const Text("删除"), const Text("修改")],
     );
   }
 
