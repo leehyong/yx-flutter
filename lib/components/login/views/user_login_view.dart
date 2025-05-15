@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -20,7 +21,7 @@ class UserLoginView extends GetView<UserLoginController> {
       autofocus: true,
       key: controller.userFieldKey,
       focusNode: controller.userFocusNode,
-      onTapOutside: (p) async{
+      onTapOutside: (p) async {
         controller.userFocusNode.unfocus();
         await controller.maybeGetCaptcha();
       },
@@ -41,7 +42,10 @@ class UserLoginView extends GetView<UserLoginController> {
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   TextSpan(text: "或者数字"),
-                  TextSpan(text: "0-9", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  TextSpan(
+                    text: "0-9",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
                 ],
                 style: TextStyle(fontSize: 10),
               ),
@@ -74,12 +78,14 @@ class UserLoginView extends GetView<UserLoginController> {
         return null;
         // controller.pwd.value = v!;
       },
-      onTap: ()async {
+      onTap: () async {
         if (controller.userEditingController.text.isEmpty) {
-          commonDebounceByTimer(() {
-            errToast("请先输入用户名");
-          }, Duration(seconds: 5))();
-        }else{
+          EasyThrottle.throttle(
+            'err-toast-user', // <-- An ID for this particular throttler
+            Duration(seconds: 3), // <-- The throttle duration
+            () => errToast("请先输入用户名"), // <-- The target method
+          );
+        } else {
           await controller.maybeGetCaptcha();
         }
       },
