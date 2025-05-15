@@ -9,10 +9,6 @@ class UserLoginController extends GetxController {
   final showPwd = false.obs;
   final captcha = ''.obs;
   final sendingCaptcha = DataLoadingStatus.none.obs;
-  static RegExp pwdReg = RegExp(
-    r'\d{6,}',
-    // r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~@#$%\*-\+=:,\\?\[\]\{}]).{6,16}$'
-  );
 
   final pwdEditingController = TextEditingController();
   final userEditingController = TextEditingController();

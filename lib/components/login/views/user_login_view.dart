@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/toast.dart';
 
 import '../controllers/user_login_controller.dart';
@@ -62,7 +63,8 @@ class UserLoginView extends GetView<UserLoginController> {
       obscureText: !controller.showPwd.value,
       // 是否显示文字
       validator: (v) {
-        if (!UserLoginController.pwdReg.hasMatch(v!)) {
+        // 密码格式验证
+        if (!isValidPwd(v!)) {
           return UserLoginController.pwdRegErrorTxt;
         }
         return null;
