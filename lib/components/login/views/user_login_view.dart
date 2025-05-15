@@ -31,7 +31,8 @@ class UserLoginView extends GetView<UserLoginController> {
       },
       controller: controller.userEditingController,
       decoration: const InputDecoration(
-        label: Tooltip(
+        labelText: "用户名",
+        icon: Tooltip(
           richMessage: TextSpan(
             children: [
               TextSpan(text: "用户名遵循以下规则\n", style: TextStyle(fontSize: 14)),
@@ -41,13 +42,7 @@ class UserLoginView extends GetView<UserLoginController> {
               TextSpan(text: "4.可以是其他任意特殊字符", style: TextStyle(fontSize: 10)),
             ],
           ),
-          child: Row(
-            children: [
-              Text("用户名"),
-              SizedBox(width: 4),
-              Icon(Icons.info_outline_rounded, color: Colors.red),
-            ],
-          ),
+          child:Icon(Icons.person_outline),
         ),
       ),
       validator: (v) {
@@ -59,6 +54,7 @@ class UserLoginView extends GetView<UserLoginController> {
       },
     );
   }
+
 
   Widget buildPasswordTextField(BuildContext context) {
     return TextFormField(
@@ -78,7 +74,8 @@ class UserLoginView extends GetView<UserLoginController> {
         }
       },
       decoration: InputDecoration(
-        label: Tooltip(
+        labelText: "密码",
+        icon: Tooltip(
           richMessage: TextSpan(
             children: [
               TextSpan(text: "密码遵循以下规则\n", style: TextStyle(fontSize: 14)),
@@ -91,22 +88,7 @@ class UserLoginView extends GetView<UserLoginController> {
               TextSpan(text: "4.可以是其他任意特殊字符", style: TextStyle(fontSize: 10)),
             ],
           ),
-          child: Row(
-            children: [
-              Text("密码"),
-              SizedBox(width: 4),
-              Icon(Icons.info_outline_rounded, color: Colors.red),
-            ],
-          ),
-
-          // Column(
-          //   children: [
-          //     Text("密码遵循以下规则:", style: TextStyle(fontSize: 14)),
-          //     Text("至少为6位字符", style: TextStyle(fontSize: 10)),
-          //     Text("必须至少包括大写、小写、数字、特殊字符中的2类", style: TextStyle(fontSize: 10)),
-          //     Text("不能包含空白字符", style: TextStyle(fontSize: 10)),
-          //   ],
-          // ),
+          child: Icon(Icons.password_outlined),
         ),
         suffixIcon: IconButton(
           icon: Icon(

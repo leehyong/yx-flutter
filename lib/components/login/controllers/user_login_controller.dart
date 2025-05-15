@@ -10,7 +10,6 @@ class UserLoginController extends GetxController {
   final captcha = ''.obs;
   final sendingCaptcha = DataLoadingStatus.none.obs;
   static RegExp pwdReg = RegExp(
-    // r'^(?![0-9]+$)(?!a-zA-Z]+$)[A-Za-z\\W]{"+2+","+10+"}$'
     r'\d{6,}',
     // r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~@#$%\*-\+=:,\\?\[\]\{}]).{6,16}$'
   );
