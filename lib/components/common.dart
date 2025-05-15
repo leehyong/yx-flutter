@@ -34,6 +34,14 @@ class TaskListController extends GetxController {
     tasks.value = [];
   }
 
+  void setTaskListInfo({
+    int parentId = 0,
+    TaskListCategory defaultCat = TaskListCategory.allPublished,
+  }) {
+    curCat.value = {defaultCat};
+    this.parentId.value = parentId;
+  }
+
   Future<void> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
     final cat =
@@ -76,7 +84,10 @@ class TaskListController extends GetxController {
 }
 
 class CommonTaskListView extends GetView<TaskListController> {
-  const CommonTaskListView({super.key, required this.cats});
+  CommonTaskListView({super.key, required this.cats}) {
+    assert(cats.isNotEmpty);
+    controller.curCat.value = {cats.first};
+  }
 
   final List<TaskListCategory> cats;
 
@@ -112,9 +123,19 @@ class CommonTaskListView extends GetView<TaskListController> {
               ),
             ),
           ),
-          Expanded(child: TaskListView(defaultCat: cats.first)),
+          Expanded(child: TaskListView()),
         ],
       ),
     );
   }
+}
+
+void commonSetTaskListInfo({
+  int parentId = 0,
+  TaskListCategory defaultCat = TaskListCategory.allPublished,
+}) {
+  Get.find<TaskListController>().setTaskListInfo(
+    parentId: parentId,
+    defaultCat: defaultCat,
+  );
 }

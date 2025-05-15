@@ -8,7 +8,9 @@ import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
+import 'package:yx/utils/common_widget.dart';
 
+import '../../common.dart';
 import '../../work-header/view.dart';
 import '../task-list/view.dart';
 import 'controller.dart';
@@ -254,6 +256,13 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               .toList(),
       onSelectionChanged: (s) {
         controller.selectedAttrSet.value = s;
+        final first = s.first;
+        if (first == TaskAttributeCategory.childrenTask) {
+          commonSetTaskListInfo(
+            parentId: controller.parentId.toInt(),
+            defaultCat: TaskListCategory.childrenTaskInfo,
+          );
+        }
       },
       selected: controller.selectedAttrSet.value,
       multiSelectionEnabled: false,
@@ -374,7 +383,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     return Column(
       children: [
         // 已有父任务的任务就不能再选择父任务了
-        if (!readOnly && controller.parentId == Int64.ZERO)
+        if (!readOnly && controller.parentId == Int64.ZERO) ...[
           Align(
             alignment:
                 GetPlatform.isMobile
@@ -453,32 +462,50 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               child: const Text("选择"),
             ),
           ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: SizedBox(
-            width: 500,
-            height: 200,
-            child: OneTaskView(
-              task: controller.parentTask.value,
-              taskCategory: TaskListCategory.parentTaskInfo,
-            ),
-          ),
-        ),
+          emptyWidget(context),
+        ],
+
+        // fixme : 后续把父任务的信息展示出来
+        // Align(
+        //   alignment: Alignment.topLeft,
+        //   child: SizedBox(
+        //     width: 500,
+        //     height: 200,
+        //     child: OneTaskView(
+        //       task: controller.parentTask.value,
+        //       taskCategory: TaskListCategory.parentTaskInfo,
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
 
   Widget _publishTaskChildrenInfoView(BuildContext context) {
     final parentId = controller.parentId.toInt();
-    final taskId = controller.taskId.toInt();
     return Column(
       children: [
-        Expanded(
-          child: TaskListView(
-            parentId: parentId,
-            defaultCat: TaskListCategory.childrenTaskInfo,
+        Opacity(
+          opacity: 0.0, // 0.0 隐藏，1.0 显示。通过透明度控制显示，隐藏时仍占据布局空间
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue.shade50, // 背景色
+              foregroundColor: Colors.black,
+              padding: EdgeInsets.all(4),
+              // 文字颜色
+            ),
+            onPressed: () {},
+            child: const Text("选择"),
           ),
         ),
+        parentId == 0
+            ? emptyWidget(context)
+            : Expanded(
+              child: TaskListView(
+                // parentId: parentId,
+                // defaultCat: TaskListCategory.childrenTaskInfo,
+              ),
+            ),
       ],
     );
   }

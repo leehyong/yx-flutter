@@ -15,14 +15,7 @@ import '../../common.dart';
 import 'controller.dart';
 
 class TaskListView extends GetView<TaskListController> {
-  TaskListView({
-    super.key,
-    int parentId = 0,
-    required TaskListCategory defaultCat,
-  }) {
-    Get.find<TaskListController>().curCat.value = {defaultCat};
-    Get.find<TaskListController>().parentId.value = parentId;
-  }
+  const TaskListView({super.key});
 
   @override
   Widget build(BuildContext context) {
