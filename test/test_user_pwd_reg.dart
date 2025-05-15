@@ -16,32 +16,32 @@ void main() {
 
   test("大小写", () {
     pwd = 'ABCcdfe';
-    assert(isValidPwd(pwd));
+    assert(!isValidPwd(pwd));
   });
 
   test("大写+数字", () {
     pwd = 'ABC123';
-    assert(isValidPwd(pwd));
+    assert(!isValidPwd(pwd));
   });
 
   test("小写+数字", () {
     pwd = 'cdfe554';
-    assert(isValidPwd(pwd));
+    assert(!isValidPwd(pwd));
   });
 
   test("大写+特殊字符", () {
-    pwd = 'ABC###!';
-    assert(isValidPwd(pwd));
+    pwd = 'AB&C..@ABC[[]]!\\';
+    assert(!isValidPwd(pwd));
   });
 
   test("小写+特殊字符", () {
-    pwd = 'ABC#:;!';
-    assert(isValidPwd(pwd));
+    pwd = 'abc#`^!';
+    assert(!isValidPwd(pwd));
   });
 
   test("数字+特殊字符", () {
-    pwd = '987#:;!';
-    assert(isValidPwd(pwd));
+    pwd = '98&7#:;!-_.';
+    assert(!isValidPwd(pwd));
   });
 
   test("空白字符 1", () {
@@ -50,7 +50,7 @@ void main() {
   });
 
   test("空白字符 -t", () {
-    pwd = '987\t#:;!';
+    pwd = '987\t#:;_!';
     assert(!isValidPwd(pwd));
   });
 
@@ -78,5 +78,17 @@ void main() {
   test("大写+数字+特殊字符", () {
     pwd = 'OPOM987#:;!';
     assert(isValidPwd(pwd));
+  });
+
+  test("用户格式", (){
+    assert(isValidUser("ABC123"));
+    assert(isValidUser("admin"));
+    assert(isValidUser("test1"));
+    assert(isValidUser("test@11"));
+    assert(isValidUser("test*&%11"));
+    assert(isValidUser("Test*&%11"));
+    assert(!isValidUser("[]Test*&%11"));
+    assert(!isValidUser("@Test*&%11"));
+    assert(!isValidUser("0Test*&%11"));
   });
 }

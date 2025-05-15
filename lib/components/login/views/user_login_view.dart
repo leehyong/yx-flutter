@@ -20,15 +20,9 @@ class UserLoginView extends GetView<UserLoginController> {
       autofocus: true,
       key: controller.userFieldKey,
       focusNode: controller.userFocusNode,
-      autovalidateMode: AutovalidateMode.always,
-      onTapOutside: (p) {
+      onTapOutside: (p) async{
         controller.userFocusNode.unfocus();
-        final inputFieldState =
-            controller.userFieldKey.currentState as FormFieldState<String>;
-        // 如果用户名输入合法，那么就获取验证码
-        if (inputFieldState.validate() && controller.captcha.isEmpty) {
-          controller.sendCaptchaAction();
-        }
+        await controller.maybeGetCaptcha();
       },
       controller: controller.userEditingController,
       decoration: const InputDecoration(
@@ -37,25 +31,35 @@ class UserLoginView extends GetView<UserLoginController> {
           richMessage: TextSpan(
             children: [
               TextSpan(text: "用户名遵循以下规则\n", style: TextStyle(fontSize: 14)),
-              TextSpan(text: "1.至少为5个字符\n", style: TextStyle(fontSize: 10)),
-              TextSpan(text: "2.首字只能为大小写字母\n", style: TextStyle(fontSize: 10)),
-              TextSpan(text: "3.不能包含空白字符\n", style: TextStyle(fontSize: 10)),
-              TextSpan(text: "4.可以是其他任意特殊字符", style: TextStyle(fontSize: 10)),
+              TextSpan(text: "1.至少5个最多60个字符\n", style: TextStyle(fontSize: 10)),
+              TextSpan(text: "2.首字母只能是大小写\n", style: TextStyle(fontSize: 10)),
+              TextSpan(
+                children: [
+                  TextSpan(text: "3.可以是特殊字符"),
+                  TextSpan(
+                    text: "@-#*&!%",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(text: "或者数字"),
+                  TextSpan(text: "0-9", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+                style: TextStyle(fontSize: 10),
+              ),
+              TextSpan(text: "\n4.不能包含空白字符", style: TextStyle(fontSize: 10)),
             ],
           ),
-          child:Icon(Icons.person_outline),
+          child: Icon(Icons.person_outline),
         ),
       ),
       validator: (v) {
-        if (!UserLoginController.userReg.hasMatch(v!)) {
-          return UserLoginController.userRegErrorTxt;
+        if (!isValidUser(v!)) {
+          return "用户名格式不对";
         }
         // controller.user.value = v!;
         return null;
       },
     );
   }
-
 
   Widget buildPasswordTextField(BuildContext context) {
     return TextFormField(
@@ -65,14 +69,18 @@ class UserLoginView extends GetView<UserLoginController> {
       validator: (v) {
         // 密码格式验证
         if (!isValidPwd(v!)) {
-          return UserLoginController.pwdRegErrorTxt;
+          return "密码格式不对，请检查";
         }
         return null;
         // controller.pwd.value = v!;
       },
-      onTap: () {
+      onTap: ()async {
         if (controller.userEditingController.text.isEmpty) {
-          errToast("请先输入用户名");
+          commonDebounceByTimer(() {
+            errToast("请先输入用户名");
+          }, Duration(seconds: 5))();
+        }else{
+          await controller.maybeGetCaptcha();
         }
       },
       decoration: InputDecoration(
@@ -81,13 +89,25 @@ class UserLoginView extends GetView<UserLoginController> {
           richMessage: TextSpan(
             children: [
               TextSpan(text: "密码遵循以下规则\n", style: TextStyle(fontSize: 14)),
-              TextSpan(text: "1.至少为6位不包括中文的字符\n", style: TextStyle(fontSize: 10)),
               TextSpan(
-                text: "2.必须至少包括大写、小写、数字、特殊字符中的2类\n",
+                text: "1.至少6位，最多20位的不包括中文的字符\n",
                 style: TextStyle(fontSize: 10),
               ),
-              TextSpan(text: "3.不能包含空白字符\n", style: TextStyle(fontSize: 10)),
-              TextSpan(text: "4.可以是其他任意特殊字符", style: TextStyle(fontSize: 10)),
+              TextSpan(
+                text: "2.至少包括大小写字母、数字、特殊字符中的3类\n",
+                style: TextStyle(fontSize: 10),
+              ),
+              TextSpan(
+                children: [
+                  TextSpan(text: "3.特殊字符是"),
+                  TextSpan(
+                    text: r'''^~`!@#$%&*()-_+={[]}}\、:;'",<>./?''',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ],
+                style: TextStyle(fontSize: 10),
+              ),
+              TextSpan(text: "\n4.不能包含任何空白字符", style: TextStyle(fontSize: 10)),
             ],
           ),
           child: Icon(Icons.password_outlined),
@@ -186,7 +206,7 @@ class UserLoginView extends GetView<UserLoginController> {
             if (controller.isValidInput) {
               controller.sendCaptchaAction();
             } else {
-              errToast("请输入合规的用户名");
+              errToast("请输入合规的用户名和密码");
             }
           },
           child: _buildCaptcha(context),

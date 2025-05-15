@@ -16,13 +16,6 @@ class UserLoginController extends GetxController {
   final userFocusNode = FocusNode();
   final GlobalKey userFieldKey = GlobalKey<FormFieldState<String>>();
   final GlobalKey formKey = GlobalKey<FormState>();
-  static RegExp userReg = RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#]{4,}");
-
-  static String userRegErrorTxt =
-      "请输入不包括中文的至少5个字符的用户名";
-
-  // static String pwdRegErrorTxt = "请输入至少6个字符的密码";
-  static String pwdRegErrorTxt = "请输入至少6位字符的密码";
 
   static UserLoginController get to => Get.find();
 
@@ -76,5 +69,14 @@ class UserLoginController extends GetxController {
   bool get isValidInput {
     final state = formKey.currentState as FormState;
     return state.validate();
+  }
+
+  Future<void> maybeGetCaptcha ()async{
+    final inputFieldState =
+    userFieldKey.currentState as FormFieldState<String>;
+    // 如果用户名输入合法，那么就获取验证码
+    if (inputFieldState.validate() && captcha.value.isEmpty) {
+      await sendCaptchaAction();
+    }
   }
 }

@@ -241,16 +241,20 @@ bool isValidPwd(String pwd) {
   // \S 匹配任意非空白字符
   if (!RegExp(r'^\S{6,20}$').hasMatch(pwd)) return false;
 
-  final specialChars = r'''\^|[~`!@#$%&*()-+={[}}\、:;'",<,>./?]''';
+  final specialChars = r'''[\^~`!@#$%&*()\-_+={\[\]}}\\、:;'",<>./?]''';
   // 仅允许字母、数字、特殊字符
   // if (!RegExp(r'^[A-Za-z\d~`!@#$%^&*()-_=+{[}]\、;\:"<,>./?]+$').hasMatch(pwd)) return false;
   if (!RegExp('^(\\w|$specialChars)+\$').hasMatch(pwd)) return false;
-  // 统计包含的字符类别数（至少2类）
+  // 统计包含的字符类别数（至少3类）
   int categories = 0;
   if (RegExp(r'[A-Z]').hasMatch(pwd)) categories++; // 大写字母
   if (RegExp(r'[a-z]').hasMatch(pwd)) categories++; // 小写字母
   if (RegExp(r'\d').hasMatch(pwd)) categories++; // 数字
   if (RegExp(specialChars).hasMatch(pwd)) categories++; // 特殊字符
 
-  return categories >= 2;
+  return categories >= 3;
+}
+
+bool isValidUser(String user) {
+  return RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#*&!%]{4,59}").hasMatch(user);
 }
