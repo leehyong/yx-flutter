@@ -383,7 +383,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     return Column(
       children: [
         // 已有父任务的任务就不能再选择父任务了
-        if (!readOnly && controller.parentId == Int64.ZERO) ...[
+        if (!readOnly && controller.parentId == Int64.ZERO)
           Align(
             alignment:
                 GetPlatform.isMobile
@@ -462,21 +462,29 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               child: const Text("选择"),
             ),
           ),
-          emptyWidget(context),
-        ],
-
-        // fixme : 后续把父任务的信息展示出来
-        // Align(
-        //   alignment: Alignment.topLeft,
-        //   child: SizedBox(
-        //     width: 500,
-        //     height: 200,
-        //     child: OneTaskView(
-        //       task: controller.parentTask.value,
-        //       taskCategory: TaskListCategory.parentTaskInfo,
-        //     ),
-        //   ),
-        // ),
+        controller.parentId == Int64.ZERO
+            ? emptyWidget(context)
+            :
+            // 展示父任务的信息
+            Align(
+              alignment: Alignment.topCenter,
+              child: LayoutBuilder(
+                builder: (context, constrains) {
+                  final width =
+                      !GetPlatform.isMobile
+                          ? min(500.0, constrains.maxWidth)
+                          : constrains.maxWidth;
+                  return SizedBox(
+                    width: width,
+                    height: width * 0.4,
+                    child: OneTaskView(
+                      task: controller.parentTask.value,
+                      taskCategory: TaskListCategory.parentTaskInfo,
+                    ),
+                  );
+                },
+              ),
+            ),
       ],
     );
   }
