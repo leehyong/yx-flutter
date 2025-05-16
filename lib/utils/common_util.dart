@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:color_palette_plus/color_palette_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:protobuf/protobuf.dart' as $pb;
@@ -231,8 +232,31 @@ String? handleProtoCommonInstanceVo(
     }
     return null;
   } else {
+    debugPrint(err);
     errToast(err);
     return err;
+  }
+}
+
+Int64? handleProtoCommonInstanceVoForMsgIncludeInt64(Response<String> response,{
+  bool toastSuccess = false,
+}) {
+  // 处理 msg的位置放置的是 id 的情况
+  final res = decodeCommonVoDataFromResponse(response);
+  final err = res.$1;
+  if (err == null) {
+    // 格式 id:::文本消息
+    final successMsg = res.$2!.msg.split(":::");
+    assert(successMsg.length == 2);
+    if (toastSuccess) {
+      okToast(successMsg[1]);
+    }
+    // fixme: 是否要用 dart ffi里的Int64来解析
+    return Int64(int.parse(successMsg[0]));
+  } else {
+    errToast(err);
+    debugPrint(err);
+    return null;
   }
 }
 

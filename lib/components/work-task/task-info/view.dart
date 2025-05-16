@@ -4,6 +4,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/components/work-header/controller.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
@@ -187,8 +188,9 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     TaskInfoAction action = TaskInfoAction.write,
     this.enableSelectChildrenTasks = true,
   }) {
-    Get.put(TaskInfoController(parentId, taskId, action));
     Get.put(SubmitTasksController());
+    Get.put(TaskInfoController(parentId, taskId, action));
+    Get.lazyPut(() => PublishItemsCrudController());
   }
 
   final bool enableSelectChildrenTasks;
@@ -257,12 +259,25 @@ class _TaskInfoView extends GetView<TaskInfoController> {
       onSelectionChanged: (s) {
         controller.selectedAttrSet.value = s;
         final first = s.first;
-        if (first == TaskAttributeCategory.childrenTask) {
-          commonSetTaskListInfo(
-            parentId: controller.parentId.toInt(),
-            defaultCat: TaskListCategory.childrenTaskInfo,
-          );
+        // bool needUpdatePushItemsController = false;
+        switch (first) {
+          case TaskAttributeCategory.childrenTask:
+            commonSetTaskListInfo(
+              parentId: controller.parentTask.value?.id.toInt() ?? 0,
+              defaultCat: TaskListCategory.childrenTaskInfo,
+            );
+            break;
+          // case TaskAttributeCategory.submitItem:
+          //   needUpdatePushItemsController = true;
+          //   break;
+          // case TaskAttributeCategory.basic:
+          //   needUpdatePushItemsController = isBigScreen(context);
+          default:
+            break;
         }
+        // if (needUpdatePushItemsController) {
+        //   Get.find<PublishItemsCrudController>().curTaskId = c
+        // }
       },
       selected: controller.selectedAttrSet.value,
       multiSelectionEnabled: false,
@@ -283,8 +298,8 @@ class _TaskInfoView extends GetView<TaskInfoController> {
                     controller.isSubmitRelated
                         ? SubmitTasksView()
                         : PublishSubmitItemsCrudView(
-                          controller.taskId,
-                          readOnly,
+                          // controller.taskId.value,
+                          // readOnly,
                         ),
               ),
               SizedBox(width: 4),
@@ -296,7 +311,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
             ? SubmitTasksView()
-            : PublishSubmitItemsCrudView(controller.taskId, readOnly);
+            : PublishSubmitItemsCrudView();
 
       case TaskAttributeCategory.parentTask:
         return _publishTaskParentInfoView(context);
@@ -321,9 +336,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             // 文字颜色
           ),
           onPressed: () {
+            controller.saveTask(SystemTaskStatus.initial);
             debugPrint("草稿");
           },
-          child: const Text("草稿"),
+          child: const Text("存为草稿"),
         ),
 
         ElevatedButton(
@@ -335,6 +351,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
           ),
           onPressed: () {
             debugPrint("发布");
+            controller.saveTask(SystemTaskStatus.published);
           },
           child: const Text("发布"),
         ),
@@ -383,7 +400,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     return Column(
       children: [
         // 已有父任务的任务就不能再选择父任务了
-        if (!readOnly && controller.parentId == Int64.ZERO)
+        if (!readOnly && controller.noParent)
           Align(
             alignment:
                 GetPlatform.isMobile
@@ -462,7 +479,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               child: const Text("选择"),
             ),
           ),
-        controller.parentId == Int64.ZERO
+        controller.noParent
             ? emptyWidget(context)
             :
             // 展示父任务的信息
@@ -478,7 +495,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
                     width: width,
                     height: width * 0.4,
                     child: OneTaskView(
-                      task: controller.parentTask.value,
+                      task: controller.parentTask.value!,
                       taskCategory: TaskListCategory.parentTaskInfo,
                     ),
                   );
@@ -490,7 +507,6 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   }
 
   Widget _publishTaskChildrenInfoView(BuildContext context) {
-    final parentId = controller.parentId.toInt();
     return Column(
       children: [
         Opacity(
@@ -506,7 +522,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             child: const Text("选择"),
           ),
         ),
-        parentId == 0
+        controller.noParent
             ? emptyWidget(context)
             : Expanded(
               child: TaskListView(

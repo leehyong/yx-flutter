@@ -1,13 +1,20 @@
 import 'dart:collection';
 
+import 'package:easy_debounce/easy_throttle.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yt_dart/cus_header.pb.dart';
+import 'package:yt_dart/cus_task.pb.dart';
+import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yt_dart/generate_sea_orm_update.pb.dart';
+import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/components/work-header/controller.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
+import 'package:yx/utils/toast.dart';
 
-import '../../work-header/data.dart';
 import 'data.dart';
 import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
@@ -19,8 +26,9 @@ class TaskInfoController extends GetxController {
 
   final GlobalKey<SelectTaskPersonState> selectTaskUsersKey =
       GlobalKey<SelectTaskPersonState>();
-  late final Int64 taskId;
-  late final Int64 parentId;
+  final taskId = Int64.ZERO.obs;
+  final parentTask = (null as WorkTask?).obs;
+
   final TaskInfoAction action;
 
   bool get readOnly => action != TaskInfoAction.write;
@@ -28,16 +36,24 @@ class TaskInfoController extends GetxController {
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers = (null as List<User>?).obs;
 
+  bool get noParent =>
+      parentTask.value == null || parentTask.value!.id == Int64.ZERO;
+
   bool get isSubmitRelated =>
       action == TaskInfoAction.submit || action == TaskInfoAction.submitDetail;
 
-  TaskInfoController(this.parentId, this.taskId, this.action) {
+  TaskInfoController(Int64 parentId, Int64 taskId, this.action) {
     final defaultCat =
         isSubmitRelated && GetPlatform.isMobile
             ? TaskAttributeCategory.submitItem
             : TaskAttributeCategory.basic;
-    selectedAttrSet.value.clear();
-    selectedAttrSet.value.add(defaultCat);
+    selectedAttrSet.value = {defaultCat};
+    this.taskId.value = taskId;
+    if (parentId > Int64.ZERO) {
+      task_api.queryWorkTaskInfoById(parentId).then((v) {
+        parentTask.value = v;
+      });
+    }
   }
 
   final taskNameController = TextEditingController();
@@ -55,71 +71,102 @@ class TaskInfoController extends GetxController {
   final selectedAttrSet = {TaskAttributeCategory.basic}.obs;
   final selectedPersons = <String>["1恶趣味", "恶趣味www", "恶趣味", "2dad服"].obs;
 
-  final childrenTask =
-      <WorkTask>[
-        WorkTask(
-          id: Int64(2),
-          name: '大模型11',
-          content: "22dadafwqeqweqf是生生世世",
-          planStartDt: Int64(1744525638),
-          planEndDt: Int64(1744612038),
-          receiveDeadline: Int64(1744439238),
-          contactor: "赵生",
-          contactPhone: "15522900013",
-          credits: 88,
-          receiveStrategy: 0,
-        ),
-        WorkTask(
-          id: Int64(2),
-          name: '大模型huahu2',
-          content: "22dadafwqeqweqf是生生信息世世",
-          planStartDt: Int64(1744957638),
-          planEndDt: Int64(1745821638),
-          receiveDeadline: Int64(1745303238),
-          contactor: "马六生",
-          contactPhone: "15521020013",
-          credits: 1028,
-          receiveStrategy: 1,
-        ),
-        WorkTask(
-          id: Int64(3),
-          name: '大模型huahu密码',
-          content: "22dadafwqeqweqf是生生信息世世",
-          planStartDt: Int64(1746080838),
-          planEndDt: Int64(1746944838),
-          receiveDeadline: Int64(1745216838),
-          contactor: "马六",
-          contactPhone: "15521020011",
-          credits: 328,
-          receiveStrategy: 2,
-        ),
-      ].obs;
-  final parentTask =
-      WorkTask(
-        id: Int64(1),
-        name: '大模型11',
-        content: "22dadafwqeqweqf是生生世世",
-        planStartDt: Int64(1744525638),
-        planEndDt: Int64(1744612038),
-        receiveDeadline: Int64(1744439238),
-        contactor: "赵生",
-        contactPhone: "15522900013",
-        credits: 88,
-        receiveStrategy: 0,
-      ).obs;
+  final saving = false.obs;
+
+  final childrenTask = <WorkTask>[].obs;
 
   @override
   void onClose() {
     // _timer.cancel(); // 在控制器销毁时取消定时器
     super.onClose();
   }
+
+  Future<void> saveTask(SystemTaskStatus status) async {
+    if (!saving.value) {
+      // 限流，避免重复点击
+      EasyThrottle.throttle("save-task", Duration(seconds: 1), () {
+        errToast("请不要重复操作");
+      });
+    } else {
+      saving.value = true;
+      if (taskId.value > Int64.ZERO) {
+        final data = _updateYooWorkTask;
+        data.task.status = status.index;
+        await task_api.updateWorkTask(taskId.value, _updateYooWorkTask);
+      } else {
+        final data = _newYooWorkTask;
+        data.task.status = status.index;
+        taskId.value = await task_api.newWorkTask(_newYooWorkTask);
+      }
+      saving.value = false;
+    }
+  }
+
+  Int64? _parseDt(String dt) {
+    final d = parseDateFromStr(taskPlanStartDtController.text);
+    return d != null ? Int64(d.second) : null;
+  }
+
+  UpdateYooWorkTask get _updateYooWorkTask => UpdateYooWorkTask(
+    task: UpdateWorkTask(
+      name: taskNameController.text,
+      content: taskContentController.text,
+      planStartDt: _parseDt(taskPlanStartDtController.text),
+      planEndDt: _parseDt(taskPlanEndDtController.text),
+      // 在点击开始时，才变更该属性
+      actualPlanStartDt: null,
+      // 在点击结束时，才变更该属性
+      actualPlanEndDt: null,
+      contactor: taskContactorController.text,
+      contactPhone: taskContactPhoneController.text,
+      credits: double.tryParse(taskCreditsController.text) ?? 0.0,
+      creditsStrategy: taskCreditStrategy.value.index,
+      submitCycle: taskSubmitCycleStrategy.value.index,
+      receiveDeadline:
+          _parseDt(taskReceiveDeadlineController.text) ?? Int64.ZERO,
+      maxReceiverCount:
+          int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
+      // 服务器端从jwt中获取并设置
+      // organizationId: Int64.ZERO
+    ),
+    common: CommonYooWorkTask(
+      parentTaskId: parentTask.value?.id ?? Int64.ZERO,
+      headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+    ),
+  );
+
+  NewYooWorkTask get _newYooWorkTask => NewYooWorkTask(
+    task: NewWorkTask(
+      name: taskNameController.text,
+      content: taskContentController.text,
+      planStartDt: _parseDt(taskPlanStartDtController.text),
+      planEndDt: _parseDt(taskPlanEndDtController.text),
+      // 在点击开始时，才变更该属性
+      actualPlanStartDt: null,
+      // 在点击结束时，才变更该属性
+      actualPlanEndDt: null,
+      contactor: taskContactorController.text,
+      contactPhone: taskContactPhoneController.text,
+      credits: double.tryParse(taskCreditsController.text) ?? 0.0,
+      creditsStrategy: taskCreditStrategy.value.index,
+      submitCycle: taskSubmitCycleStrategy.value.index,
+      receiveDeadline:
+          _parseDt(taskReceiveDeadlineController.text) ?? Int64.ZERO,
+      maxReceiverCount:
+          int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
+    ),
+    common: CommonYooWorkTask(
+      parentTaskId: parentTask.value?.id ?? Int64.ZERO,
+      headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+    ),
+  );
 }
 
 class SubmitTasksController extends GetxController {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   final isLoadingSubmitItem = DataLoadingStatus.none.obs;
 
-  final taskSubmitItems = (null as List<WorkHeaderTree>?).obs;
+  final taskSubmitItems = (null as List<CusYooHeader>?).obs;
   final _leafTaskSubmitItemsTextEditingControllers =
       HashMap<Int64, TextEditingController>();
 
@@ -137,20 +184,20 @@ class SubmitTasksController extends GetxController {
     }
     isLoadingSubmitItem.value = DataLoadingStatus.loading;
     Future.delayed(Duration(seconds: 1), () {
-      taskSubmitItems.value = submitItems;
+      // taskSubmitItems.value = submitItems;
       _buildLeafSubmitItemTextEditingController(taskSubmitItems.value!);
       isLoadingSubmitItem.value = DataLoadingStatus.loaded;
     });
   }
 
-  void _buildLeafSubmitItemTextEditingController(List<WorkHeaderTree> headers) {
+  void _buildLeafSubmitItemTextEditingController(List<CusYooHeader> headers) {
     if (readOnly) {
       return;
     }
     for (var entry in headers) {
       if (entry.children.isEmpty) {
         // todo: 给 TextEditingController 填充初始值
-        _leafTaskSubmitItemsTextEditingControllers[entry.header.id] =
+        _leafTaskSubmitItemsTextEditingControllers[entry.node.id] =
             TextEditingController();
       } else {
         _buildLeafSubmitItemTextEditingController(entry.children);
@@ -169,7 +216,7 @@ class MobileSubmitOneTaskHeaderItemController
   late final List<SubmitOneWorkTaskHeader> children;
 
   // late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
-  MobileSubmitOneTaskHeaderItemController(List<WorkHeaderTree> children) {
+  MobileSubmitOneTaskHeaderItemController(List<CusYooHeader> children) {
     // this.children = LinkedHashMap<int, SubmitOneWorkTaskHeader>();
     if (children.isEmpty) {
       this.children = [SubmitOneWorkTaskHeader()];
@@ -180,15 +227,15 @@ class MobileSubmitOneTaskHeaderItemController
   }
 
   void _buildSubmitWorkHeaders(
-    List<WorkHeaderTree> headers, {
+    List<CusYooHeader> headers, {
     List<WorkHeader>? parents,
   }) {
     for (var entry in headers) {
       final tmpParents = parents ?? [];
       if (entry.children.isEmpty) {
-        children.add(SubmitOneWorkTaskHeader(entry.header, tmpParents));
+        children.add(SubmitOneWorkTaskHeader(entry.node, tmpParents));
       } else {
-        tmpParents.add(entry.header);
+        tmpParents.add(entry.node);
         _buildSubmitWorkHeaders(entry.children, parents: tmpParents);
       }
     }
@@ -197,7 +244,7 @@ class MobileSubmitOneTaskHeaderItemController
 
 class WebSubmitOneTaskHeaderItemController
     extends _SubmitOneTaskHeaderItemController {
-  final List<WorkHeaderTree> children;
+  final List<CusYooHeader> children;
 
   WebSubmitOneTaskHeaderItemController(this.children);
 }

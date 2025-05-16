@@ -1,8 +1,26 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:yx/routes/app_pages.dart';
 
 import '../types.dart';
+
+class UserInfo{
+  final String username;
+  final Int64 userId;
+  final Int64 orgId;
+  final String orgName;
+  final List<String> roles;
+  final List<String> permissions;
+  UserInfo({
+    required this.username,
+    required this.userId,
+    required this.orgId,
+    required this.orgName,
+    required this.roles,
+    required this.permissions,
+});
+}
 
 class AuthService extends GetxService {
   static AuthService get instance => Get.find();
@@ -11,14 +29,14 @@ class AuthService extends GetxService {
 
   final _accessToken = ''.obs;
   final _refreshToken = ''.obs;
-  final _user = ''.obs;
+  final _user = (null as UserInfo?).obs;
 
   @override
   void onInit() {
     super.onInit();
     _accessToken.value = _storage.read(accessStorageKey) ?? '';
     _refreshToken.value = _storage.read(refreshStorageKey) ?? '';
-    _user.value = _storage.read(userStorageKey) ?? '';
+    _user.value = _storage.read(userStorageKey);
   }
 
   String get accessToken {
@@ -37,20 +55,20 @@ class AuthService extends GetxService {
     return refresh;
   }
 
-  String get user {
-    var user = _user.value;
-    if (user.isEmpty) {
-      user = _storage.read(userStorageKey) ?? '';
+  UserInfo? get user {
+    if (_user.value == null) {
+      _user.value = _storage.read(userStorageKey);
     }
-    return user;
+    return _user.value;
   }
 
   bool get isLoggedInValue =>
-      accessToken.isNotEmpty && refreshToken.isNotEmpty && user.isNotEmpty;
+      // accessToken.isNotEmpty && refreshToken.isNotEmpty && user.isNotEmpty;
+      accessToken.isNotEmpty;
 
   bool get isWeak => false;
 
-  void setLoginInfo(String token, String refreshToken, String user) {
+  void setLoginInfo(String token, String refreshToken, UserInfo? user) {
     _accessToken.value = token;
     _refreshToken.value = refreshToken;
     _user.value = user;
@@ -63,7 +81,7 @@ class AuthService extends GetxService {
   void resetLoginInfo() {
     _accessToken.value = '';
     _refreshToken.value = '';
-    _user.value = '';
+    _user.value = null;
   }
 
   void logout() {

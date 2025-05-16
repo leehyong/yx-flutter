@@ -1,19 +1,21 @@
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yx/utils/common_util.dart';
 
+import '../work-task/task-info/controller.dart';
 import 'controller.dart';
 import 'views/header_crud.dart';
 import 'views/select_submit_item.dart';
 
 class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
-  PublishSubmitItemsCrudView(Int64 curTaskId, this.readOnly, {super.key}) {
-    Get.put(PublishItemsCrudController(curTaskId));
-  }
+  const PublishSubmitItemsCrudView({super.key});
 
-  final bool readOnly;
+  // {
+  // Get.put(PublishItemsCrudController(curTaskId));
+  // }
+
+  // final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
           child: RepaintBoundary(
             child: PublishItemsViewSimpleCrud(
               controller.submitItemAnimatedTreeData,
-              readOnly,
+              controller.readOnly,
               key: controller.itemsSimpleCrudKey,
             ),
           ),
@@ -60,7 +62,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
           ),
         ),
         const Spacer(),
-        if (!readOnly) ...[
+        if (!controller.readOnly) ...[
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue.shade50, // 背景色
@@ -121,9 +123,13 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                           constraints: BoxConstraints(
                             maxHeight: GetPlatform.isMobile ? 500 : 800,
                           ),
-                          child: SelectSubmitItemView(
-                            controller.curTaskId,
-                            key: controller.selectHeaderItemsKey,
+                          child: GetBuilder(
+                            builder: (TaskInfoController ctor) {
+                              return SelectSubmitItemView(
+                                ctor.taskId.value,
+                                key: controller.selectHeaderItemsKey,
+                              );
+                            },
                           ),
                         ),
                       ),

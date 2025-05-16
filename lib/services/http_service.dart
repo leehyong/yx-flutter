@@ -70,7 +70,8 @@ class HttpDioService extends GetxService {
           final requestedAccessToken =
               error.requestOptions.headers[accessTokenStr];
           if (requestedAccessToken == authService.accessToken) {
-            final tokenRefreshDio = Dio()..options.baseUrl = AppConfig.apiServer;
+            final tokenRefreshDio =
+                Dio()..options.baseUrl = AppConfig.apiServer;
 
             final response = await tokenRefreshDio.post(
               "/api/token/refresh",
@@ -119,7 +120,14 @@ String handleTokenResponse(Response<String> res) {
       AuthService.instance.setLoginInfo(
         loginVoData.accessToken,
         loginVoData.refreshToken,
-        loginVoData.username,
+        UserInfo(
+          username: loginVoData.username,
+          userId: loginVoData.userId,
+          orgId: loginVoData.orgId,
+          orgName: loginVoData.orgName,
+          roles: loginVoData.roles,
+          permissions: loginVoData.permissions,
+        ),
       );
     }
     return '';

@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:yt_dart/cus_header.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../../../work-header/data.dart';
 import '../controller.dart';
 import '../data.dart';
 
@@ -17,7 +17,7 @@ import '../data.dart';
 class SubmitTasksView extends GetView<SubmitTasksController> {
   const SubmitTasksView({super.key});
 
-  Widget _buildRootHeaderNameTable(BuildContext context, WorkHeaderTree root) {
+  Widget _buildRootHeaderNameTable(BuildContext context, CusYooHeader root) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.blue.withAlpha(150), // 设置背景色
@@ -28,12 +28,12 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
             child: Padding(
               padding: EdgeInsets.only(left: 4),
               child: Tooltip(
-                message: root.header.name,
+                message: root.node.name,
                 child: Row(
                   spacing: 4,
                   children: [
                     Text(
-                      root.header.name,
+                      root.node.name,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
@@ -49,7 +49,7 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    buildTaskOpenRangeAndContentType(root.header, isRow: true),
+                    buildTaskOpenRangeAndContentType(root.node, isRow: true),
                   ],
                 ),
               ),
@@ -94,11 +94,11 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
               oneItem.add(
                 isBigScreen(context)
                     ? _WebSubmitWorkHeaderItemView(
-                      headerTree.header,
+                      headerTree.node,
                       headerTree.children,
                     )
                     : _MobileSubmitWorkHeaderItemView(
-                      headerTree.header,
+                      headerTree.node,
                       headerTree.children,
                     ),
               );
@@ -134,7 +134,7 @@ class _MobileSubmitWorkHeaderItemView
         > {
   _MobileSubmitWorkHeaderItemView(
     super.rootHeader,
-    List<WorkHeaderTree> children, {
+    List<CusYooHeader> children, {
     super.key,
   }) {
     Get.put(MobileSubmitOneTaskHeaderItemController(children), tag: tag);
@@ -261,7 +261,7 @@ class _WebSubmitWorkHeaderItemView
         > {
   _WebSubmitWorkHeaderItemView(
     super.rootHeaderTreeId,
-    List<WorkHeaderTree> children, {
+    List<CusYooHeader> children, {
     super.key,
   }) {
     Get.put(WebSubmitOneTaskHeaderItemController(children), tag: tag);
@@ -304,11 +304,11 @@ class _WebSubmitWorkHeaderItemView
     BuildContext context,
     int idx,
     int depth,
-    WorkHeaderTree node,
+    CusYooHeader node,
     Color? parentColor,
   ) {
     if (node.children.isEmpty) {
-      final headerColor = node.header.required ? Colors.red : Colors.black;
+      final headerColor = node.node.required ? Colors.red : Colors.black;
       // 没有子节点时，独占一行
       return Column(
         children: [
@@ -327,13 +327,13 @@ class _WebSubmitWorkHeaderItemView
               children: [
                 Icon(Icons.swipe_right_alt, color: headerColor),
                 Text(
-                  node.header.name,
+                  node.node.name,
                   style: TextStyle(
                     overflow: TextOverflow.ellipsis,
                     color: headerColor,
                   ),
                 ),
-                buildTaskOpenRangeAndContentType(node.header, isRow: true),
+                buildTaskOpenRangeAndContentType(node.node, isRow: true),
               ],
             ),
           ),
@@ -341,14 +341,14 @@ class _WebSubmitWorkHeaderItemView
               ? Text("112233")
               : TextFormField(
                 controller: controller.submitTasksController
-                    .getLeafTextEditingController(node.header.id),
+                    .getLeafTextEditingController(node.node.id),
                 textInputAction: TextInputAction.done,
                 autofocus: true,
                 maxLines: 4,
                 textAlign: TextAlign.start,
                 textAlignVertical: TextAlignVertical.top,
                 validator: (v) {
-                  if (node.header.required && v!.trim().isEmpty) {
+                  if (node.node.required && v!.trim().isEmpty) {
                     return "该项不能空";
                   }
                   return null;
@@ -379,8 +379,8 @@ class _WebSubmitWorkHeaderItemView
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(node.header.name),
-                  buildTaskOpenRangeAndContentType(node.header, isRow: true),
+                  Text(node.node.name),
+                  buildTaskOpenRangeAndContentType(node.node, isRow: true),
                 ],
               ),
             ),

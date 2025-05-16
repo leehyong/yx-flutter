@@ -9,8 +9,6 @@ import 'package:yx/utils/proto.dart';
 import 'codes.dart';
 
 Future<List<CusYooHeader>?> queryWorkHeaders(
-  int page,
-  int limit,
   int? taskId,
 ) async {
   try {

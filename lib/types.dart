@@ -251,3 +251,22 @@ extension TaskTextTypeExtension on TaskTextType {
 }
 
 enum TaskInfoAction { detail, write, submit, delegate, submitDetail }
+
+
+// 顺序跟服务端的保持一致
+enum SystemTaskStatus{
+  // 初始
+  initial,
+  // 已启动
+  started,
+  // 进行中
+  running,
+  //已完成
+  finished,
+  //未完成
+  unfinished,
+  //已暂停
+  suspended,
+  //已发布
+  published,
+}

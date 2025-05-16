@@ -411,7 +411,7 @@ class PublishItemsViewSimpleCrudState
               child: Icon(Icons.edit, size: 22, color: Colors.purple),
             ),
           ),
-        if (node.level <= maxSubmitItemDepth)
+        if (node.level <= 3)
           IconButton(
             onPressed: () {
               debugPrint("新增子节点成功");
