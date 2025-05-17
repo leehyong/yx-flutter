@@ -210,6 +210,8 @@ class UserLoginView extends GetView<UserLoginController> {
         suffixIcon: InkWell(
           onTap: () {
             if (controller.isValidInput) {
+              // 发送验证码之前，清空已填的旧的验证码
+              controller.captchaEditingController.clear();
               controller.sendCaptchaAction();
             } else {
               errToast("请输入合规的用户名和密码");

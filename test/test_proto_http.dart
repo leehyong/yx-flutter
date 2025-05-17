@@ -33,7 +33,7 @@ void main() {
     assert(captch.$1);
     final captcha = captch.$2.split("::");
     assert(captcha.length == 2);
-    final res = await login(user, '123456', captcha[0]);
+    final res = await login(user, 'Aa@1234', captcha[0]);
     assert(res.isEmpty);
     assert(AuthService.instance.refreshToken.isNotEmpty);
     assert(AuthService.instance.accessToken.isNotEmpty);

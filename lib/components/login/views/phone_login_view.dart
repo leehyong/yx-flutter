@@ -125,6 +125,8 @@ class PhoneLoginView extends GetView<PhoneLoginController> {
             // 手机号填写正确时才发送验证码
             // if (!controller.hasPhoneError.value){
             if (controller.canSendCaptcha) {
+            // 发送验证码之前，清空已填的旧的验证码
+              controller.captcha.value = '';
               controller.sendingCaptcha.value = true;
               // var res = controller.sentCaptcha();
               await controller.sendCaptchaAction();
