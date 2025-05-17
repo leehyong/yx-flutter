@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:yt_dart/common.pb.dart';
 import 'package:yx/utils/common_util.dart';
@@ -23,6 +24,10 @@ CommonPageDataVo _decodeCommonPageVoData(String data) =>
     return (null, commonVoData);
   } else {
     assert(h!.first == textPlainResponse);
+    final rd = response.data?.trim();
+    final error =
+    (rd?.isNotEmpty ?? false) ? rd : (response.statusMessage ?? '接口请求失败');
+    debugPrint(error);
     return (response.data ?? response.statusMessage ?? '接口请求失败', null);
   }
 }
@@ -38,7 +43,11 @@ CommonPageDataVo _decodeCommonPageVoData(String data) =>
     return (null, commonVoData);
   } else {
     assert(h!.first == textPlainResponse);
-    return (response.data ?? response.statusMessage ?? '接口请求失败', null);
+    final rd = response.data?.trim();
+    final error =
+        (rd?.isNotEmpty ?? false) ? rd : (response.statusMessage ?? '接口请求失败');
+    debugPrint(error);
+    return (error, null);
   }
 }
 
