@@ -274,7 +274,11 @@ class _TaskInfoView extends GetView<TaskInfoController> {
           ),
           onPressed: () {
             debugPrint("发布");
-            controller.saveTask(SystemTaskStatus.published);
+            controller.saveTask(SystemTaskStatus.published).then((r) {
+              if (r && context.mounted) {
+                Navigator.of(context).maybePop();
+              }
+            });
           },
           child: const Text("发布"),
         ),

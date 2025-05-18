@@ -125,85 +125,97 @@ class TaskInfoController extends GetxController {
 
   final childrenTask = <WorkTask>[].obs;
 
-  Future<void> saveTask(SystemTaskStatus status) async {
+  Future<bool> saveTask(SystemTaskStatus status) async {
     if (saving.value) {
       // 限流，避免重复点击
       EasyThrottle.throttle("save-task", Duration(seconds: 1), () {
         errToast("请不要重复操作");
       });
+      return false;
     } else {
       saving.value = true;
+      bool success = false;
       if (taskId.value > Int64.ZERO) {
-        final data = _updateYooWorkTask;
-        data.task.status = status.index;
+        final data = _updateYooWorkTask(status);
         debugPrint(data.task.toDebugString());
-        await task_api.updateWorkTask(taskId.value, _updateYooWorkTask);
+        final ret = await task_api.updateWorkTask(
+          taskId.value,
+          data,
+        );
+        success = ret == null;
       } else {
-        final data = _newYooWorkTask;
-        data.task.status = status.index;
+        final data = _newYooWorkTask(status);
         debugPrint(data.task.toDebugString());
-        taskId.value = await task_api.newWorkTask(_newYooWorkTask);
+        taskId.value = await task_api.newWorkTask(data);
+        success = taskId.value > Int64.ZERO;
       }
-      if (status == SystemTaskStatus.published) {
+      if (success && status == SystemTaskStatus.published) {
         okToast("发布成功");
       }
       saving.value = false;
+      return success;
     }
   }
 
-  UpdateYooWorkTask get _updateYooWorkTask => UpdateYooWorkTask(
-    task: UpdateWorkTask(
-      name: taskNameController.text,
-      content: taskContentController.text,
-      planStartDt: parseDtSecond(taskPlanStartDtController.text),
-      planEndDt: parseDtSecond(taskPlanEndDtController.text),
-      // 在点击开始时，才变更该属性
-      actualPlanStartDt: null,
-      // 在点击结束时，才变更该属性
-      actualPlanEndDt: null,
-      contactor: taskContactorController.text,
-      contactPhone: taskContactPhoneController.text,
-      credits: double.tryParse(taskCreditsController.text) ?? 0.0,
-      creditsStrategy: taskCreditStrategy.value.index,
-      submitCycle: taskSubmitCycleStrategy.value.index,
-      receiveDeadline:
-        parseDtTimeSecond(taskReceiveDeadlineController.text),
-      maxReceiverCount:
-          int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
-      // 服务器端从jwt中获取并设置
-      // organizationId: Int64.ZERO
-    ),
-    common: CommonYooWorkTask(
-      parentTaskId: parentId.value,
-      headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
-    ),
-  );
+  UpdateYooWorkTask _updateYooWorkTask(SystemTaskStatus status) {
+    return UpdateYooWorkTask(
+      task: UpdateWorkTask(
+        name: taskNameController.text,
+        content: taskContentController.text,
+        planStartDt: parseDtSecond(taskPlanStartDtController.text),
+        planEndDt: parseDtSecond(taskPlanEndDtController.text),
+        // 在点击开始时，才变更该属性
+        actualPlanStartDt: null,
+        // 在点击结束时，才变更该属性
+        actualPlanEndDt: null,
+        contactor: taskContactorController.text,
+        contactPhone: taskContactPhoneController.text,
+        credits: double.tryParse(taskCreditsController.text) ?? 0.0,
+        creditsStrategy: taskCreditStrategy.value.index,
+        submitCycle: taskSubmitCycleStrategy.value.index,
+        receiveDeadline: parseDtTimeSecond(taskReceiveDeadlineController.text),
+        maxReceiverCount:
+            int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
+        status: status.index,
+        // 服务器端从jwt中获取并设置
+        // organizationId: Int64.ZERO
+      ),
+      common: CommonYooWorkTask(
+        parentTaskId: parentId.value,
+        headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+      ),
+    );
+  }
 
-  NewYooWorkTask get _newYooWorkTask => NewYooWorkTask(
-    task: NewWorkTask(
-      name: taskNameController.text,
-      content: taskContentController.text,
-      planStartDt: parseDtSecond(taskPlanStartDtController.text),
-      planEndDt: parseDtSecond(taskPlanEndDtController.text),
-      // 在点击开始时，才变更该属性
-      actualPlanStartDt: null,
-      // 在点击结束时，才变更该属性
-      actualPlanEndDt: null,
-      contactor: taskContactorController.text,
-      contactPhone: taskContactPhoneController.text,
-      credits: double.tryParse(taskCreditsController.text) ?? 0.0,
-      creditsStrategy: taskCreditStrategy.value.index,
-      submitCycle: taskSubmitCycleStrategy.value.index,
-      receiveDeadline:
-          parseDtTimeSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
-      maxReceiverCount:
-          int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
-    ),
-    common: CommonYooWorkTask(
-      parentTaskId: parentId.value,
-      headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
-    ),
-  );
+  NewYooWorkTask _newYooWorkTask(SystemTaskStatus status) {
+    return NewYooWorkTask(
+      task: NewWorkTask(
+        name: taskNameController.text,
+        content: taskContentController.text,
+        planStartDt: parseDtSecond(taskPlanStartDtController.text),
+        planEndDt: parseDtSecond(taskPlanEndDtController.text),
+        // 在点击开始时，才变更该属性
+        actualPlanStartDt: null,
+        // 在点击结束时，才变更该属性
+        actualPlanEndDt: null,
+        contactor: taskContactorController.text,
+        contactPhone: taskContactPhoneController.text,
+        credits: double.tryParse(taskCreditsController.text) ?? 0.0,
+        creditsStrategy: taskCreditStrategy.value.index,
+        submitCycle: taskSubmitCycleStrategy.value.index,
+        receiveDeadline:
+            parseDtTimeSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
+        maxReceiverCount:
+            int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
+        status: status.index,
+      ),
+
+      common: CommonYooWorkTask(
+        parentTaskId: parentId.value,
+        headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+      ),
+    );
+  }
 }
 
 class SubmitTasksController extends GetxController {
