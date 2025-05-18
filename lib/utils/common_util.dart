@@ -24,9 +24,14 @@ DateTime dtLocalFromMilliSecondsTimestamp(int milliSeconds) =>
 String localFromSeconds(int seconds) =>
     defaultDtFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
 
-Int64? parseDtSecond(String dt) {
+Int64 parseDtSecond(String dt) {
   final d = parseDateFromStr(dt);
-  return d != null ? Int64(d.second) : null;
+  return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);
+}
+
+Int64 parseDtTimeSecond(String dt) {
+  final d = parseDatetimeFromStr(dt);
+  return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);
 }
 
 String inputTxtFromDtSecond(Int64? seconds) =>
@@ -34,8 +39,7 @@ String inputTxtFromDtSecond(Int64? seconds) =>
         ? ''
         : localFromSeconds(seconds.toInt());
 
-Future<DateTime> showCusDateTimePicker(
-  BuildContext context, {
+Future<DateTime> showCusDateTimePicker(BuildContext context, {
   DateTime? dt,
 }) async {
   var fullDateTime = DateTime.now();
@@ -73,11 +77,11 @@ Future<DateTime> showCusDateTimePicker(
 Future<DateTime> showCusDatePicker(BuildContext context, {DateTime? dt}) async {
   final now = dt ?? DateTime.now();
   return await showDatePicker(
-        context: context,
-        initialDate: now,
-        firstDate: now.subtract(Duration(days: 15)),
-        lastDate: now.add(Duration(days: 365 * 5)),
-      ) ??
+    context: context,
+    initialDate: now,
+    firstDate: now.subtract(Duration(days: 15)),
+    lastDate: now.add(Duration(days: 365 * 5)),
+  ) ??
       now;
 }
 
@@ -118,7 +122,9 @@ Color getHighContrastColor(Color baseColor) {
 }
 
 WoltModalType woltModalType(BuildContext context) {
-  final width = MediaQuery.sizeOf(context).width;
+  final width = MediaQuery
+      .sizeOf(context)
+      .width;
   if (width < 600) {
     return const WoltBottomSheetType(showDragHandle: false);
   } else if (width < 1000) {
@@ -129,22 +135,21 @@ WoltModalType woltModalType(BuildContext context) {
 }
 
 bool isBigScreen(BuildContext context) =>
-    MediaQuery.of(context).size.width > 720;
+    MediaQuery
+        .of(context)
+        .size
+        .width > 720;
 
 bool isOkResponse(Response<dynamic> resp) =>
     resp.statusCode != null && resp.statusCode! ~/ 100 == 2;
 
-bool handleCommonToastResponse(
-  Response<CommonVo<dynamic, dynamic>?> res,
-  String defaultMsg,
-) {
+bool handleCommonToastResponse(Response<CommonVo<dynamic, dynamic>?> res,
+    String defaultMsg,) {
   return handleCommonToastResponseErr(res, defaultMsg).isEmpty;
 }
 
-String handleCommonToastResponseErr(
-  Response<CommonVo<dynamic, dynamic>?> res,
-  String defaultMsg,
-) {
+String handleCommonToastResponseErr(Response<CommonVo<dynamic, dynamic>?> res,
+    String defaultMsg,) {
   final err = isOkResponse(res);
   var errMsg = '';
   if (!err) {
@@ -155,12 +160,11 @@ String handleCommonToastResponseErr(
 }
 
 typedef ProtoBufferParser<T extends $pb.GeneratedMessage> =
-    T Function(List<int>);
+T Function(List<int>);
 
 (String?, T?) handleProtoInstanceVo<T extends $pb.GeneratedMessage>(
-  Response<String> res,
-  ProtoBufferParser<T> parser,
-) {
+    Response<String> res,
+    ProtoBufferParser<T> parser,) {
   final ret = decodeCommonVoDataFromResponse(res);
   var err = ret.$1;
   if (err == null) {
@@ -187,25 +191,23 @@ class ProtoPageVo<T extends $pb.GeneratedMessage> {
     this.limit = 0,
   });
 
-  factory ProtoPageVo.success(
-    List<T> data,
-    int page,
-    int totalPages,
-    int limit,
-  ) => ProtoPageVo._(
-    data: data,
-    page: page,
-    totalPages: totalPages,
-    limit: limit,
-  );
+  factory ProtoPageVo.success(List<T> data,
+      int page,
+      int totalPages,
+      int limit,) =>
+      ProtoPageVo._(
+        data: data,
+        page: page,
+        totalPages: totalPages,
+        limit: limit,
+      );
 
   factory ProtoPageVo.fail(String error) => ProtoPageVo._(error: error);
 }
 
 ProtoPageVo<T> handleProtoPageInstanceVo<T extends $pb.GeneratedMessage>(
-  Response<String> res,
-  ProtoBufferParser<T> parser,
-) {
+    Response<String> res,
+    ProtoBufferParser<T> parser,) {
   final ret = decodeCommonPageVoDataFromResponse(res);
   var err = ret.$1;
   if (err == null) {
@@ -222,8 +224,7 @@ ProtoPageVo<T> handleProtoPageInstanceVo<T extends $pb.GeneratedMessage>(
   }
 }
 
-String? handleProtoCommonInstanceVo(
-  Response<String> response, {
+String? handleProtoCommonInstanceVo(Response<String> response, {
   bool toastSuccess = false,
 }) {
   final res = decodeCommonVoDataFromResponse(response);
@@ -240,10 +241,10 @@ String? handleProtoCommonInstanceVo(
   }
 }
 
-Int64? handleProtoCommonInstanceVoForMsgIncludeInt64(
-  Response<String> response, {
-  bool toastSuccess = false,
-}) {
+Int64? handleProtoCommonInstanceVoForMsgIncludeInt64(Response<String> response,
+    {
+      bool toastSuccess = false,
+    }) {
   // 处理 msg的位置放置的是 id 的情况
   final res = decodeCommonVoDataFromResponse(response);
   final err = res.$1;

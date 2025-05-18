@@ -136,10 +136,12 @@ class TaskInfoController extends GetxController {
       if (taskId.value > Int64.ZERO) {
         final data = _updateYooWorkTask;
         data.task.status = status.index;
+        debugPrint(data.task.toDebugString());
         await task_api.updateWorkTask(taskId.value, _updateYooWorkTask);
       } else {
         final data = _newYooWorkTask;
         data.task.status = status.index;
+        debugPrint(data.task.toDebugString());
         taskId.value = await task_api.newWorkTask(_newYooWorkTask);
       }
       saving.value = false;
@@ -162,7 +164,7 @@ class TaskInfoController extends GetxController {
       creditsStrategy: taskCreditStrategy.value.index,
       submitCycle: taskSubmitCycleStrategy.value.index,
       receiveDeadline:
-          parseDtSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
+        parseDtTimeSecond(taskReceiveDeadlineController.text),
       maxReceiverCount:
           int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
       // 服务器端从jwt中获取并设置
@@ -190,7 +192,7 @@ class TaskInfoController extends GetxController {
       creditsStrategy: taskCreditStrategy.value.index,
       submitCycle: taskSubmitCycleStrategy.value.index,
       receiveDeadline:
-          parseDtSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
+          parseDtTimeSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
       maxReceiverCount:
           int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
     ),
