@@ -77,10 +77,11 @@ class TaskInfoController extends GetxController {
         taskContactorController.text = v.contactor;
         taskContactPhoneController.text = v.contactPhone;
         taskCreditsController.text = v.credits > 0 ? v.credits.toString() : '';
-        taskCreditStrategy.value = v.creditsStrategy as TaskCreditStrategy;
+        taskCreditStrategy.value = TaskCreditStrategy.values[v.creditsStrategy];
         taskSubmitCycleStrategy.value =
-            v.submitCycle as TaskSubmitCycleStrategy;
-        taskReceiveStrategy.value = v.receiveStrategy as ReceiveTaskStrategy;
+            TaskSubmitCycleStrategy.values[v.submitCycle];
+        taskReceiveStrategy.value =
+            ReceiveTaskStrategy.values[v.receiveStrategy];
         taskReceiveDeadlineController.text = inputTxtFromDtSecond(
           v.receiveDeadline,
         );
