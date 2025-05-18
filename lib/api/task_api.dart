@@ -55,7 +55,7 @@ Future<Int64> newWorkTask(NewYooWorkTask data) async {
     );
     return handleProtoCommonInstanceVoForMsgIncludeInt64(
           resp,
-          toastSuccess: true,
+          toastSuccess: data.task.status != SystemTaskStatus.published.index,
         ) ??
         Int64.ZERO;
   } catch (e) {
@@ -70,7 +70,10 @@ Future<String?> updateWorkTask(Int64 taskId, UpdateYooWorkTask data) async {
       "$apiContextPath/work-task/$taskId",
       data: encodeProtoData(data),
     );
-    return handleProtoCommonInstanceVo(resp, toastSuccess: true);
+    return handleProtoCommonInstanceVo(
+      resp,
+      toastSuccess: data.task.status != SystemTaskStatus.published.index,
+    );
   } catch (e) {
     debugPrint(e.toString());
     return e.toString();

@@ -144,6 +144,9 @@ class TaskInfoController extends GetxController {
         debugPrint(data.task.toDebugString());
         taskId.value = await task_api.newWorkTask(_newYooWorkTask);
       }
+      if (status == SystemTaskStatus.published) {
+        okToast("发布成功");
+      }
       saving.value = false;
     }
   }
