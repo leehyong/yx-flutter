@@ -82,7 +82,7 @@ class TaskInfoController extends GetxController {
   }
 
   Future<void> saveTask(SystemTaskStatus status) async {
-    if (!saving.value) {
+    if (saving.value) {
       // 限流，避免重复点击
       EasyThrottle.throttle("save-task", Duration(seconds: 1), () {
         errToast("请不要重复操作");

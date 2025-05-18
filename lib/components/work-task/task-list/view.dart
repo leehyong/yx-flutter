@@ -183,25 +183,23 @@ class OneTaskView extends GetView<OneTaskController> {
           }
           Get.toNamed(page, arguments: args, id: routeId);
         },
-        child: Obx(
-          () => Column(
-            children: [
-              _buildTaskName(context),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(flex: 5, child: _buildTaskLeft(context)),
-                    SizedBox(width: 2),
-                    Expanded(
-                      flex: 4,
-                      // child: Obx(() => _buildTaskRight(context)),
-                      child: _buildTaskRight(context),
-                    ),
-                  ],
-                ),
+        child: Column(
+          children: [
+            _buildTaskName(context),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(flex: 5, child: _buildTaskLeft(context)),
+                  SizedBox(width: 2),
+                  Expanded(
+                    flex: 4,
+                    // child: Obx(() => _buildTaskRight(context)),
+                    child: _buildTaskRight(context),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -277,7 +275,6 @@ class OneTaskView extends GetView<OneTaskController> {
       return null;
     } else {
       final left = controller.leftDetail;
-      final Widget w;
       final countdownNumberStyle = defaultNumberStyle.copyWith(fontSize: 18);
       final children = <Widget>[];
       // 截止时间的秒数
@@ -303,6 +300,7 @@ class OneTaskView extends GetView<OneTaskController> {
           Text('${left.seconds}', style: countdownNumberStyle),
         ]);
       }
+      // return Obx(() => Row(children: children));
       return Row(children: children);
     }
   }
