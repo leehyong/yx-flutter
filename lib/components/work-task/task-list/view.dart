@@ -12,6 +12,7 @@ import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import '../../common.dart';
+import '../task-info/controller.dart';
 import 'controller.dart';
 
 class TaskListView extends GetView<TaskListController> {
@@ -158,7 +159,6 @@ class OneTaskView extends GetView<OneTaskController> {
             task,
             opCat: op,
           );
-
           String page;
           switch (routeId) {
             case NestedNavigatorKeyId.hallId:
@@ -181,6 +181,7 @@ class OneTaskView extends GetView<OneTaskController> {
             default:
               throw UnsupportedError("不支持的操作:$routeId");
           }
+          setCurTaskInfo(args);
           Get.toNamed(page, arguments: args, id: routeId);
         },
         child: Column(
@@ -315,7 +316,7 @@ class OneTaskView extends GetView<OneTaskController> {
             Icon(Icons.alarm, color: Colors.blue),
             const Text("开始时间:"),
             Text(
-              localFromMicroSecondsTimestamp(task.planStartDt.toInt()),
+              localFromSeconds(task.planStartDt.toInt()),
               style: defaultDtStyle,
             ),
           ],
@@ -330,7 +331,7 @@ class OneTaskView extends GetView<OneTaskController> {
             Icon(Icons.alarm, color: Colors.blue),
             const Text("结束时间:"),
             Text(
-              localFromMicroSecondsTimestamp(task.planEndDt.toInt()),
+              localFromSeconds(task.planEndDt.toInt()),
               style: defaultDtStyle,
             ),
           ],

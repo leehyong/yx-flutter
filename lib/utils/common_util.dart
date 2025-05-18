@@ -18,11 +18,21 @@ final defaultDateFormat = DateFormat('yyyy-MM-dd');
 final defaultDateFormat1 = DateFormat('yyyy/MM/dd');
 final twoValidNumber = NumberFormat('0.##');
 
-DateTime dtLocalFromMilliSecondsTimestamp(int seconds) =>
-    DateTime.fromMillisecondsSinceEpoch(seconds * 1000, isUtc: false);
+DateTime dtLocalFromMilliSecondsTimestamp(int milliSeconds) =>
+    DateTime.fromMillisecondsSinceEpoch(milliSeconds * 1000, isUtc: false);
 
-String localFromMicroSecondsTimestamp(int seconds) =>
+String localFromSeconds(int seconds) =>
     defaultDtFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
+
+Int64? parseDtSecond(String dt) {
+  final d = parseDateFromStr(dt);
+  return d != null ? Int64(d.second) : null;
+}
+
+String inputTxtFromDtSecond(Int64? seconds) =>
+    seconds == null || seconds == Int64.ZERO
+        ? ''
+        : localFromSeconds(seconds.toInt());
 
 Future<DateTime> showCusDateTimePicker(
   BuildContext context, {
@@ -91,14 +101,6 @@ DateTime? parseDatetimeFromStr(String dtStr) {
     }
   }
   return null;
-}
-
-Function commonDebounceByTimer(Function fn, Duration duration) {
-  Timer? _timer;
-  return () {
-    _timer?.cancel(); // 取消之前的计时器
-    _timer = Timer(duration, () => fn());
-  };
 }
 
 Color getHighContrastColor(Color baseColor) {
@@ -238,7 +240,8 @@ String? handleProtoCommonInstanceVo(
   }
 }
 
-Int64? handleProtoCommonInstanceVoForMsgIncludeInt64(Response<String> response,{
+Int64? handleProtoCommonInstanceVoForMsgIncludeInt64(
+  Response<String> response, {
   bool toastSuccess = false,
 }) {
   // 处理 msg的位置放置的是 id 的情况
@@ -282,3 +285,6 @@ bool isValidPwd(String pwd) {
 bool isValidUser(String user) {
   return RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#*&!%]{4,59}").hasMatch(user);
 }
+
+
+

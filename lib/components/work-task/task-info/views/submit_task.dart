@@ -15,7 +15,9 @@ import '../data.dart';
 // 填报任务项的时候使用它
 // todo： title 展示任务名， 并且可以查看任务的信息
 class SubmitTasksView extends GetView<SubmitTasksController> {
-  const SubmitTasksView({super.key});
+  const SubmitTasksView(this.readOnly, {super.key});
+
+  final bool readOnly;
 
   Widget _buildRootHeaderNameTable(BuildContext context, CusYooHeader root) {
     return Container(
@@ -96,10 +98,12 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
                     ? _WebSubmitWorkHeaderItemView(
                       headerTree.node,
                       headerTree.children,
+                      readOnly,
                     )
                     : _MobileSubmitWorkHeaderItemView(
                       headerTree.node,
                       headerTree.children,
+                      readOnly,
                     ),
               );
               return commonCard(
@@ -118,13 +122,18 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
 abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
     extends GetView<T> {
   final WorkHeader rootHeader;
+  final bool readOnly;
 
-  const _AbstractSubmitWorkHeaderItemView(this.rootHeader, {super.key});
+  const _AbstractSubmitWorkHeaderItemView(
+    this.rootHeader,
+    this.readOnly, {
+    super.key,
+  });
 
   @override
   String get tag => rootHeader.id.toString();
 
-  bool get readOnly => Get.find<SubmitTasksController>().readOnly;
+  // bool get readOnly => Get.find<SubmitTasksController>().readOnly;
 }
 
 class _MobileSubmitWorkHeaderItemView
@@ -134,7 +143,8 @@ class _MobileSubmitWorkHeaderItemView
         > {
   _MobileSubmitWorkHeaderItemView(
     super.rootHeader,
-    List<CusYooHeader> children, {
+    List<CusYooHeader> children,
+    super.readOnly, {
     super.key,
   }) {
     Get.put(MobileSubmitOneTaskHeaderItemController(children), tag: tag);
@@ -261,7 +271,8 @@ class _WebSubmitWorkHeaderItemView
         > {
   _WebSubmitWorkHeaderItemView(
     super.rootHeaderTreeId,
-    List<CusYooHeader> children, {
+    List<CusYooHeader> children,
+    super.readOnly, {
     super.key,
   }) {
     Get.put(WebSubmitOneTaskHeaderItemController(children), tag: tag);

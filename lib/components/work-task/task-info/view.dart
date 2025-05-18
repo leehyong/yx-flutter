@@ -1,12 +1,8 @@
 import 'dart:math';
 
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
-import 'package:yx/components/work-header/controller.dart';
-import 'package:yx/root/controller.dart';
-import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -20,33 +16,16 @@ import 'views/select_task_person.dart';
 import 'views/submit_task.dart';
 
 class TaskInfoView extends StatelessWidget {
-  TaskInfoView({
+  const TaskInfoView({
     super.key,
     // required this.taskCategory,
     required this.publishTaskParams,
-  }) {
-    final routeId = Get.find<RootTabController>().curRouteId;
-    var _opCategory = TaskOperationCategory.detailTask;
-    if (publishTaskParams.opCat == null) {
-      if (routeId == NestedNavigatorKeyId.hallId) {
-        if (publishTaskParams.task == null || publishTaskParams.task!.id == 0) {
-          _opCategory = TaskOperationCategory.publishTask;
-        }
-      } else if (routeId == NestedNavigatorKeyId.homeId) {
-        // 我的任务那里的话就是填报任务了，此时 task 肯定满足以下条件
-        assert(publishTaskParams.task != null);
-        assert(publishTaskParams.task!.id > 0);
-        _opCategory = TaskOperationCategory.submitTask;
-      }
-    } else {
-      _opCategory = publishTaskParams.opCat!;
-    }
-    opCategory = _opCategory;
-  }
+  });
 
   final WorkTaskPageParams publishTaskParams;
 
-  late final TaskOperationCategory opCategory;
+  TaskOperationCategory get opCategory =>
+      getTaskInfoOperationCategory(publishTaskParams);
 
   Widget get title {
     final children = <Widget>[];
@@ -130,89 +109,33 @@ class TaskInfoView extends StatelessWidget {
           right: 4,
           bottom: isBigScreen(context) ? 10 : 4,
         ),
-        child: _buildBodyView(context),
+        child: _TaskInfoView(),
       ),
     );
-  }
-
-  Widget _buildBodyView(BuildContext context) {
-    switch (opCategory) {
-      case TaskOperationCategory.detailTask:
-        return _TaskInfoView(
-          publishTaskParams.parentId,
-          publishTaskParams.task!.id,
-          action: TaskInfoAction.detail,
-        );
-      case TaskOperationCategory.publishTask:
-        return _TaskInfoView(
-          Int64.ZERO,
-          Int64.ZERO,
-          enableSelectChildrenTasks: false,
-        );
-      case TaskOperationCategory.updateTask:
-        return _TaskInfoView(
-          publishTaskParams.parentId,
-          publishTaskParams.task!.id,
-          enableSelectChildrenTasks: false,
-        );
-      case TaskOperationCategory.submitTask:
-        return _TaskInfoView(
-          publishTaskParams.parentId,
-          publishTaskParams.task!.id,
-          enableSelectChildrenTasks: false,
-          action: TaskInfoAction.submit,
-        );
-
-      case TaskOperationCategory.delegateTask:
-        return _TaskInfoView(
-          publishTaskParams.parentId,
-          publishTaskParams.task!.id,
-          enableSelectChildrenTasks: false,
-          action: TaskInfoAction.delegate,
-        );
-      case TaskOperationCategory.submitDetailTask:
-        return _TaskInfoView(
-          publishTaskParams.parentId,
-          publishTaskParams.task!.id,
-          enableSelectChildrenTasks: false,
-          action: TaskInfoAction.submitDetail,
-        );
-    }
   }
 }
 
 class _TaskInfoView extends GetView<TaskInfoController> {
-  _TaskInfoView(
-    Int64 parentId,
-    Int64 taskId, {
-    TaskInfoAction action = TaskInfoAction.write,
-    this.enableSelectChildrenTasks = true,
-  }) {
-    Get.put(SubmitTasksController());
-    Get.put(TaskInfoController(parentId, taskId, action));
-    Get.lazyPut(() => PublishItemsCrudController());
-  }
-
-  final bool enableSelectChildrenTasks;
-
-  bool get readOnly => controller.readOnly;
+  const _TaskInfoView();
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: controller.formKey,
       child: Obx(
-        () => Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: _buildRelationAttributes(context),
-            ),
-            SizedBox(height: 10),
-            Expanded(child: _buildTaskRelates(context)),
-            _buildInfoActions(context),
-            // Align(alignment: Alignment.center, child: actions,),
-          ],
+        () => RepaintBoundary(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: _buildRelationAttributes(context),
+              ),
+              SizedBox(height: 10),
+              Expanded(child: _buildTaskRelates(context)),
+              _buildInfoActions(context),
+              // Align(alignment: Alignment.center, child: actions,),
+            ],
+          ),
         ),
       ),
     );
@@ -296,7 +219,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               Expanded(
                 child:
                     controller.isSubmitRelated
-                        ? SubmitTasksView()
+                        ? SubmitTasksView(controller.readOnly)
                         : PublishSubmitItemsCrudView(
                           // controller.taskId.value,
                           // readOnly,
@@ -310,7 +233,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
 
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
-            ? SubmitTasksView()
+            ? SubmitTasksView(controller.readOnly)
             : PublishSubmitItemsCrudView();
 
       case TaskAttributeCategory.parentTask:
@@ -400,7 +323,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     return Column(
       children: [
         // 已有父任务的任务就不能再选择父任务了
-        if (!readOnly && controller.noParent)
+        if (!controller.readOnly && controller.noParent)
           Align(
             alignment:
                 GetPlatform.isMobile
@@ -538,10 +461,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     return TextFormField(
       keyboardType: TextInputType.text,
       maxLines: 2,
-      readOnly: readOnly,
+      readOnly: controller.readOnly,
       controller: controller.taskNameController,
       decoration: InputDecoration(
-        enabled: !readOnly,
+        enabled: !controller.readOnly,
         label: Row(
           spacing: 4,
           children: [
@@ -571,14 +494,14 @@ class _TaskInfoView extends GetView<TaskInfoController> {
       autofocus: true,
       minLines: 5,
       maxLines: 10,
-      readOnly: readOnly,
+      readOnly: controller.readOnly,
       // 固定显示 5 行
       expands: false,
       // 禁止无限扩展
       controller: controller.taskContentController,
       autovalidateMode: AutovalidateMode.onUnfocus,
       decoration: InputDecoration(
-        enabled: !readOnly,
+        enabled: !controller.readOnly,
         label: Row(
           spacing: 4,
           children: [
@@ -609,7 +532,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             keyboardType: TextInputType.text,
             controller: controller.taskContactorController,
             decoration: InputDecoration(
-              enabled: !readOnly,
+              enabled: !controller.readOnly,
               labelText: '联系人',
               icon: Icon(Icons.person),
             ),
@@ -624,7 +547,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             keyboardType: TextInputType.phone,
             controller: controller.taskContactPhoneController,
             decoration: InputDecoration(
-              enabled: !readOnly,
+              enabled: !controller.readOnly,
               labelText: '联系电话',
               icon: Icon(Icons.phone_android),
             ),
@@ -639,7 +562,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
   }
 
   Widget _buildMaybeIgnorePointerDropDown(Widget w) =>
-      IgnorePointer(ignoring: readOnly, child: w);
+      IgnorePointer(ignoring: controller.readOnly, child: w);
 
   Widget _buildTaskSubmitCycleCredits(BuildContext context) {
     return DropdownButtonFormField<TaskSubmitCycleStrategy>(
@@ -666,7 +589,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
               )
               .toList(),
       onChanged: (v) {
-        if (readOnly) {
+        if (controller.readOnly) {
           return;
         }
         controller.taskSubmitCycleStrategy.value = v!;
@@ -695,7 +618,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
                       )
                       .toList(),
               onChanged: (v) {
-                if (readOnly) {
+                if (controller.readOnly) {
                   return;
                 }
                 controller.taskCreditStrategy.value = v!;
@@ -705,11 +628,11 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         ),
         Expanded(
           child: TextFormField(
-            readOnly: readOnly,
+            readOnly: controller.readOnly,
             keyboardType: TextInputType.numberWithOptions(),
             controller: controller.taskCreditsController,
             decoration: InputDecoration(
-              enabled: !readOnly,
+              enabled: !controller.readOnly,
               labelText: '任务积分',
               icon: Icon(Icons.diamond_outlined),
             ),
@@ -725,11 +648,11 @@ class _TaskInfoView extends GetView<TaskInfoController> {
 
   Widget _buildTaskReceiversLimitedQuota(BuildContext context) {
     return TextFormField(
-      readOnly: readOnly,
+      readOnly: controller.readOnly,
       keyboardType: TextInputType.numberWithOptions(),
       controller: controller.taskReceiverQuotaLimitedController,
       decoration: InputDecoration(
-        enabled: !readOnly,
+        enabled: !controller.readOnly,
         labelText: '名额限制',
         suffix: Text("人"),
         icon: Icon(Icons.person_outline),
@@ -800,7 +723,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
           ),
 
           onPressed: () {
-            if (readOnly) {
+            if (controller.readOnly) {
               return;
             }
             WoltModalSheet.show(
@@ -891,7 +814,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
                       )
                       .toList(),
               onChanged: (v) {
-                if (readOnly) {
+                if (controller.readOnly) {
                   return;
                 }
                 controller.taskReceiveStrategy.value = v!;
@@ -901,10 +824,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         ),
         Expanded(
           child: TextFormField(
-            readOnly: readOnly,
+            readOnly: controller.readOnly,
             keyboardType: TextInputType.datetime,
             onTap: () async {
-              if (readOnly) {
+              if (controller.readOnly) {
                 return;
               }
               final dt = parseDatetimeFromStr(
@@ -917,7 +840,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             },
             controller: controller.taskReceiveDeadlineController,
             decoration: InputDecoration(
-              enabled: !readOnly,
+              enabled: !controller.readOnly,
               labelText: '领取截止时间',
               icon: Icon(Icons.access_alarm),
             ),
@@ -936,7 +859,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
       children: [
         Expanded(
           child: TextFormField(
-            readOnly: readOnly,
+            readOnly: controller.readOnly,
             onTap: () async {
               final dt = parseDateFromStr(
                 controller.taskPlanStartDtController.text,
@@ -949,7 +872,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             controller: controller.taskPlanStartDtController,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: InputDecoration(
-              enabled: !readOnly,
+              enabled: !controller.readOnly,
               labelText: '开始日期',
               icon: Icon(Icons.access_alarm),
             ),
@@ -965,9 +888,9 @@ class _TaskInfoView extends GetView<TaskInfoController> {
         ),
         Expanded(
           child: TextFormField(
-            readOnly: readOnly,
+            readOnly: controller.readOnly,
             onTap: () async {
-              if (readOnly) {
+              if (controller.readOnly) {
                 return;
               }
               final dt = parseDateFromStr(
@@ -984,7 +907,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             controller: controller.taskPlanEndDtController,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: InputDecoration(
-              enabled: !readOnly,
+              enabled: !controller.readOnly,
               labelText: '结束日期',
               icon: Icon(Icons.access_alarm),
             ),
