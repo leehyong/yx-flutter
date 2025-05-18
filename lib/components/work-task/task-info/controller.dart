@@ -38,6 +38,11 @@ class TaskInfoController extends GetxController {
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers = (null as List<User>?).obs;
 
+  // void reset(){
+  //   task.value = null;
+  //   parentId.value = Int64.ZERO;
+  // }
+
   TaskInfoAction get action {
     switch (opCategory.value) {
       case TaskOperationCategory.detailTask:
@@ -86,6 +91,21 @@ class TaskInfoController extends GetxController {
           v.receiveDeadline,
         );
         taskReceiverQuotaLimitedController.text = v.maxReceiverCount.toString();
+      } else {
+        taskId.value = Int64.ZERO;
+        //  设置输入框的默认值
+        taskNameController.text = '';
+        taskContentController.text = '';
+        taskPlanStartDtController.text = '';
+        taskPlanEndDtController.text = '';
+        taskContactorController.text = '';
+        taskContactPhoneController.text = '';
+        taskCreditsController.text = '';
+        taskCreditStrategy.value = TaskCreditStrategy.latest;
+        taskSubmitCycleStrategy.value = TaskSubmitCycleStrategy.week;
+        taskReceiveStrategy.value = ReceiveTaskStrategy.twoWaySelection;
+        taskReceiveDeadlineController.text = '';
+        taskReceiverQuotaLimitedController.text = '';
       }
     });
     ever(parentId, (v) {
@@ -93,6 +113,8 @@ class TaskInfoController extends GetxController {
         task_api.queryWorkTaskInfoById(parentId.value).then((v) {
           parentTask.value = v;
         });
+      } else {
+        parentTask.value = null;
       }
     });
     ever(opCategory, (_) {
@@ -138,10 +160,7 @@ class TaskInfoController extends GetxController {
       if (taskId.value > Int64.ZERO) {
         final data = _updateYooWorkTask(status);
         debugPrint(data.task.toDebugString());
-        final ret = await task_api.updateWorkTask(
-          taskId.value,
-          data,
-        );
+        final ret = await task_api.updateWorkTask(taskId.value, data);
         success = ret == null;
       } else {
         final data = _newYooWorkTask(status);

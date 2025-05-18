@@ -19,6 +19,7 @@ class TaskHallView extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               debugPrint("发布了");
+              // Get.find<TaskInfoController>().reset();
               Get.toNamed(
                 WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
