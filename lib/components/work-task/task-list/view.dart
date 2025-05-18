@@ -314,9 +314,9 @@ class OneTaskView extends GetView<OneTaskController> {
           spacing: 2,
           children: [
             Icon(Icons.alarm, color: Colors.blue),
-            const Text("开始时间:"),
+            const Text("开始日期"),
             Text(
-              localFromSeconds(task.planStartDt.toInt()),
+              localDateFromSeconds(task.planStartDt.toInt()),
               style: defaultDtStyle,
             ),
           ],
@@ -329,9 +329,9 @@ class OneTaskView extends GetView<OneTaskController> {
           spacing: 2,
           children: [
             Icon(Icons.alarm, color: Colors.blue),
-            const Text("结束时间:"),
+            const Text("结束日期"),
             Text(
-              localFromSeconds(task.planEndDt.toInt()),
+              localDateFromSeconds(task.planEndDt.toInt()),
               style: defaultDtStyle,
             ),
           ],

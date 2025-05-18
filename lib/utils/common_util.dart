@@ -24,6 +24,9 @@ DateTime dtLocalFromMilliSecondsTimestamp(int milliSeconds) =>
 String localFromSeconds(int seconds) =>
     defaultDtFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
 
+String localDateFromSeconds(int seconds) =>
+    defaultDateFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
+
 Int64 parseDtSecond(String dt) {
   final d = parseDateFromStr(dt);
   return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);

@@ -70,7 +70,7 @@ Future<String?> updateWorkTask(Int64 taskId, UpdateYooWorkTask data) async {
       "$apiContextPath/work-task/$taskId",
       data: encodeProtoData(data),
     );
-    return handleProtoCommonInstanceVo(resp);
+    return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
     debugPrint(e.toString());
     return e.toString();
@@ -82,7 +82,7 @@ Future<String?> deleteWorkTask(int id) async {
     final resp = await HttpDioService.instance.dio.delete<String>(
       "$apiContextPath/work-task/$id",
     );
-    return handleProtoCommonInstanceVo(resp);
+    return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
     debugPrint(e.toString());
     return e.toString();
