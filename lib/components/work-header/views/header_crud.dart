@@ -38,12 +38,18 @@ class PublishItemsViewSimpleCrudState
   WorkHeader? _isEditingNodeData;
   TreeNode<WorkHeader>? _isNewNode;
 
-  // 所有新增的节点需要跟当前任务进行绑定
   void addNodesToRoot(Iterable<TreeNode<WorkHeader>> nodes) {
     if (widget.readOnly) {
       return;
     }
     widget.submitItemAnimatedTreeData.addAll(nodes.toList());
+  }
+
+  void clearAllNodes() {
+    if (widget.readOnly) {
+      return;
+    }
+    widget.submitItemAnimatedTreeData.clear();
   }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {

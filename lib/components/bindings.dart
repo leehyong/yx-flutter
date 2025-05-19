@@ -7,6 +7,6 @@ class TaskInfoBinding implements Bindings {
   @override
   void dependencies() {
     debugPrint("TaskInfoBinding");
-    Get.lazyPut(() => PublishItemsCrudController());
+    Get.put(PublishItemsCrudController(), permanent: true);
   }
 }

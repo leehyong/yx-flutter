@@ -298,6 +298,7 @@ bool isValidUser(String user) {
 }
 
 
+// ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
 String treeNodeKey(Int64 id) =>  "$id$innerNodeKey";
 
 

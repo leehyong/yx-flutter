@@ -29,12 +29,13 @@ class PublishItemsCrudController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
     // _buildSubmitItemsMap();
     // 监听taskId， 如有变化，则重新加载表头
     ever(getTaskInfoController.taskId, (taskId) {
       debugPrint("PublishItemsCrudController-getTaskInfoController: $taskId");
       // 不管如何taskId都变化了， 那么就需要把整棵树都清空，再重新构造这棵树
-      submitItemAnimatedTreeData.clear();
+      itemsSimpleCrudKey.currentState?.clearAllNodes();
       if (taskId > Int64.ZERO) {
         header_api.queryWorkHeaders(taskId).then((v) {
           if (v?.isNotEmpty ?? false) {
@@ -48,18 +49,14 @@ class PublishItemsCrudController extends GetxController {
   void _buildAnimatedTreeViewData(List<CusYooHeader> headers) {
     // dfs 遍历获取所有的 TreeNode
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(CusYooHeader tree) {
-      // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
-      final node = TreeNode(
-        key: treeNodeKey(tree.node.id),
-        data: tree.node,
-      );
+      final node = TreeNode(key: treeNodeKey(tree.node.id), data: tree.node);
       node.addAll(
         tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
       );
       return node;
     }
 
-    submitItemAnimatedTreeData.addAll(
+    itemsSimpleCrudKey.currentState?.addNodesToRoot(
       headers.map((item) => innerBuildAnimatedTreeViewData(item)),
     );
   }
