@@ -8,6 +8,7 @@ import 'package:yt_dart/cus_header.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/header_api.dart' as header_api;
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 
 import '../work-task/task-info/controller.dart';
 import 'views/header_crud.dart';
@@ -32,14 +33,14 @@ class PublishItemsCrudController extends GetxController {
     // 监听taskId， 如有变化，则重新加载表头
     ever(getTaskInfoController.taskId, (taskId) {
       debugPrint("PublishItemsCrudController-getTaskInfoController: $taskId");
+      // 不管如何taskId都变化了， 那么就需要把整棵树都清空，再重新构造这棵树
+      submitItemAnimatedTreeData.clear();
       if (taskId > Int64.ZERO) {
         header_api.queryWorkHeaders(taskId).then((v) {
           if (v?.isNotEmpty ?? false) {
             _buildAnimatedTreeViewData(v!);
           }
         });
-      }else{
-        submitItemAnimatedTreeData.clear();
       }
     });
   }
@@ -49,7 +50,7 @@ class PublishItemsCrudController extends GetxController {
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(CusYooHeader tree) {
       // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
       final node = TreeNode(
-        key: "${tree.node.id}$innerNodeKey",
+        key: treeNodeKey(tree.node.id),
         data: tree.node,
       );
       node.addAll(
