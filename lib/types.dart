@@ -7,6 +7,7 @@ enum DataLoadingStatus { none, loading, loaded }
 // class
 //
 typedef ResponseHandler = String Function();
+typedef VoidFutureCallBack = Future<void> Function();
 
 const userCaptchaCode = 0;
 const phoneCaptchaCode = 1;

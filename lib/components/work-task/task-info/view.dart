@@ -259,8 +259,10 @@ class _TaskInfoView extends GetView<TaskInfoController> {
             // 文字颜色
           ),
           onPressed: () {
-            controller.saveTask(SystemTaskStatus.initial);
             debugPrint("草稿");
+            centerLoadingModal(context, () async {
+              await controller.saveTask(SystemTaskStatus.initial);
+            });
           },
           child: const Text("存为草稿"),
         ),
@@ -274,8 +276,11 @@ class _TaskInfoView extends GetView<TaskInfoController> {
           ),
           onPressed: () {
             debugPrint("发布");
-            controller.saveTask(SystemTaskStatus.published).then((r) {
-              if (r && context.mounted) {
+            bool success = false;
+            centerLoadingModal(context, () async {
+              success = await controller.saveTask(SystemTaskStatus.published);
+            }).then((v) {
+              if (success && context.mounted) {
                 Navigator.of(context).maybePop();
               }
             });
