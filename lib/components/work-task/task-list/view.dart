@@ -157,6 +157,7 @@ class OneTaskView extends GetView<OneTaskController> {
           final args = WorkTaskPageParams(
             Int64(Get.find<TaskListController>().parentId.value),
             task,
+            taskCategory,
             opCat: op,
           );
           String page;

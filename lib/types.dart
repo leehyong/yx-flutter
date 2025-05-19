@@ -160,10 +160,11 @@ extension TaskCreditStrategyExtension on TaskCreditStrategy {
 }
 
 class WorkTaskPageParams {
-  const WorkTaskPageParams(this.parentId, this.task, {this.opCat});
+  const WorkTaskPageParams(this.parentId, this.task, this.catList, {this.opCat});
 
   final Int64 parentId;
   final WorkTask? task;
+  final TaskListCategory catList;
   final TaskOperationCategory? opCat;
 }
 

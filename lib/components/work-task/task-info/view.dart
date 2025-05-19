@@ -88,28 +88,35 @@ class TaskInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: title,
-        actions: [
-          if (opCategory == TaskOperationCategory.submitTask)
-            ElevatedButton(
-              onPressed: () {
-                debugPrint("提交");
-              },
-              // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
-              child: Row(children: [const Text('提交'), Icon(Icons.check)]),
-            ),
-        ],
-      ),
-
-      body: Padding(
-        padding: EdgeInsets.only(
-          left: 4,
-          right: 4,
-          bottom: isBigScreen(context) ? 10 : 4,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        final taskListController = Get.find<TaskListController>();
+        // 返回时， 重设上次选择的任务类型
+        taskListController.curCat.value = {publishTaskParams.catList};
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: title,
+          actions: [
+            if (opCategory == TaskOperationCategory.submitTask)
+              ElevatedButton(
+                onPressed: () {
+                  debugPrint("提交");
+                },
+                // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
+                child: Row(children: [const Text('提交'), Icon(Icons.check)]),
+              ),
+          ],
         ),
-        child: _TaskInfoView(),
+
+        body: Padding(
+          padding: EdgeInsets.only(
+            left: 4,
+            right: 4,
+            bottom: isBigScreen(context) ? 10 : 4,
+          ),
+          child: _TaskInfoView(),
+        ),
       ),
     );
   }
@@ -177,7 +184,12 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     return SegmentedButton(
       segments:
           segmentedBtnCategories(context)
-              .map((e) => ButtonSegment(value: e, label: Text(e.i18name, softWrap: false, maxLines: 1)))
+              .map(
+                (e) => ButtonSegment(
+                  value: e,
+                  label: Text(e.i18name, softWrap: false, maxLines: 1),
+                ),
+              )
               .toList(),
       onSelectionChanged: (s) {
         controller.selectedAttrSet.value = s;
@@ -843,8 +855,9 @@ class _TaskInfoView extends GetView<TaskInfoController> {
                 controller.taskReceiveDeadlineController.text,
               );
               DateTime date = await showCusDateTimePicker(context, dt: dt);
-              controller.taskReceiveDeadlineController.text = defaultDateTimeFormat1
-                  .format(date);
+              controller
+                  .taskReceiveDeadlineController
+                  .text = defaultDateTimeFormat1.format(date);
               // debugPrint("selectdt${date.toIso8601String()}");
             },
             controller: controller.taskReceiveDeadlineController,

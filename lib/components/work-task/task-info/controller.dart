@@ -266,7 +266,7 @@ class SubmitTasksController extends GetxController {
     isLoadingSubmitItem.value = DataLoadingStatus.loading;
     Future.delayed(Duration(seconds: 1), () {
       // taskSubmitItems.value = submitItems;
-      _buildLeafSubmitItemTextEditingController(taskSubmitItems.value!);
+      _buildLeafSubmitItemTextEditingController(taskSubmitItems.value ?? []);
       isLoadingSubmitItem.value = DataLoadingStatus.loaded;
     });
   }

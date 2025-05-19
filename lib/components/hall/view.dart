@@ -21,7 +21,11 @@ class TaskHallView extends StatelessWidget {
             onPressed: () {
               debugPrint("发布了");
               // Get.find<TaskInfoController>().reset();
-              const args =  WorkTaskPageParams(Int64.ZERO, null);
+              const args = WorkTaskPageParams(
+                Int64.ZERO,
+                null,
+                TaskListCategory.allPublished,
+              );
               setCurTaskInfo(args);
               Get.toNamed(
                 WorkTaskRoutes.hallTaskPublish,
