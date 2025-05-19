@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/components/bindings.dart';
 import 'package:yx/components/hall/view.dart';
 import 'package:yx/components/work-task/task-info/view.dart';
 import 'package:yx/root/nest_nav_key.dart';
@@ -29,8 +30,7 @@ class HallView extends GetView {
             final params = settings.arguments! as WorkTaskPageParams;
             return GetPageRoute(
               settings: settings,
-              // bindings: [TaskBinding()],
-              bindings: [],
+              bindings: [TaskInfoBinding()],
               page: () => TaskInfoView(publishTaskParams: params),
               transition: Transition.leftToRight,
             );
@@ -39,7 +39,7 @@ class HallView extends GetView {
             final params = settings.arguments! as WorkTaskPageParams;
             return GetPageRoute(
               settings: settings,
-              bindings: [],
+              bindings: [TaskInfoBinding()],
               page: () => TaskInfoView(publishTaskParams: params),
               transition: Transition.fadeIn,
             );

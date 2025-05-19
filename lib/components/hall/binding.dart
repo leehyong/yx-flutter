@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:yx/components/work-task/task-info/controller.dart';
 
 import '../common.dart';
-import '../work-header/controller.dart';
 
 class TaskHallBinding implements Bindings {
   @override
@@ -12,6 +11,7 @@ class TaskHallBinding implements Bindings {
     Get.put(TaskListController(), permanent: true);
     Get.lazyPut(() => SubmitTasksController());
     Get.lazyPut(() => TaskInfoController());
-    Get.lazyPut(() => PublishItemsCrudController());
   }
 }
+
+

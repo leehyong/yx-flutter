@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/components/bindings.dart';
 import 'package:yx/components/home/binding.dart';
 import 'package:yx/components/home/view.dart';
 import 'package:yx/components/work-task/task-info/view.dart';
@@ -31,8 +32,7 @@ class HomeView extends GetView<HomeController> {
             final params = settings.arguments! as WorkTaskPageParams;
             return GetPageRoute(
               settings: settings,
-              // bindings: [TaskBinding()],
-              bindings: [],
+              bindings: [TaskInfoBinding()],
               page: () => TaskInfoView(publishTaskParams: params),
               transition: Transition.leftToRight,
             );
