@@ -34,6 +34,13 @@ class TaskListController extends GetxController {
     tasks.value = [];
   }
 
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   reset();
+  //   loadTaskList();
+  // }
+
   void setTaskListInfo({
     int parentId = 0,
     TaskListCategory defaultCat = TaskListCategory.allPublished,

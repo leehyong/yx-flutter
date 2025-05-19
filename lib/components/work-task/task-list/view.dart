@@ -85,7 +85,7 @@ class TaskListView extends GetView<TaskListController> {
                           crossAxisCount: crossCount,
                           crossAxisSpacing: crossCount == 1 ? 0 : 6,
                           mainAxisSpacing: 1,
-                          childAspectRatio: crossCount == 1 ? 2 : 1.5,
+                          childAspectRatio: crossCount == 1 ? 2 : 1.6,
                         ),
                         itemBuilder: (BuildContext context, int index) {
                           return OneTaskView(

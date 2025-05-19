@@ -60,52 +60,58 @@ class TaskInfoController extends GetxController {
 
   bool get enableSelectChildrenTasks => action == TaskInfoAction.detail;
 
-  bool get noParent =>
-      parentTask.value == null || parentTask.value!.id == Int64.ZERO;
+  bool get noParent => parentId.value == Int64.ZERO;
 
   bool get isSubmitRelated =>
       action == TaskInfoAction.submit || action == TaskInfoAction.submitDetail;
 
   bool get readOnly => action != TaskInfoAction.write;
 
+  void reset() {
+    taskId.value = Int64.ZERO;
+    //  设置输入框的默认值
+    taskNameController.text = '';
+    taskContentController.text = '';
+    taskPlanStartDtController.text = '';
+    taskPlanEndDtController.text = '';
+    taskContactorController.text = '';
+    taskContactPhoneController.text = '';
+    taskCreditsController.text = '';
+    taskCreditStrategy.value = TaskCreditStrategy.latest;
+    taskSubmitCycleStrategy.value = TaskSubmitCycleStrategy.week;
+    taskReceiveStrategy.value = ReceiveTaskStrategy.twoWaySelection;
+    taskReceiveDeadlineController.text = '';
+    taskReceiverQuotaLimitedController.text = '';
+  }
+
+  void initTask(WorkTask v) {
+    taskId.value = task.value!.id;
+    //  设置输入框的默认值
+    taskNameController.text = v.name;
+    taskContentController.text = v.content;
+    taskPlanStartDtController.text = inputTxtFromDtSecond(v.planStartDt);
+    taskPlanEndDtController.text = inputTxtFromDtSecond(v.planEndDt);
+    taskContactorController.text = v.contactor;
+    taskContactPhoneController.text = v.contactPhone;
+    taskCreditsController.text = v.credits > 0 ? v.credits.toString() : '';
+    taskCreditStrategy.value = TaskCreditStrategy.values[v.creditsStrategy];
+    taskSubmitCycleStrategy.value =
+        TaskSubmitCycleStrategy.values[v.submitCycle];
+    taskReceiveStrategy.value = ReceiveTaskStrategy.values[v.receiveStrategy];
+    taskReceiveDeadlineController.text = inputTxtFromDtSecond(
+      v.receiveDeadline,
+    );
+    taskReceiverQuotaLimitedController.text = v.maxReceiverCount.toString();
+  }
+
   @override
   void onInit() {
     super.onInit();
     ever(task, (v) {
       if (v != null) {
-        taskId.value = task.value!.id;
-        //  设置输入框的默认值
-        taskNameController.text = v.name;
-        taskContentController.text = v.content;
-        taskPlanStartDtController.text = inputTxtFromDtSecond(v.planStartDt);
-        taskPlanEndDtController.text = inputTxtFromDtSecond(v.planEndDt);
-        taskContactorController.text = v.contactor;
-        taskContactPhoneController.text = v.contactPhone;
-        taskCreditsController.text = v.credits > 0 ? v.credits.toString() : '';
-        taskCreditStrategy.value = TaskCreditStrategy.values[v.creditsStrategy];
-        taskSubmitCycleStrategy.value =
-            TaskSubmitCycleStrategy.values[v.submitCycle];
-        taskReceiveStrategy.value =
-            ReceiveTaskStrategy.values[v.receiveStrategy];
-        taskReceiveDeadlineController.text = inputTxtFromDtSecond(
-          v.receiveDeadline,
-        );
-        taskReceiverQuotaLimitedController.text = v.maxReceiverCount.toString();
+        initTask(v);
       } else {
-        taskId.value = Int64.ZERO;
-        //  设置输入框的默认值
-        taskNameController.text = '';
-        taskContentController.text = '';
-        taskPlanStartDtController.text = '';
-        taskPlanEndDtController.text = '';
-        taskContactorController.text = '';
-        taskContactPhoneController.text = '';
-        taskCreditsController.text = '';
-        taskCreditStrategy.value = TaskCreditStrategy.latest;
-        taskSubmitCycleStrategy.value = TaskSubmitCycleStrategy.week;
-        taskReceiveStrategy.value = ReceiveTaskStrategy.twoWaySelection;
-        taskReceiveDeadlineController.text = '';
-        taskReceiverQuotaLimitedController.text = '';
+        reset();
       }
     });
     ever(parentId, (v) {

@@ -31,13 +31,13 @@ class OneTaskController extends GetxController {
 
   @override
   void onClose() {
-    _timer.cancel(); // 在控制器销毁时取消定时器
+    _timer?.cancel(); // 在控制器销毁时取消定时器
     super.onClose();
   }
 
   // 定时器
 
-  late Timer _timer;
+  Timer? _timer = null;
   late final int deadline;
   final RxInt left = 0.obs;
 
@@ -53,7 +53,7 @@ class OneTaskController extends GetxController {
         left.value -= interval;
         update(); // 更新界面
       } else {
-        _timer.cancel(); // 倒计时结束，取消定时器
+        _timer?.cancel(); // 倒计时结束，取消定时器
       }
     });
   }
