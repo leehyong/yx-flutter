@@ -1,6 +1,7 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/components/work-task/task-info/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
@@ -20,10 +21,12 @@ class TaskHallView extends StatelessWidget {
             onPressed: () {
               debugPrint("发布了");
               // Get.find<TaskInfoController>().reset();
+              const args =  WorkTaskPageParams(Int64.ZERO, null);
+              setCurTaskInfo(args);
               Get.toNamed(
                 WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
-                arguments: const WorkTaskPageParams(Int64.ZERO, null),
+                arguments: args,
               );
             },
             child: Row(children: [const Text('发布'), Icon(Icons.add)]),
