@@ -843,7 +843,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
                 controller.taskReceiveDeadlineController.text,
               );
               DateTime date = await showCusDateTimePicker(context, dt: dt);
-              controller.taskReceiveDeadlineController.text = defaultDtFormat1
+              controller.taskReceiveDeadlineController.text = defaultDateTimeFormat1
                   .format(date);
               // debugPrint("selectdt${date.toIso8601String()}");
             },

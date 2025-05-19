@@ -13,8 +13,8 @@ import 'package:yx/vo/common_vo.dart';
 
 import '../types.dart' show innerNodeKey;
 
-final defaultDtFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-final defaultDtFormat1 = DateFormat('yyyy-MM-dd HH:mm');
+final defaultDateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
+final defaultDateTimeFormat1 = DateFormat('yyyy-MM-dd HH:mm');
 
 final defaultDateFormat = DateFormat('yyyy-MM-dd');
 final defaultDateFormat1 = DateFormat('yyyy/MM/dd');
@@ -24,7 +24,7 @@ DateTime dtLocalFromMilliSecondsTimestamp(int milliSeconds) =>
     DateTime.fromMillisecondsSinceEpoch(milliSeconds * 1000, isUtc: false);
 
 String localFromSeconds(int seconds) =>
-    defaultDtFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
+    defaultDateTimeFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
 
 String localDateFromSeconds(int seconds) =>
     defaultDateFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
@@ -39,10 +39,15 @@ Int64 parseDateTimeFromSecond(String dt) {
   return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);
 }
 
-String inputTxtFromDtSecond(Int64? seconds) =>
+String inputDateTimeTxtFromSecond(Int64? seconds) =>
     seconds == null || seconds == Int64.ZERO
         ? ''
         : localFromSeconds(seconds.toInt());
+
+String inputDateTxtFromSecond(Int64? seconds) =>
+    seconds == null || seconds == Int64.ZERO
+        ? ''
+        : localDateFromSeconds(seconds.toInt());
 
 Future<DateTime> showCusDateTimePicker(BuildContext context, {
   DateTime? dt,
@@ -102,7 +107,7 @@ DateTime? parseDateFromStr(String dtStr) {
 }
 
 DateTime? parseDatetimeFromStr(String dtStr) {
-  for (var e in [defaultDtFormat, defaultDtFormat1]) {
+  for (var e in [defaultDateTimeFormat, defaultDateTimeFormat1]) {
     try {
       return e.parseStrict(dtStr);
     } on FormatException {

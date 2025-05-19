@@ -89,8 +89,8 @@ class TaskInfoController extends GetxController {
     //  设置输入框的默认值
     taskNameController.text = v.name;
     taskContentController.text = v.content;
-    taskPlanStartDtController.text = inputTxtFromDtSecond(v.planStartDt);
-    taskPlanEndDtController.text = inputTxtFromDtSecond(v.planEndDt);
+    taskPlanStartDtController.text = inputDateTxtFromSecond(v.planStartDt);
+    taskPlanEndDtController.text = inputDateTxtFromSecond(v.planEndDt);
     taskContactorController.text = v.contactor;
     taskContactPhoneController.text = v.contactPhone;
     taskCreditsController.text = v.credits > 0 ? v.credits.toString() : '';
@@ -98,7 +98,7 @@ class TaskInfoController extends GetxController {
     taskSubmitCycleStrategy.value =
         TaskSubmitCycleStrategy.values[v.submitCycle];
     taskReceiveStrategy.value = ReceiveTaskStrategy.values[v.receiveStrategy];
-    taskReceiveDeadlineController.text = inputTxtFromDtSecond(
+    taskReceiveDeadlineController.text = inputDateTimeTxtFromSecond(
       v.receiveDeadline,
     );
     taskReceiverQuotaLimitedController.text = v.maxReceiverCount.toString();
