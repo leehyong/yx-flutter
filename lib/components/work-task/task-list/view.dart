@@ -77,23 +77,28 @@ class TaskListView extends GetView<TaskListController> {
                       ),
                       controller: RefreshController(initialRefresh: false),
                       // controller: controller.refreshController,
-                      child: GridView.builder(
-                        primary: true,
-                        shrinkWrap: true,
-                        itemCount: controller.tasks.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossCount,
-                          crossAxisSpacing: crossCount == 1 ? 0 : 6,
-                          mainAxisSpacing: 1,
-                          childAspectRatio: crossCount == 1 ? 2 : 1.6,
-                        ),
-                        itemBuilder: (BuildContext context, int index) {
-                          return OneTaskView(
-                            task: controller.tasks[index],
-                            taskCategory: controller.curCat.first,
-                          );
-                        },
-                      ),
+                      child:
+                          controller.tasks.isEmpty
+                              ? Column(children: [emptyWidget(context)])
+                              : GridView.builder(
+                                primary: true,
+                                shrinkWrap: true,
+                                itemCount: controller.tasks.length,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossCount,
+                                      crossAxisSpacing: crossCount == 1 ? 0 : 6,
+                                      mainAxisSpacing: 1,
+                                      childAspectRatio:
+                                          crossCount == 1 ? 2 : 1.6,
+                                    ),
+                                itemBuilder: (BuildContext context, int index) {
+                                  return OneTaskView(
+                                    task: controller.tasks[index],
+                                    taskCategory: controller.curCat.first,
+                                  );
+                                },
+                              ),
                     );
                   },
                 ),
