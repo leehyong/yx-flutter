@@ -9,9 +9,9 @@ import 'views/header_crud.dart';
 import 'views/select_submit_item.dart';
 
 class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
-  PublishSubmitItemsCrudView({super.key}) {
-    Get.put(PublishItemsCrudController());
-  }
+  const PublishSubmitItemsCrudView({super.key}); //{
+  // Get.put(PublishItemsCrudController());
+  // }
 
   // final bool readOnly;
 

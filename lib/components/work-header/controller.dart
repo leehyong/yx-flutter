@@ -31,12 +31,15 @@ class PublishItemsCrudController extends GetxController {
     // _buildSubmitItemsMap();
     // 监听taskId， 如有变化，则重新加载表头
     ever(getTaskInfoController.taskId, (taskId) {
+      debugPrint("PublishItemsCrudController-getTaskInfoController: $taskId");
       if (taskId > Int64.ZERO) {
         header_api.queryWorkHeaders(taskId).then((v) {
           if (v?.isNotEmpty ?? false) {
             _buildAnimatedTreeViewData(v!);
           }
         });
+      }else{
+        submitItemAnimatedTreeData.clear();
       }
     });
   }
@@ -63,11 +66,11 @@ class PublishItemsCrudController extends GetxController {
   List<Int64> get taskHeaderIds {
     final headerIds = <Int64>[];
     void headerId(ITreeNode<WorkHeader> node) {
-      if (node.key == INode.ROOT_KEY) {
+      if (node.key != INode.ROOT_KEY) {
+        headerIds.add(node.data!.id);
         return;
       }
       // 把节点id加入结果集中
-      headerIds.add(node.data!.id);
       for (var child in node.childrenAsList) {
         headerId(child as ITreeNode<WorkHeader>);
       }

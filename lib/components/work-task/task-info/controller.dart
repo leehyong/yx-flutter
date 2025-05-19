@@ -165,12 +165,12 @@ class TaskInfoController extends GetxController {
       bool success = false;
       if (taskId.value > Int64.ZERO) {
         final data = _updateYooWorkTask(status);
-        debugPrint(data.task.toDebugString());
+        debugPrint(data.toDebugString());
         final ret = await task_api.updateWorkTask(taskId.value, data);
         success = ret == null;
       } else {
         final data = _newYooWorkTask(status);
-        debugPrint(data.task.toDebugString());
+        debugPrint(data.toDebugString());
         taskId.value = await task_api.newWorkTask(data);
         success = taskId.value > Int64.ZERO;
       }
