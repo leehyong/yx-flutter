@@ -9,7 +9,7 @@ import 'package:yx/utils/proto.dart';
 
 import 'codes.dart';
 
-Future<List<CusYooHeader>?> queryWorkHeaders(int? taskId) async {
+Future<List<CusYooHeader>?> queryWorkHeaders(Int64? taskId) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
       "$apiContextPath/work-header/all",
@@ -25,7 +25,7 @@ Future<List<CusYooHeader>?> queryWorkHeaders(int? taskId) async {
   }
 }
 
-Future<Int64> newWorkHeader(int parent, NewWorkHeader data) async {
+Future<Int64> newWorkHeader(Int64 parent, NewWorkHeader data) async {
   try {
     final resp = await HttpDioService.instance.dio.post<String>(
       "$apiContextPath/work-header/$parent",
@@ -42,7 +42,7 @@ Future<Int64> newWorkHeader(int parent, NewWorkHeader data) async {
   }
 }
 
-Future<String?> updateWorkHeader(int id, UpdateWorkHeader data) async {
+Future<String?> updateWorkHeader(Int64 id, UpdateWorkHeader data) async {
   try {
     final resp = await HttpDioService.instance.dio.put<String>(
       "$apiContextPath/work-header/$id",
@@ -55,7 +55,7 @@ Future<String?> updateWorkHeader(int id, UpdateWorkHeader data) async {
   }
 }
 
-Future<String?> deleteWorkHeader(int id) async {
+Future<String?> deleteWorkHeader(Int64 id) async {
   try {
     final resp = await HttpDioService.instance.dio.delete<String>(
       "$apiContextPath/work-header/$id",

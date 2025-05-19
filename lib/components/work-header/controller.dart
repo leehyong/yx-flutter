@@ -32,7 +32,7 @@ class PublishItemsCrudController extends GetxController {
     // 监听taskId， 如有变化，则重新加载表头
     ever(getTaskInfoController.taskId, (taskId) {
       if (taskId > Int64.ZERO) {
-        header_api.queryWorkHeaders(taskId.toInt()).then((v) {
+        header_api.queryWorkHeaders(taskId).then((v) {
           if (v?.isNotEmpty ?? false) {
             _buildAnimatedTreeViewData(v!);
           }

@@ -39,8 +39,6 @@ class PublishItemsViewSimpleCrudState
   TreeNode<WorkHeader>? _isNewNode;
 
   // 所有新增的节点需要跟当前任务进行绑定
-  Set<Int64> binds = {};
-
   void addNodesToRoot(Iterable<TreeNode<WorkHeader>> nodes) {
     if (widget.readOnly) {
       return;
@@ -75,27 +73,14 @@ class PublishItemsViewSimpleCrudState
     // 只有叶节点才能删除
     // 调用接口去删除节点
     assert(node.isLeaf);
-    header_api.deleteWorkHeader(node.data!.id.toInt()).then((err) {
-      // 数据库返回删除成功时，才删除改节点
-      if (err?.isEmpty ?? true) {
-        node.delete();
-      }
+    centerLoadingModal(context, () async {
+      header_api.deleteWorkHeader(node.data!.id).then((err) {
+        // 数据库返回删除成功时，才删除改节点
+        if (err?.isEmpty ?? true) {
+          node.delete();
+        }
+      });
     });
-  }
-
-  // 遍历整棵树
-  void traverseTree() {
-    void innerTraverseTree(ITreeNode<WorkHeader> node) {
-      if (node.key != INode.ROOT_KEY) {
-        binds.add(node.data!.id);
-      }
-      for (final child in node.childrenAsList) {
-        innerTraverseTree(child as ITreeNode<WorkHeader>);
-      }
-    }
-
-    innerTraverseTree(widget.submitItemAnimatedTreeData);
-    debugPrint("allbinds:${binds.join(",")}");
   }
 
   void _cancelEditing(TreeNode<WorkHeader> node) {
@@ -132,8 +117,8 @@ class PublishItemsViewSimpleCrudState
     final parent = node.parent!;
     final parentId =
         parent.key == INode.ROOT_KEY
-            ? 0
-            : (parent as TreeNode<WorkHeader>).data!.id.toInt();
+            ? Int64.ZERO
+            : (parent as TreeNode<WorkHeader>).data!.id;
     if (node == _isNewNode) {
       final data = NewWorkHeader(
         name: node.data!.name,
@@ -141,25 +126,28 @@ class PublishItemsViewSimpleCrudState
         open: node.data!.open,
         required: node.data!.required,
       );
+
       // 调用新增接口， 把数据存下来, 删除新当前节点，并重新在父节点上增加一个新节点
-      header_api.newWorkHeader(parentId, data).then((headerId) {
-        final newNode = TreeNode(
-          key: treeNodeKey(headerId),
-          data: WorkHeader(
-            id: headerId,
-            name: node.data!.name,
-            contentType: node.data!.contentType,
-            open: node.data!.open,
-            required: node.data!.required,
-          ),
-        );
-        node.delete();
-        parent.add(newNode);
-        // 滚动到新节点，以便进行进行查看
-        treeViewController!.scrollToItem(newNode);
+      centerLoadingModal(context, () async {
+        header_api.newWorkHeader(parentId, data).then((headerId) {
+          final newNode = TreeNode(
+            key: treeNodeKey(headerId),
+            data: WorkHeader(
+              id: headerId,
+              name: node.data!.name,
+              contentType: node.data!.contentType,
+              open: node.data!.open,
+              required: node.data!.required,
+            ),
+          );
+          node.delete();
+          parent.add(newNode);
+          // 滚动到新节点，以便进行进行查看
+          treeViewController!.scrollToItem(newNode);
+        });
       });
     } else {
-      final headerId = node.data!.id.toInt();
+      final headerId = node.data!.id;
       final data = UpdateWorkHeader(
         name: node.data!.name,
         contentType: node.data!.contentType,
@@ -167,13 +155,14 @@ class PublishItemsViewSimpleCrudState
         required: node.data!.required,
       );
       // 确认时，会调用修改接口的把信息进行保存
-      header_api.updateWorkHeader(headerId, data).then((_) {
-        // 滚动到新节点，以便进行进行查看
-        treeViewController!.scrollToItem(node);
+      centerLoadingModal(context, () async {
+        header_api.updateWorkHeader(headerId, data).then((_) {
+          // 滚动到新节点，以便进行进行查看
+          treeViewController!.scrollToItem(node);
+        });
       });
     }
     _resetNodeState();
-    // traverseTree();
   }
 
   void _setCurEditingNode(TreeNode<WorkHeader> node) {
