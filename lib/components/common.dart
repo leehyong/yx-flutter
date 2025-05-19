@@ -34,12 +34,21 @@ class TaskListController extends GetxController {
     tasks.value = [];
   }
 
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   reset();
-  //   loadTaskList();
-  // }
+  @override
+  void onInit() {
+    super.onInit();
+    ever(curCat, (v){
+      if (v.isNotEmpty) {
+        tabChanging.value = true;
+        reset();
+        loadTaskList().then((v) {
+          Future.delayed(Duration(milliseconds: 100), () {
+            tabChanging.value = false;
+          });
+        });
+      }
+    });
+  }
 
   void setTaskListInfo({
     int parentId = 0,
@@ -116,14 +125,7 @@ class CommonTaskListView extends GetView<TaskListController> {
                         )
                         .toList(),
                 onSelectionChanged: (s) {
-                  controller.tabChanging.value = true;
                   controller.curCat.value = s;
-                  controller.reset();
-                  controller.loadTaskList().then((v) {
-                    Future.delayed(Duration(milliseconds: 100), () {
-                      controller.tabChanging.value = false;
-                    });
-                  });
                 },
                 selected: controller.curCat.value,
                 multiSelectionEnabled: false,

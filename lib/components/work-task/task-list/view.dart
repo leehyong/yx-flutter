@@ -56,7 +56,7 @@ class TaskListView extends GetView<TaskListController> {
                             body = Text("上拉加载更多");
                           } else if (mode == LoadStatus.loading) {
                             body = LoadingIndicator(
-                              indicatorType: Indicator.ballGridBeat,
+                              indicatorType: Indicator.audioEqualizer,
 
                               /// Required, The loading type of the widget
                               colors: loadingColors,
@@ -75,7 +75,7 @@ class TaskListView extends GetView<TaskListController> {
                           );
                         },
                       ),
-                      controller: RefreshController(initialRefresh: true),
+                      controller: RefreshController(initialRefresh: false),
                       // controller: controller.refreshController,
                       child: GridView.builder(
                         primary: true,
