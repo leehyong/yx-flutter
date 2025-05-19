@@ -35,14 +35,16 @@ class PublishItemsCrudController extends GetxController {
     ever(getTaskInfoController.taskId, (taskId) {
       debugPrint("PublishItemsCrudController-getTaskInfoController: $taskId");
       // 不管如何taskId都变化了， 那么就需要把整棵树都清空，再重新构造这棵树
-      itemsSimpleCrudKey.currentState?.clearAllNodes();
-      if (taskId > Int64.ZERO) {
-        header_api.queryWorkHeaders(taskId).then((v) {
-          if (v?.isNotEmpty ?? false) {
-            _buildAnimatedTreeViewData(v!);
-          }
-        });
-      }
+      WidgetsBinding.instance.addPostFrameCallback((f){
+        itemsSimpleCrudKey.currentState?.clearAllNodes();
+        if (taskId > Int64.ZERO) {
+          header_api.queryWorkHeaders(taskId).then((v) {
+            if (v?.isNotEmpty ?? false) {
+              _buildAnimatedTreeViewData(v!);
+            }
+          });
+        }
+      });
     });
   }
 
