@@ -37,7 +37,7 @@ class TaskListController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ever(curCat, (v){
+    ever(curCat, (v) {
       if (v.isNotEmpty) {
         tabChanging.value = true;
         reset();
@@ -116,19 +116,35 @@ class CommonTaskListView extends GetView<TaskListController> {
           Align(
             alignment: Alignment.topLeft,
             child: Obx(
-              () => SegmentedButton(
-                segments:
-                    cats
-                        .map(
-                          (e) =>
-                              ButtonSegment(value: e, label: Text(e.i18name)),
-                        )
-                        .toList(),
-                onSelectionChanged: (s) {
-                  controller.curCat.value = s;
-                },
-                selected: controller.curCat.value,
-                multiSelectionEnabled: false,
+              () => SizedBox(
+                width: 400,
+                child: SegmentedButton(
+                  expandedInsets: EdgeInsets.symmetric(
+                    horizontal: 4.0,
+                    vertical: 6.0,
+                  ),
+                  segments:
+                      cats
+                          .map(
+                            (e) => ButtonSegment(
+                              value: e,
+                              label: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  e.i18name,
+                                  softWrap: false,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                  onSelectionChanged: (s) {
+                    controller.curCat.value = s;
+                  },
+                  selected: controller.curCat.value,
+                  multiSelectionEnabled: false,
+                ),
               ),
             ),
           ),

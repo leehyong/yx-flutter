@@ -177,7 +177,7 @@ class _TaskInfoView extends GetView<TaskInfoController> {
     return SegmentedButton(
       segments:
           segmentedBtnCategories(context)
-              .map((e) => ButtonSegment(value: e, label: Text(e.i18name)))
+              .map((e) => ButtonSegment(value: e, label: Text(e.i18name, softWrap: false, maxLines: 1)))
               .toList(),
       onSelectionChanged: (s) {
         controller.selectedAttrSet.value = s;
