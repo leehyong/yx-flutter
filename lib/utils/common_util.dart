@@ -29,12 +29,12 @@ String localFromSeconds(int seconds) =>
 String localDateFromSeconds(int seconds) =>
     defaultDateFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
 
-Int64 parseDtSecond(String dt) {
+Int64 parseDateFromSecond(String dt) {
   final d = parseDateFromStr(dt);
   return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);
 }
 
-Int64 parseDtTimeSecond(String dt) {
+Int64 parseDateTimeFromSecond(String dt) {
   final d = parseDatetimeFromStr(dt);
   return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);
 }

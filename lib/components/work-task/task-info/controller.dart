@@ -187,8 +187,8 @@ class TaskInfoController extends GetxController {
       task: UpdateWorkTask(
         name: taskNameController.text,
         content: taskContentController.text,
-        planStartDt: parseDtSecond(taskPlanStartDtController.text),
-        planEndDt: parseDtSecond(taskPlanEndDtController.text),
+        planStartDt: parseDateFromSecond(taskPlanStartDtController.text),
+        planEndDt: parseDateFromSecond(taskPlanEndDtController.text),
         // 在点击开始时，才变更该属性
         actualPlanStartDt: null,
         // 在点击结束时，才变更该属性
@@ -198,7 +198,7 @@ class TaskInfoController extends GetxController {
         credits: double.tryParse(taskCreditsController.text) ?? 0.0,
         creditsStrategy: taskCreditStrategy.value.index,
         submitCycle: taskSubmitCycleStrategy.value.index,
-        receiveDeadline: parseDtTimeSecond(taskReceiveDeadlineController.text),
+        receiveDeadline: parseDateTimeFromSecond(taskReceiveDeadlineController.text),
         maxReceiverCount:
             int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
         status: status.index,
@@ -217,8 +217,8 @@ class TaskInfoController extends GetxController {
       task: NewWorkTask(
         name: taskNameController.text,
         content: taskContentController.text,
-        planStartDt: parseDtSecond(taskPlanStartDtController.text),
-        planEndDt: parseDtSecond(taskPlanEndDtController.text),
+        planStartDt: parseDateFromSecond(taskPlanStartDtController.text),
+        planEndDt: parseDateFromSecond(taskPlanEndDtController.text),
         // 在点击开始时，才变更该属性
         actualPlanStartDt: null,
         // 在点击结束时，才变更该属性
@@ -229,7 +229,7 @@ class TaskInfoController extends GetxController {
         creditsStrategy: taskCreditStrategy.value.index,
         submitCycle: taskSubmitCycleStrategy.value.index,
         receiveDeadline:
-            parseDtTimeSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
+            parseDateTimeFromSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
         maxReceiverCount:
             int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
         status: status.index,
