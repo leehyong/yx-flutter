@@ -3,8 +3,12 @@ import 'dart:math';
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yt_dart/generate_sea_orm_update.pb.dart';
+import 'package:yx/api/header_api.dart' as header_api;
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 import 'package:yx/utils/toast.dart';
 
@@ -64,14 +68,19 @@ class PublishItemsViewSimpleCrudState
     }
   }
 
-  void deleteNode(TreeNode<WorkHeader> node) {
+  void _deleteNode(TreeNode<WorkHeader> node) {
     if (widget.readOnly) {
       return;
     }
-    // todo： 调用接口去删除节点
     // 只有叶节点才能删除
+    // 调用接口去删除节点
     assert(node.isLeaf);
-    node.delete();
+    header_api.deleteWorkHeader(node.data!.id.toInt()).then((err) {
+      // 数据库返回删除成功时，才删除改节点
+      if (err?.isEmpty ?? true) {
+        node.delete();
+      }
+    });
   }
 
   // 遍历整棵树
@@ -120,19 +129,51 @@ class PublishItemsViewSimpleCrudState
     }
     // 把修改的数据保存到node上
     node.data = _deepCopyNodeData(_isEditingNodeData!);
+    final parent = node.parent!;
+    final parentId =
+        parent.key == INode.ROOT_KEY
+            ? 0
+            : (parent as TreeNode<WorkHeader>).data!.id.toInt();
     if (node == _isNewNode) {
-      final parent = node.parent!;
-      // todo: 调用新增接口， 把数据存下来,删除新当前节点，并重新再父节点上增加一个新节点
-      node.delete();
-      final newNode = newEmptyHeaderTree(name: "lhytest");
-      parent.add(newNode);
-      // 滚动到新节点，以便进行进行查看
-      treeViewController!.scrollToItem(newNode);
+      final data = NewWorkHeader(
+        name: node.data!.name,
+        contentType: node.data!.contentType,
+        open: node.data!.open,
+        required: node.data!.required,
+      );
+      // 调用新增接口， 把数据存下来, 删除新当前节点，并重新在父节点上增加一个新节点
+      header_api.newWorkHeader(parentId, data).then((headerId) {
+        final newNode = TreeNode(
+          key: treeNodeKey(headerId),
+          data: WorkHeader(
+            id: headerId,
+            name: node.data!.name,
+            contentType: node.data!.contentType,
+            open: node.data!.open,
+            required: node.data!.required,
+          ),
+        );
+        node.delete();
+        parent.add(newNode);
+        // 滚动到新节点，以便进行进行查看
+        treeViewController!.scrollToItem(newNode);
+      });
     } else {
-      // todo: 确认时，会调用修改接口的把信息进行保存
+      final headerId = node.data!.id.toInt();
+      final data = UpdateWorkHeader(
+        name: node.data!.name,
+        contentType: node.data!.contentType,
+        open: node.data!.open,
+        required: node.data!.required,
+      );
+      // 确认时，会调用修改接口的把信息进行保存
+      header_api.updateWorkHeader(headerId, data).then((_) {
+        // 滚动到新节点，以便进行进行查看
+        treeViewController!.scrollToItem(node);
+      });
     }
     _resetNodeState();
-    traverseTree();
+    // traverseTree();
   }
 
   void _setCurEditingNode(TreeNode<WorkHeader> node) {
@@ -393,7 +434,7 @@ class PublishItemsViewSimpleCrudState
             onPressed: () {
               debugPrint("删除当前节点 ${node.key}");
               if (node.isLeaf) {
-                deleteNode(node);
+                _deleteNode(node);
               }
             },
             icon: Tooltip(

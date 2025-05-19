@@ -11,6 +11,8 @@ import 'package:yx/utils/proto.dart';
 import 'package:yx/utils/toast.dart';
 import 'package:yx/vo/common_vo.dart';
 
+import '../types.dart' show innerNodeKey;
+
 final defaultDtFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 final defaultDtFormat1 = DateFormat('yyyy-MM-dd HH:mm');
 
@@ -290,5 +292,7 @@ bool isValidUser(String user) {
   return RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#*&!%]{4,59}").hasMatch(user);
 }
 
+
+String treeNodeKey(Int64 id) =>  "$id$innerNodeKey";
 
 

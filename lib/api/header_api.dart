@@ -1,3 +1,4 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/cus_header.pb.dart';
 import 'package:yt_dart/generate_sea_orm_new.pb.dart';
@@ -8,9 +9,7 @@ import 'package:yx/utils/proto.dart';
 
 import 'codes.dart';
 
-Future<List<CusYooHeader>?> queryWorkHeaders(
-  int? taskId,
-) async {
+Future<List<CusYooHeader>?> queryWorkHeaders(int? taskId) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
       "$apiContextPath/work-header/all",
@@ -26,16 +25,20 @@ Future<List<CusYooHeader>?> queryWorkHeaders(
   }
 }
 
-Future<String?> newWorkHeader(int parent, NewWorkHeader data) async {
+Future<Int64> newWorkHeader(int parent, NewWorkHeader data) async {
   try {
     final resp = await HttpDioService.instance.dio.post<String>(
       "$apiContextPath/work-header/$parent",
       data: encodeProtoData(data),
     );
-    return handleProtoCommonInstanceVo(resp);
+    return handleProtoCommonInstanceVoForMsgIncludeInt64(
+          resp,
+          toastSuccess: true,
+        ) ??
+        Int64.ZERO;
   } catch (e) {
     debugPrint(e.toString());
-    return e.toString();
+    return Int64.ZERO;
   }
 }
 
