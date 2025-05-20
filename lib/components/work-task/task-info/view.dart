@@ -15,7 +15,7 @@ import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
 import 'views/submit_task.dart';
 
-class TaskInfoView extends StatelessWidget {
+class TaskInfoView extends GetView<TaskInfoController> {
   const TaskInfoView({
     super.key,
     // required this.taskCategory,
@@ -115,18 +115,13 @@ class TaskInfoView extends StatelessWidget {
             right: 4,
             bottom: isBigScreen(context) ? 10 : 4,
           ),
-          child: _TaskInfoView(),
+          child: _buildTaskInfoView(context),
         ),
       ),
     );
   }
-}
 
-class _TaskInfoView extends GetView<TaskInfoController> {
-  const _TaskInfoView();
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTaskInfoView(BuildContext context) {
     return Form(
       key: controller.formKey,
       child: Obx(
