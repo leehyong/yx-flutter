@@ -38,11 +38,6 @@ class TaskInfoController extends GetxController {
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers = (null as List<User>?).obs;
 
-  // void reset(){
-  //   task.value = null;
-  //   parentId.value = Int64.ZERO;
-  // }
-
   TaskInfoAction get action {
     switch (opCategory.value) {
       case TaskOperationCategory.detailTask:
@@ -67,7 +62,8 @@ class TaskInfoController extends GetxController {
 
   bool get readOnly => action != TaskInfoAction.write;
 
-  void reset() {
+  void resetTask() {
+    task.value = null;
     taskId.value = Int64.ZERO;
     //  设置输入框的默认值
     taskNameController.text = '';
@@ -82,6 +78,11 @@ class TaskInfoController extends GetxController {
     taskReceiveStrategy.value = ReceiveTaskStrategy.twoWaySelection;
     taskReceiveDeadlineController.text = '';
     taskReceiverQuotaLimitedController.text = '';
+  }
+
+  void resetAll(){
+    resetTask();
+    parentTask.value = null;
   }
 
   void initTask(WorkTask v) {
@@ -111,7 +112,7 @@ class TaskInfoController extends GetxController {
       if (v != null) {
         initTask(v);
       } else {
-        reset();
+        resetTask();
       }
     });
     ever(parentId, (v) {

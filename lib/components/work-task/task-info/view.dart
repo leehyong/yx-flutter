@@ -99,6 +99,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
               taskListController.curCat.value = {publishTaskParams.catList};
               // 清空该告警信息，以免重复提示
               controller.rootTabController.clearModifications();
+              controller.resetAll();
               Navigator.of(context).pop();
             },
           );
