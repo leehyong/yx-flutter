@@ -76,7 +76,6 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
                 height: 200,
                 child: LoadingIndicator(
                   indicatorType: Indicator.ballScaleRipple,
-
                   /// Required, The loading type of the widget
                   colors: loadingColors,
                   strokeWidth: 3,
@@ -84,35 +83,39 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
               ),
             );
           }
-          final cnt = controller.taskSubmitItems.value!.length;
+          final cnt = controller.taskSubmitItems.value?.length ?? 0;
 
-          return ListView.builder(
-            cacheExtent: 100,
-            controller: controller.scrollController,
-            itemCount: cnt,
-            itemBuilder: (ctx, idx) {
-              final headerTree = controller.taskSubmitItems.value![idx];
-              final oneItem = [_buildRootHeaderNameTable(context, headerTree)];
-              oneItem.add(
-                isBigScreen(context)
-                    ? _WebSubmitWorkHeaderItemView(
-                      headerTree.node,
-                      headerTree.children,
-                      readOnly,
-                    )
-                    : _MobileSubmitWorkHeaderItemView(
-                      headerTree.node,
-                      headerTree.children,
-                      readOnly,
-                    ),
+          return cnt == 0
+              ? Column(children: [emptyWidget(context)])
+              : ListView.builder(
+                cacheExtent: 100,
+                controller: controller.scrollController,
+                itemCount: cnt,
+                itemBuilder: (ctx, idx) {
+                  final headerTree = controller.taskSubmitItems.value![idx];
+                  final oneItem = [
+                    _buildRootHeaderNameTable(context, headerTree),
+                  ];
+                  oneItem.add(
+                    isBigScreen(context)
+                        ? _WebSubmitWorkHeaderItemView(
+                          headerTree.node,
+                          headerTree.children,
+                          readOnly,
+                        )
+                        : _MobileSubmitWorkHeaderItemView(
+                          headerTree.node,
+                          headerTree.children,
+                          readOnly,
+                        ),
+                  );
+                  return commonCard(
+                    Column(children: oneItem),
+                    borderRadius: 0,
+                    margin: EdgeInsets.only(bottom: 16),
+                  );
+                },
               );
-              return commonCard(
-                Column(children: oneItem),
-                borderRadius: 0,
-                margin: EdgeInsets.only(bottom: 16),
-              );
-            },
-          );
         });
       },
     );
@@ -372,7 +375,7 @@ class _WebSubmitWorkHeaderItemView
                   }
                   return null;
                 },
-                onChanged: (_){
+                onChanged: (_) {
                   // 保存变更，以便提示
                   controller.submitTasksController.saveModification();
                 },
