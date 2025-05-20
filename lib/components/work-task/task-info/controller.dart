@@ -132,8 +132,13 @@ class TaskInfoController extends GetxController {
     });
   }
 
-  // Int64 get parentId => parentTask.value?.id ?? Int64.ZERO;
+  RootTabController get rootTabController => Get.find<RootTabController>();
 
+  void saveModification(ModifyWarningCategory modification) {
+    Get.find<RootTabController>().addModification(saveTask, modification);
+  }
+
+  // Int64 get parentId => parentTask.value?.id ?? Int64.ZERO;
   final taskNameController = TextEditingController();
   final taskContentController = TextEditingController();
   final taskPlanStartDtController = TextEditingController();
@@ -153,7 +158,7 @@ class TaskInfoController extends GetxController {
 
   final childrenTask = <WorkTask>[].obs;
 
-  Future<bool> saveTask(SystemTaskStatus status) async {
+  Future<bool> saveTask({SystemTaskStatus? status}) async {
     if (saving.value) {
       // 限流，避免重复点击
       EasyThrottle.throttle("save-task", Duration(seconds: 1), () {
@@ -182,7 +187,7 @@ class TaskInfoController extends GetxController {
     }
   }
 
-  UpdateYooWorkTask _updateYooWorkTask(SystemTaskStatus status) {
+  UpdateYooWorkTask _updateYooWorkTask(SystemTaskStatus? status) {
     return UpdateYooWorkTask(
       task: UpdateWorkTask(
         name: taskNameController.text,
@@ -198,10 +203,12 @@ class TaskInfoController extends GetxController {
         credits: double.tryParse(taskCreditsController.text) ?? 0.0,
         creditsStrategy: taskCreditStrategy.value.index,
         submitCycle: taskSubmitCycleStrategy.value.index,
-        receiveDeadline: parseDateTimeFromSecond(taskReceiveDeadlineController.text),
+        receiveDeadline: parseDateTimeFromSecond(
+          taskReceiveDeadlineController.text,
+        ),
         maxReceiverCount:
             int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
-        status: status.index,
+        status: status?.index ?? task.value?.status,
         // 服务器端从jwt中获取并设置
         // organizationId: Int64.ZERO
       ),
@@ -212,7 +219,7 @@ class TaskInfoController extends GetxController {
     );
   }
 
-  NewYooWorkTask _newYooWorkTask(SystemTaskStatus status) {
+  NewYooWorkTask _newYooWorkTask(SystemTaskStatus? status) {
     return NewYooWorkTask(
       task: NewWorkTask(
         name: taskNameController.text,
@@ -229,10 +236,11 @@ class TaskInfoController extends GetxController {
         creditsStrategy: taskCreditStrategy.value.index,
         submitCycle: taskSubmitCycleStrategy.value.index,
         receiveDeadline:
-            parseDateTimeFromSecond(taskReceiveDeadlineController.text) ?? Int64.ZERO,
+            parseDateTimeFromSecond(taskReceiveDeadlineController.text) ??
+            Int64.ZERO,
         maxReceiverCount:
             int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
-        status: status.index,
+        status: status?.index,
       ),
 
       common: CommonYooWorkTask(

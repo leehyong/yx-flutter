@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
@@ -11,11 +13,14 @@ import 'views/home_view.dart';
 import 'views/profile_view.dart';
 
 class RootTabController extends GetxController {
-  // static GlobalKey<NavigatorState> rootTabKey = GlobalKey<NavigatorState>();
+  // GlobalKey， 使用GlobalKey， 可以让showGeneralDialog不需要每次都传递BuildContext对象
   final rootTabKey = GlobalKey<ScaffoldState>();
   final curTab = 1.obs;
   final menuOpen = false.obs;
-  final _modifyCategories = <ModifyWarningCategory>{}.obs;
+  // LinkedHashMap 保证插入顺序，以便函数按照正确的顺序执行
+  final _modifyCategories =
+      (LinkedHashMap<VoidFutureCallBack, HashSet<ModifyWarningCategory>>())
+          .obs;
 
   static RootTabController get to => Get.find();
   static List menus = [
@@ -50,69 +55,105 @@ class RootTabController extends GetxController {
   void toggleMenuOpen() => menuOpen.value = !menuOpen.value;
 
   List<String> get modifyCategories {
-    final cats = _modifyCategories.map((m) => m.index).toList();
-    cats.sort();
-    return cats.map((i) => ModifyWarningCategory.values[i].i18name).toList();
+    final cats =
+        _modifyCategories.value.values.fold(<ModifyWarningCategory>{}, (
+          prev,
+          item,
+        ) {
+          prev.addAll(item);
+          return prev;
+        }).toList();
+    cats.sort((a, b) => a.index.compareTo(b.index));
+    return cats.map((i) => i.i18name).toList();
   }
 
   @override
   void onClose() {}
 
   void setTabIdx(int idx) {
-    warnConfirmModifying(() async {
-      curTab.value = idx;
-      clearModifications();
-    });
+    // bugfix： 确认和取消时， 不知道 具体业务逻辑是什么。
+    warnConfirmModifying(
+      finalCb: () async {
+        curTab.value = idx;
+        clearModifications();
+      },
+    );
   }
 
   void clearModifications() {
-    _modifyCategories.value = {};
+    _modifyCategories.value.clear();
   }
 
-  void addModification(ModifyWarningCategory modification) {
-    _modifyCategories.value.add(modification);
+  void addModification(
+    VoidFutureCallBack cb,
+    ModifyWarningCategory modification,
+  ) {
+    _modifyCategories.value.putIfAbsent(cb, () => HashSet()).add(modification);
   }
 
-  Future<void> warnConfirmModifying(VoidFutureCallBack cb) async {
+  Future<void> warnConfirmModifying({
+    VoidFutureCallBack? cancelCb,
+    VoidFutureCallBack? finalCb,
+  }) async {
     if (modifyCategories.isEmpty) {
-      return cb();
-    }
-    showGeneralDialog(
-      context: rootTabKey.currentContext!,
-      pageBuilder: (
-        BuildContext buildContext,
-        Animation<double> animation,
-        Animation<double> secondaryAnimation,
-      ) {
-        return TDAlertDialog(
-          title: "以下信息有修改, 确定保存吗？",
-          contentWidget: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children:
-                modifyCategories
-                    .map(
-                      (cat) => Text(
-                        cat,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: warningColor,
-                          fontWeight: FontWeight.bold,
+      // if (confirmCb != null) {
+      //   await confirmCb();
+      // }
+      if (finalCb != null) {
+        await finalCb();
+      }
+    } else {
+      showGeneralDialog(
+        context: rootTabKey.currentContext!,
+        pageBuilder: (
+          BuildContext buildContext,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return TDAlertDialog(
+            title: "以下信息有修改, 确定保存吗？",
+            contentWidget: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children:
+                  modifyCategories
+                      .map(
+                        (cat) => Text(
+                          cat,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: warningColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(),
-          ),
-          leftBtnAction: () {
-            Navigator.of(buildContext).pop();
-          },
-          rightBtnAction: () async {
-            await cb();
-            if (buildContext.mounted) {
-              Navigator.of(buildContext).pop();
-            }
-          },
-        );
-      },
-    );
+                      )
+                      .toList(),
+            ),
+            leftBtnAction: () async {
+              if (cancelCb != null) {
+                await cancelCb();
+              }
+              if (buildContext.mounted) {
+                Navigator.of(buildContext).pop();
+              }
+              if (finalCb != null) {
+                await finalCb();
+              }
+            },
+            rightBtnAction: () async {
+              // 逐个调用所有确认时的函数
+              for (var fn in _modifyCategories.value.keys) {
+                await fn.call();
+              }
+              if (buildContext.mounted) {
+                Navigator.of(buildContext).pop();
+              }
+              if (finalCb != null) {
+                await finalCb();
+              }
+            },
+          );
+        },
+      );
+    }
   }
 }

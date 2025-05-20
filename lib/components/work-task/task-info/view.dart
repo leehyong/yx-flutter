@@ -89,10 +89,20 @@ class TaskInfoView extends GetView<TaskInfoController> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        final taskListController = Get.find<TaskListController>();
-        // 返回时， 重设上次选择的任务类型
-        taskListController.curCat.value = {publishTaskParams.catList};
+        if (!didPop) {
+          final taskListController = Get.find<TaskListController>();
+          // 返回时， 重设上次选择的任务类型
+          controller.rootTabController.warnConfirmModifying(
+            finalCb: () async {
+              taskListController.curCat.value = {publishTaskParams.catList};
+              // 清空该告警信息，以免重复提示
+              controller.rootTabController.clearModifications();
+              Navigator.of(context).pop();
+            },
+          );
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -124,9 +134,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
   Widget _buildTaskInfoView(BuildContext context) {
     return Form(
       key: controller.formKey,
-      child: Obx(
-        () => RepaintBoundary(
-          child: Column(
+      child: RepaintBoundary(
+        child: Obx(
+          () => Column(
             children: [
               Align(
                 alignment: Alignment.topLeft,
@@ -268,7 +278,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
           onPressed: () {
             debugPrint("草稿");
             centerLoadingModal(context, () async {
-              await controller.saveTask(SystemTaskStatus.initial);
+              await controller.saveTask(status: SystemTaskStatus.initial);
             });
           },
           child: const Text("存为草稿"),
@@ -285,7 +295,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
             debugPrint("发布");
             bool success = false;
             centerLoadingModal(context, () async {
-              success = await controller.saveTask(SystemTaskStatus.published);
+              success = await controller.saveTask(
+                status: SystemTaskStatus.published,
+              );
             }).then((v) {
               if (success && context.mounted) {
                 Navigator.of(context).maybePop();
@@ -501,6 +513,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
         }
         return null;
       },
+      onChanged: (_) {
+        controller.saveModification(ModifyWarningCategory.basic);
+      },
     );
   }
 
@@ -537,6 +552,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
         }
         return null;
       },
+      onChanged: (_) {
+        controller.saveModification(ModifyWarningCategory.basic);
+      },
     );
   }
 
@@ -570,6 +588,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
             validator: (v) {
               // 暂不需要验证
               return null;
+            },
+            onChanged: (_) {
+              controller.saveModification(ModifyWarningCategory.basic);
             },
           ),
         ),
@@ -609,6 +630,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
           return;
         }
         controller.taskSubmitCycleStrategy.value = v!;
+        controller.saveModification(ModifyWarningCategory.basic);
       },
     );
   }
@@ -638,6 +660,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                   return;
                 }
                 controller.taskCreditStrategy.value = v!;
+                controller.saveModification(ModifyWarningCategory.basic);
               },
             ),
           ),
@@ -655,6 +678,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
             validator: (v) {
               // 暂不需要验证
               return null;
+            },
+            onChanged: (v) {
+              controller.saveModification(ModifyWarningCategory.basic);
             },
           ),
         ),
@@ -676,6 +702,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
       validator: (v) {
         // 暂不需要验证
         return null;
+      },
+      onChanged: (v) {
+        controller.saveModification(ModifyWarningCategory.basic);
       },
     );
   }
@@ -777,12 +806,23 @@ class TaskInfoView extends GetView<TaskInfoController> {
                         icon: Text("确定", style: TextStyle(color: Colors.blue)),
                         // icon: Text("确定"),
                         onPressed: () {
-                          controller.checkedTaskUsers.value =
+                          final old = controller.checkedTaskUsers.value ?? [];
+                          final new_ =
                               controller
                                   .selectTaskUsersKey
                                   .currentState
                                   ?.selectedUsers ??
                               [];
+                          if (old
+                              .map((u) => u.id)
+                              .toSet()
+                              .difference(new_.map((u) => u.id).toSet())
+                              .isNotEmpty) {
+                            controller.saveModification(
+                              ModifyWarningCategory.basic,
+                            );
+                          }
+                          controller.checkedTaskUsers.value = new_;
                           Navigator.of(modalSheetContext).maybePop();
                         },
                       ),
@@ -833,6 +873,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                 if (controller.readOnly) {
                   return;
                 }
+                controller.saveModification(ModifyWarningCategory.basic);
                 controller.taskReceiveStrategy.value = v!;
               },
             ),
@@ -864,6 +905,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
             validator: (v) {
               // 暂不需要验证
               return null;
+            },
+            onChanged: (v) {
+              controller.saveModification(ModifyWarningCategory.basic);
             },
           ),
         ),
@@ -901,6 +945,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
               }
               return null;
             },
+            onChanged: (v) {
+              controller.saveModification(ModifyWarningCategory.basic);
+            },
           ),
         ),
         Expanded(
@@ -934,6 +981,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
                 return "结束日期不小于开始日期";
               }
               return null;
+            },
+            onChanged: (v) {
+              controller.saveModification(ModifyWarningCategory.basic);
             },
           ),
         ),
