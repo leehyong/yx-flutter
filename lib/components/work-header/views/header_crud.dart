@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
 import 'package:yx/api/header_api.dart' as header_api;
+import 'package:yx/components/work-task/task-info/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -169,6 +171,10 @@ class PublishItemsViewSimpleCrudState
       });
     }
     _resetNodeState();
+    // 保存变更，以后弹窗提醒
+    Get.find<TaskInfoController>().saveModification(
+      ModifyWarningCategory.header,
+    );
   }
 
   void _setCurEditingNode(TreeNode<WorkHeader> node) {

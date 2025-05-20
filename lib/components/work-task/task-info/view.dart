@@ -98,7 +98,6 @@ class TaskInfoView extends GetView<TaskInfoController> {
             finalCb: () async {
               taskListController.curCat.value = {publishTaskParams.catList};
               // 清空该告警信息，以免重复提示
-              controller.rootTabController.clearModifications();
               Navigator.of(context).pop();
             },
           );
@@ -630,7 +629,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
           return;
         }
         controller.taskSubmitCycleStrategy.value = v!;
-        controller.saveModification(ModifyWarningCategory.basic);
+        controller.saveModification(ModifyWarningCategory.options);
       },
     );
   }
@@ -660,7 +659,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                   return;
                 }
                 controller.taskCreditStrategy.value = v!;
-                controller.saveModification(ModifyWarningCategory.basic);
+                controller.saveModification(ModifyWarningCategory.options);
               },
             ),
           ),
@@ -819,7 +818,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                               .difference(new_.map((u) => u.id).toSet())
                               .isNotEmpty) {
                             controller.saveModification(
-                              ModifyWarningCategory.basic,
+                              ModifyWarningCategory.participant,
                             );
                           }
                           controller.checkedTaskUsers.value = new_;
@@ -894,6 +893,8 @@ class TaskInfoView extends GetView<TaskInfoController> {
               controller
                   .taskReceiveDeadlineController
                   .text = defaultDateTimeFormat1.format(date);
+              controller.saveModification(ModifyWarningCategory.dateTime);
+
               // debugPrint("selectdt${date.toIso8601String()}");
             },
             controller: controller.taskReceiveDeadlineController,
@@ -907,7 +908,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
               return null;
             },
             onChanged: (v) {
-              controller.saveModification(ModifyWarningCategory.basic);
+              controller.saveModification(ModifyWarningCategory.dateTime);
             },
           ),
         ),
@@ -928,6 +929,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
               DateTime date = await showCusDatePicker(context, dt: dt);
               controller.taskPlanStartDtController.text = defaultDateFormat
                   .format(date);
+              controller.saveModification(ModifyWarningCategory.date);
             },
             keyboardType: TextInputType.datetime,
             controller: controller.taskPlanStartDtController,
@@ -946,7 +948,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
               return null;
             },
             onChanged: (v) {
-              controller.saveModification(ModifyWarningCategory.basic);
+              controller.saveModification(ModifyWarningCategory.date);
             },
           ),
         ),
@@ -963,6 +965,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
               DateTime date = await showCusDatePicker(context, dt: dt);
               controller.taskPlanEndDtController.text = defaultDateFormat
                   .format(date);
+              controller.saveModification(ModifyWarningCategory.date);
             },
 
             keyboardType: TextInputType.datetime,
@@ -983,7 +986,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
               return null;
             },
             onChanged: (v) {
-              controller.saveModification(ModifyWarningCategory.basic);
+              controller.saveModification(ModifyWarningCategory.dateTime);
             },
           ),
         ),

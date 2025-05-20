@@ -5,9 +5,9 @@ import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/types.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../../../types.dart';
 import '../controller.dart';
 import '../data.dart';
 

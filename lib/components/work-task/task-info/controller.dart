@@ -183,6 +183,7 @@ class TaskInfoController extends GetxController {
         okToast("发布成功");
       }
       saving.value = false;
+      rootTabController.clearModifications();
       return success;
     }
   }
@@ -277,6 +278,17 @@ class SubmitTasksController extends GetxController {
       _buildLeafSubmitItemTextEditingController(taskSubmitItems.value ?? []);
       isLoadingSubmitItem.value = DataLoadingStatus.loaded;
     });
+  }
+
+  Future<void> saveTaskContent() async {
+    //   todo: 调用相关接口
+  }
+
+  void saveModification() {
+    Get.find<RootTabController>().addModification(
+      saveTaskContent,
+      ModifyWarningCategory.submitContent,
+    );
   }
 
   void _buildLeafSubmitItemTextEditingController(List<CusYooHeader> headers) {

@@ -251,6 +251,10 @@ class _MobileSubmitWorkHeaderItemView
                     }
                     return null;
                   },
+                  onChanged: (_) {
+                    // 保存变更，以便提示
+                    controller.submitTasksController.saveModification();
+                  },
                 ),
       ),
     );
@@ -296,6 +300,10 @@ class _WebSubmitWorkHeaderItemView
                 return "该项不能空";
               }
               return null;
+            },
+            onChanged: (_) {
+              // 保存变更，以便提示
+              controller.submitTasksController.saveModification();
             },
           );
     }
@@ -363,6 +371,10 @@ class _WebSubmitWorkHeaderItemView
                     return "该项不能空";
                   }
                   return null;
+                },
+                onChanged: (_){
+                  // 保存变更，以便提示
+                  controller.submitTasksController.saveModification();
                 },
               ),
         ],

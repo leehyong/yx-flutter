@@ -160,7 +160,12 @@ extension TaskCreditStrategyExtension on TaskCreditStrategy {
 }
 
 class WorkTaskPageParams {
-  const WorkTaskPageParams(this.parentId, this.task, this.catList, {this.opCat});
+  const WorkTaskPageParams(
+    this.parentId,
+    this.task,
+    this.catList, {
+    this.opCat,
+  });
 
   final Int64 parentId;
   final WorkTask? task;
@@ -254,9 +259,8 @@ extension TaskTextTypeExtension on TaskTextType {
 
 enum TaskInfoAction { detail, write, submit, delegate, submitDetail }
 
-
 // 顺序跟服务端的保持一致
-enum SystemTaskStatus{
+enum SystemTaskStatus {
   // 初始
   initial,
   // 已启动
@@ -273,25 +277,36 @@ enum SystemTaskStatus{
   published,
 }
 
-
 enum ModifyWarningCategory {
   basic,
-  header,
+  dateTime,
+  date,
+  participant,
+  options,
   parent,
+  header,
   submitContent,
 }
 
-extension ExtensionModifyWarningCategory on ModifyWarningCategory{
-  String get i18name{
-    switch(this){
+extension ExtensionModifyWarningCategory on ModifyWarningCategory {
+  String get i18name {
+    switch (this) {
       case ModifyWarningCategory.basic:
         return "基本信息";
+      case ModifyWarningCategory.options:
+        return "选项";
+      case ModifyWarningCategory.dateTime:
+        return "时间";
+      case ModifyWarningCategory.date:
+        return "日期";
       case ModifyWarningCategory.header:
         return "填报项";
       case ModifyWarningCategory.parent:
         return "父任务";
       case ModifyWarningCategory.submitContent:
         return "内容";
+      case ModifyWarningCategory.participant:
+        return "参与人员";
     }
   }
 }

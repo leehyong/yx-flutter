@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 
 import '../work-task/task-info/controller.dart';
@@ -114,6 +115,10 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                                       .currentState!
                                       .allCheckedNode,
                                 );
+                            // 保存变更，以后弹窗提醒
+                            Get.find<TaskInfoController>().saveModification(
+                              ModifyWarningCategory.header,
+                            );
                             Navigator.of(modalSheetContext).maybePop();
                           },
                         ),
