@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'controller.dart';
 
-class RootView extends GetView<RootController> {
+class RootView extends GetView<RootTabController> {
   const RootView({super.key});
 
   @override
@@ -54,7 +54,7 @@ class RootWebMenuView extends GetView<RootTabController> {
         elevation: 2,
         extended: controller.menuOpen.value,
         selectedIndex: RootTabController.to.curTab.value,
-        onDestinationSelected: (idx) => RootTabController.to.setTabIdx(idx),
+        onDestinationSelected: (idx) => controller.setTabIdx(idx),
       ),
     );
   }
@@ -75,7 +75,7 @@ class RootMobileBottomTabView extends GetView<RootTabController> {
           currentIndex: controller.curTab.value,
           // 点击事件,获取当前点击的标签下标
           onTap: (index) {
-            RootTabController.to.setTabIdx(index);
+            controller.setTabIdx(index);
           },
           iconSize: 30.0,
           fixedColor: Colors.red,

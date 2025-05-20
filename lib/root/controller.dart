@@ -7,8 +7,6 @@ import 'views/hall_view.dart';
 import 'views/home_view.dart';
 import 'views/profile_view.dart';
 
-class RootController extends GetxController {}
-
 class RootTabController extends GetxController {
   final curTab = 1.obs;
   final menuOpen = false.obs;
