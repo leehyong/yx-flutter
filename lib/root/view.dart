@@ -9,15 +9,16 @@ class RootView extends GetView<RootTabController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: controller.rootTabKey,
       body:
           GetPlatform.isWeb
               ? Row(
                 children: [
                   RootWebMenuView(),
-                  Expanded(child: Obx(() => RootTabController.to.curTabView)),
+                  Expanded(child: Obx(() => controller.curTabView)),
                 ],
               )
-              : Obx(() => RootTabController.to.curTabView),
+              : Obx(() => controller.curTabView),
       bottomNavigationBar:
           GetPlatform.isMobile ? RootMobileBottomTabView() : null,
     );

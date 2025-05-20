@@ -272,3 +272,26 @@ enum SystemTaskStatus{
   //已发布
   published,
 }
+
+
+enum ModifyWarningCategory {
+  basic,
+  header,
+  parent,
+  submitContent,
+}
+
+extension ExtensionModifyWarningCategory on ModifyWarningCategory{
+  String get i18name{
+    switch(this){
+      case ModifyWarningCategory.basic:
+        return "基本信息";
+      case ModifyWarningCategory.header:
+        return "填报项";
+      case ModifyWarningCategory.parent:
+        return "父任务";
+      case ModifyWarningCategory.submitContent:
+        return "内容";
+    }
+  }
+}
