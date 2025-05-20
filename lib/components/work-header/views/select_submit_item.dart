@@ -17,10 +17,10 @@ class SelectSubmitItemView extends StatefulWidget {
   final Int64 taskId;
 
   @override
-  State<StatefulWidget> createState() => SelectSubmitItemStateView();
+  State<StatefulWidget> createState() => SelectSubmitItemViewState();
 }
 
-class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
+class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
   final TreeNode<CheckableWorkHeader> _checkableTree =
       TreeNode<CheckableWorkHeader>.root();
 
@@ -65,7 +65,7 @@ class SelectSubmitItemStateView extends State<SelectSubmitItemView> {
     }
   }
 
-  SelectSubmitItemStateView() {
+  SelectSubmitItemViewState() {
     // 初始化数据
     var idx = 0;
     WorkHeader header;

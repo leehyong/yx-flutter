@@ -483,6 +483,12 @@ class PublishItemsViewSimpleCrudState
   }
 
   @override
+  void initState() {
+    super.initState();
+    debugPrint("PublishItemsViewSimpleCrudState initState");
+  }
+
+  @override
   void dispose() {
     super.dispose();
     debugPrint("PublishItemsViewSimpleCrudState dispose");
