@@ -481,4 +481,14 @@ class PublishItemsViewSimpleCrudState
       ],
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    debugPrint("PublishItemsViewSimpleCrudState dispose");
+    // 避免存在空节点
+    if (_isEditingNode != null && _isEditingNode?.data?.name == '') {
+      _isEditingNode!.delete();
+    }
+  }
 }
