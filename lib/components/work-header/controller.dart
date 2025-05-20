@@ -4,11 +4,8 @@ import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:yt_dart/cus_header.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
-import 'package:yx/api/header_api.dart' as header_api;
 import 'package:yx/types.dart';
-import 'package:yx/utils/common_util.dart';
 
 import '../work-task/task-info/controller.dart';
 import 'views/header_crud.dart';
@@ -35,33 +32,16 @@ class PublishItemsCrudController extends GetxController {
     ever(getTaskInfoController.taskId, (taskId) {
       debugPrint("PublishItemsCrudController-getTaskInfoController: $taskId");
       // 不管如何taskId都变化了， 那么就需要把整棵树都清空，再重新构造这棵树
-      WidgetsBinding.instance.addPostFrameCallback((f){
-        itemsSimpleCrudKey.currentState?.clearAllNodes();
-        if (taskId > Int64.ZERO) {
-          header_api.queryWorkHeaders(taskId).then((v) {
-            if (v?.isNotEmpty ?? false) {
-              _buildAnimatedTreeViewData(v!);
-            }
-          });
-        }
-      });
+      // WidgetsBinding.instance.addPostFrameCallback((f){
+      //   itemsSimpleCrudKey.currentState?.clearAllNodes();
+      //   if (taskId > Int64.ZERO) {
+      //
+      //   }
+      // });
     });
   }
 
-  void _buildAnimatedTreeViewData(List<CusYooHeader> headers) {
-    // dfs 遍历获取所有的 TreeNode
-    TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(CusYooHeader tree) {
-      final node = TreeNode(key: treeNodeKey(tree.node.id), data: tree.node);
-      node.addAll(
-        tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
-      );
-      return node;
-    }
 
-    itemsSimpleCrudKey.currentState?.addNodesToRoot(
-      headers.map((item) => innerBuildAnimatedTreeViewData(item)),
-    );
-  }
 
   List<Int64> get taskHeaderIds {
     final headerIds = <Int64>[];

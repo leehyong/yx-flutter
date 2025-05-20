@@ -4,6 +4,7 @@ import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yt_dart/cus_header.pbserver.dart';
 import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
@@ -39,6 +40,21 @@ class PublishItemsViewSimpleCrudState
   TreeNode<WorkHeader>? _isEditingNode;
   WorkHeader? _isEditingNodeData;
   TreeNode<WorkHeader>? _isNewNode;
+
+  void _buildAnimatedTreeViewData(List<CusYooHeader> headers) {
+    // dfs 遍历获取所有的 TreeNode
+    TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(CusYooHeader tree) {
+      final node = TreeNode(key: treeNodeKey(tree.node.id), data: tree.node);
+      node.addAll(
+        tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),
+      );
+      return node;
+    }
+
+    addNodesToRoot(
+      headers.map((item) => innerBuildAnimatedTreeViewData(item)),
+    );
+  }
 
   void addNodesToRoot(Iterable<TreeNode<WorkHeader>> nodes) {
     if (widget.readOnly) {
@@ -486,6 +502,20 @@ class PublishItemsViewSimpleCrudState
   void initState() {
     super.initState();
     debugPrint("PublishItemsViewSimpleCrudState initState");
+    final taskInfoController =  Get.find<TaskInfoController>();
+    if (taskInfoController.taskId.value > Int64.ZERO) {
+      header_api.queryWorkHeaders(taskInfoController.taskId.value).then((v) {
+        if (v?.isNotEmpty ?? false) {
+          _buildAnimatedTreeViewData(v!);
+        }else{
+          // 清空数据
+          widget.submitItemAnimatedTreeData.clear();
+        }
+      });
+    }else{
+      // 清空数据
+      widget.submitItemAnimatedTreeData.clear();
+    }
   }
 
   @override
