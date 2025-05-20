@@ -98,6 +98,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
             finalCb: () async {
               taskListController.curCat.value = {publishTaskParams.catList};
               // 清空该告警信息，以免重复提示
+              controller.rootTabController.clearModifications();
               Navigator.of(context).pop();
             },
           );
@@ -277,7 +278,10 @@ class TaskInfoView extends GetView<TaskInfoController> {
           onPressed: () {
             debugPrint("草稿");
             centerLoadingModal(context, () async {
-              await controller.saveTask(status: SystemTaskStatus.initial);
+              await controller.saveTask(
+                status: SystemTaskStatus.initial,
+                clearModifications: true,
+              );
             });
           },
           child: const Text("存为草稿"),
@@ -296,6 +300,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
             centerLoadingModal(context, () async {
               success = await controller.saveTask(
                 status: SystemTaskStatus.published,
+                clearModifications: true,
               );
             }).then((v) {
               if (success && context.mounted) {

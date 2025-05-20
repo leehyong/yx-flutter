@@ -158,7 +158,7 @@ class TaskInfoController extends GetxController {
 
   final childrenTask = <WorkTask>[].obs;
 
-  Future<bool> saveTask({SystemTaskStatus? status}) async {
+  Future<bool> saveTask({SystemTaskStatus? status, bool clearModifications=false}) async {
     if (saving.value) {
       // 限流，避免重复点击
       EasyThrottle.throttle("save-task", Duration(seconds: 1), () {
@@ -183,7 +183,10 @@ class TaskInfoController extends GetxController {
         okToast("发布成功");
       }
       saving.value = false;
-      rootTabController.clearModifications();
+      if (clearModifications) {
+        // WidgetsBinding.instance.addPostFrameCallback((d){});
+        rootTabController.clearModifications();
+      }
       return success;
     }
   }
