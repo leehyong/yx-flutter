@@ -85,7 +85,7 @@ WorkHeader newEmptyWorkHeader({String? name}) {
   final id = Int64(DateTime.now().microsecondsSinceEpoch);
   final key = "$id$innerNodeKey";
   return WorkHeader(
-    name: "子项-${name ?? key}",
+    name: name == null ? '': "子项-$name",
     id: id,
     contentType: unknownValue,
     open: Random().nextInt(TaskOpenRange.values.length),
@@ -93,12 +93,12 @@ WorkHeader newEmptyWorkHeader({String? name}) {
   );
 }
 
-TreeNode<WorkHeader> newEmptyHeaderTree({String? name, WorkHeader? data}) {
+TreeNode<WorkHeader> newEmptyHeaderTree({WorkHeader? data}) {
   String key;
   if (data == null) {
     final id = Int64(DateTime.now().microsecondsSinceEpoch);
     key = "$id$innerNodeKey";
-    data = newEmptyWorkHeader(name: name);
+    data = newEmptyWorkHeader();
   } else {
     key = "${data.id}$innerNodeKey";
   }

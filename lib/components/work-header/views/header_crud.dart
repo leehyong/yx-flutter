@@ -301,10 +301,24 @@ class PublishItemsViewSimpleCrudState
             children: [
               TextField(
                 controller:
-                    TextEditingController()..text = _isEditingNodeData!.name,
+                    TextEditingController()
+                      ..text = _isEditingNodeData!.name,
                 decoration: InputDecoration(
                   labelText: "填报项名称",
+                  hintText: '请输入填报项名称',
                   icon: Icon(Icons.text_snippet_outlined),
+                  suffixIcon: InkWell(
+                    onTap: () {
+                      _isEditingNodeData!.name = '';
+                    },
+                    child: Tooltip(
+                      message: "内容清除",
+                      child: Icon(
+                        Icons.remove,
+                        color: Colors.red.withAlpha(180),
+                      ),
+                    ),
+                  ),
                 ),
                 onChanged: (v) {
                   _isEditingNodeData!.name = v;
