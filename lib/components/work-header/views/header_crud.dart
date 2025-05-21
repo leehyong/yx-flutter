@@ -51,9 +51,7 @@ class PublishItemsViewSimpleCrudState
       return node;
     }
 
-    addNodesToRoot(
-      headers.map((item) => innerBuildAnimatedTreeViewData(item)),
-    );
+    addNodesToRoot(headers.map((item) => innerBuildAnimatedTreeViewData(item)));
   }
 
   void addNodesToRoot(Iterable<TreeNode<WorkHeader>> nodes) {
@@ -98,7 +96,7 @@ class PublishItemsViewSimpleCrudState
     // 调用接口去删除节点
     assert(node.isLeaf);
     centerLoadingModal(context, () async {
-      header_api.deleteWorkHeader(node.data!.id).then((err) {
+      header_api.deleteWorkHeader(curTaskId, node.data!.id).then((err) {
         // 数据库返回删除成功时，才删除改节点
         if (err?.isEmpty ?? true) {
           node.delete();
@@ -132,6 +130,8 @@ class PublishItemsViewSimpleCrudState
   WorkHeader _deepCopyNodeData(WorkHeader data) =>
       WorkHeader.fromJson(data.writeToJson());
 
+  Int64 get curTaskId => Get.find<TaskInfoController>().taskId.value;
+
   void _confirmEditing(TreeNode<WorkHeader> node) {
     if (widget.readOnly) {
       return;
@@ -150,10 +150,15 @@ class PublishItemsViewSimpleCrudState
         open: node.data!.open,
         required: node.data!.required,
       );
-
+      // 新增时保存变更，以后弹窗提醒
+      if (curTaskId <= Int64.ZERO){
+        Get.find<TaskInfoController>().saveModification(
+          ModifyWarningCategory.header,
+        );
+      }
       // 调用新增接口， 把数据存下来, 删除新当前节点，并重新在父节点上增加一个新节点
       centerLoadingModal(context, () async {
-        header_api.newWorkHeader(parentId, data).then((headerId) {
+        header_api.newWorkHeader(curTaskId, parentId, data).then((headerId) {
           final newNode = TreeNode(
             key: treeNodeKey(headerId),
             data: WorkHeader(
@@ -187,10 +192,6 @@ class PublishItemsViewSimpleCrudState
       });
     }
     _resetNodeState();
-    // 保存变更，以后弹窗提醒
-    Get.find<TaskInfoController>().saveModification(
-      ModifyWarningCategory.header,
-    );
   }
 
   void _setCurEditingNode(TreeNode<WorkHeader> node) {
@@ -317,8 +318,7 @@ class PublishItemsViewSimpleCrudState
             children: [
               TextField(
                 controller:
-                    TextEditingController()
-                      ..text = _isEditingNodeData!.name,
+                    TextEditingController()..text = _isEditingNodeData!.name,
                 decoration: InputDecoration(
                   labelText: "填报项名称",
                   hintText: '请输入填报项名称',
@@ -502,17 +502,17 @@ class PublishItemsViewSimpleCrudState
   void initState() {
     super.initState();
     debugPrint("PublishItemsViewSimpleCrudState initState");
-    final taskInfoController =  Get.find<TaskInfoController>();
+    final taskInfoController = Get.find<TaskInfoController>();
     if (taskInfoController.taskId.value > Int64.ZERO) {
       header_api.queryWorkHeaders(taskInfoController.taskId.value).then((v) {
         if (v?.isNotEmpty ?? false) {
           _buildAnimatedTreeViewData(v!);
-        }else{
+        } else {
           // 清空数据
           widget.submitItemAnimatedTreeData.clear();
         }
       });
-    }else{
+    } else {
       // 清空数据
       widget.submitItemAnimatedTreeData.clear();
     }

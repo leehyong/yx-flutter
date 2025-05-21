@@ -25,11 +25,16 @@ Future<List<CusYooHeader>?> queryWorkHeaders(Int64? taskId) async {
   }
 }
 
-Future<Int64> newWorkHeader(Int64 parent, NewWorkHeader data) async {
+Future<Int64> newWorkHeader(
+  Int64 taskId,
+  Int64 parent,
+  NewWorkHeader data,
+) async {
   try {
     final resp = await HttpDioService.instance.dio.post<String>(
       "$apiContextPath/work-header/$parent",
       data: encodeProtoData(data),
+      queryParameters: {"task_id": taskId},
     );
     return handleProtoCommonInstanceVoForMsgIncludeInt64(
           resp,
@@ -55,10 +60,11 @@ Future<String?> updateWorkHeader(Int64 id, UpdateWorkHeader data) async {
   }
 }
 
-Future<String?> deleteWorkHeader(Int64 id) async {
+Future<String?> deleteWorkHeader(Int64 taskId, Int64 id) async {
   try {
     final resp = await HttpDioService.instance.dio.delete<String>(
       "$apiContextPath/work-header/$id",
+      queryParameters: {"task_id": taskId},
     );
     return handleProtoCommonInstanceVo(resp);
   } catch (e) {
