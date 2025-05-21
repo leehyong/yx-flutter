@@ -503,18 +503,13 @@ class PublishItemsViewSimpleCrudState
     super.initState();
     debugPrint("PublishItemsViewSimpleCrudState initState");
     final taskInfoController = Get.find<TaskInfoController>();
+    widget.submitItemAnimatedTreeData.clear();
     if (taskInfoController.taskId.value > Int64.ZERO) {
       header_api.queryWorkHeaders(taskInfoController.taskId.value).then((v) {
         if (v?.isNotEmpty ?? false) {
           _buildAnimatedTreeViewData(v!);
-        } else {
-          // 清空数据
-          widget.submitItemAnimatedTreeData.clear();
         }
       });
-    } else {
-      // 清空数据
-      widget.submitItemAnimatedTreeData.clear();
     }
   }
 
