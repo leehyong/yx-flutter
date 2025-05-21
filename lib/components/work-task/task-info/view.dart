@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -89,45 +88,47 @@ class TaskInfoView extends GetView<TaskInfoController> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          final taskListController = Get.find<TaskListController>();
-          // 返回时， 重设上次选择的任务类型
-          controller.rootTabController.warnConfirmModifying(
-            finalCb: () async {
-              taskListController.curCat.value = {publishTaskParams.catList};
-              // 清空该告警信息，以免重复提示
-              controller.rootTabController.clearModifications();
-              controller.resetAll();
-              Navigator.of(context).pop();
-            },
-          );
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: title,
-          actions: [
-            if (opCategory == TaskOperationCategory.submitTask)
-              ElevatedButton(
-                onPressed: () {
-                  debugPrint("提交");
-                },
-                // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
-                child: Row(children: [const Text('提交'), Icon(Icons.check)]),
-              ),
-          ],
-        ),
-
-        body: Padding(
-          padding: EdgeInsets.only(
-            left: 4,
-            right: 4,
-            bottom: isBigScreen(context) ? 10 : 4,
+    return _DisposeSecondLayerHelper(
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            final taskListController = Get.find<TaskListController>();
+            // 返回时， 重设上次选择的任务类型
+            controller.rootTabController.warnConfirmModifying(
+              finalCb: () async {
+                // taskListController.curCat.value = {publishTaskParams.catList};
+                // 清空该告警信息，以免重复提示
+                controller.rootTabController.clearModifications();
+                controller.resetAll();
+                Navigator.of(context).pop();
+              },
+            );
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: title,
+            actions: [
+              if (opCategory == TaskOperationCategory.submitTask)
+                ElevatedButton(
+                  onPressed: () {
+                    debugPrint("提交");
+                  },
+                  // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
+                  child: Row(children: [const Text('提交'), Icon(Icons.check)]),
+                ),
+            ],
           ),
-          child: _buildTaskInfoView(context),
+
+          body: Padding(
+            padding: EdgeInsets.only(
+              left: 4,
+              right: 4,
+              bottom: isBigScreen(context) ? 10 : 4,
+            ),
+            child: _buildTaskInfoView(context),
+          ),
         ),
       ),
     );
@@ -205,7 +206,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
         switch (first) {
           case TaskAttributeCategory.childrenTask:
             commonSetTaskListInfo(
-              parentId: controller.parentTask.value?.id ?? Int64.ZERO,
+              parentId: controller.taskId.value,
               defaultCat: TaskListCategory.childrenTaskInfo,
             );
             break;
@@ -221,7 +222,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
         //   Get.find<PublishItemsCrudController>().curTaskId = c
         // }
       },
-      selected: controller.selectedAttrSet.value,
+      selected: controller.selectedAttrSet,
       multiSelectionEnabled: false,
     );
   }
@@ -1020,4 +1021,31 @@ class TaskInfoView extends GetView<TaskInfoController> {
     // return GetBuilder(builder: (controller) => Column(children: widgets));
     return Column(children: widgets);
   }
+}
+
+class _DisposeSecondLayerHelper extends StatefulWidget {
+  const _DisposeSecondLayerHelper({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  _DisposeSecondLayerHelperState createState() =>
+      _DisposeSecondLayerHelperState();
+}
+
+class _DisposeSecondLayerHelperState extends State<_DisposeSecondLayerHelper> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((v) {
+      Get.find<TaskListController>().removeSecondLayer();
+    });
+  }
+
+  // late final TreeNode<WorkHeader>  widget.submitItemAnimatedTreeData ;
 }

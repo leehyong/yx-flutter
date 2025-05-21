@@ -19,15 +19,14 @@ class PageReq {
   PageReq({this.limit = 10});
 }
 
-class TaskListController extends GetxController {
+class TaskListLayer {
   final curCat = <TaskListCategory>{}.obs;
   final tasks = <WorkTask>[].obs;
   final isLoading = false.obs;
   final tabChanging = false.obs;
-
   final pageReq = PageReq();
-  final smartRefreshKey = GlobalKey<SmartRefresherState>();
   final parentId = Int64.ZERO.obs;
+  final smartRefreshKey = GlobalKey<SmartRefresherState>();
 
   void reset() {
     pageReq.hasMore.value = true;
@@ -35,44 +34,10 @@ class TaskListController extends GetxController {
     tasks.value = [];
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    ever(curCat, (v) {
-      if (v.isNotEmpty) {
-        tabChanging.value = true;
-        reset();
-        loadTaskList().then((v) {
-          Future.delayed(Duration(milliseconds: 100), () {
-            tabChanging.value = false;
-          });
-        });
-      }
-    });
-  }
-
-  void setTaskListInfo({
-    Int64 parentId = Int64.ZERO,
-    TaskListCategory defaultCat = TaskListCategory.allPublished,
-  }) {
-    curCat.value = {defaultCat};
-    this.parentId.value = parentId;
-  }
-
-  Future<void> deleteOneTask(Int64 id) async {
-    final err = await task_api.deleteWorkTask(id);
-    if (err == null) {
-      // 剔除对应id的任务，保留其余的任务
-      tasks.value = tasks.value.where((e) => e.id != id).toList();
-      // final refreshController = smartRefreshKey.currentState?.widget.controller;
-      // refreshController?.requestLoading();
-    }
-  }
-
   Future<void> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
     final cat =
-        parentId.value < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
+    parentId.value < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
     final refreshController = smartRefreshKey.currentState?.widget.controller;
     if (!pageReq.hasMore.value) {
       warnToast("没有更多数据了");
@@ -110,10 +75,73 @@ class TaskListController extends GetxController {
   }
 }
 
+class TaskListController extends GetxController {
+  final _layers = <TaskListLayer>[TaskListLayer()].obs;
+
+  bool isSecondLayer(TaskListCategory cat) => {
+    TaskListCategory.parentTaskInfo,
+    TaskListCategory.childrenTaskInfo,
+  }.contains(cat);
+
+  // 不是第一层就是第二层
+  bool isFirstLayer(TaskListCategory cat) => !isSecondLayer(cat);
+
+  int layerIdx(TaskListCategory cat) => isFirstLayer(cat) ? 0 : 1;
+
+  TaskListLayer get curLayer => _layers.last;
+
+  bool get inSecondLayer => _layers.length == 2;
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(curLayer.curCat, (v) {
+      if (v.isNotEmpty) {
+        curLayer.tabChanging.value = true;
+        curLayer.reset();
+        curLayer.loadTaskList().then((v) {
+          Future.delayed(Duration(milliseconds: 100), () {
+            curLayer.tabChanging.value = false;
+          });
+        });
+      }
+    });
+  }
+
+
+  void setSecondLayerTaskListInfo({
+    Int64 parentId = Int64.ZERO,
+    TaskListCategory defaultCat = TaskListCategory.allPublished,
+  }) {
+    if (!isSecondLayer(defaultCat)) {
+      return;
+    }
+    if (_layers.length == 1) {
+      _layers.add(TaskListLayer());
+    }
+    curLayer.curCat.value = {defaultCat};
+    curLayer.parentId.value = parentId;
+  }
+
+  void removeSecondLayer(){
+    if (inSecondLayer) {
+      _layers.removeLast();
+    }
+  }
+
+  Future<void> deleteOneTask(Int64 id) async {
+    final err = await task_api.deleteWorkTask(id);
+    if (err == null) {
+      // 剔除对应id的任务，保留其余的任务
+      curLayer.tasks.value = curLayer.tasks.value.where((e) => e.id != id).toList();
+    }
+  }
+}
+
 class CommonTaskListView extends GetView<TaskListController> {
   CommonTaskListView({super.key, required this.cats}) {
     assert(cats.isNotEmpty);
-    controller.curCat.value = {cats.first};
+    controller.curLayer.curCat.value = {cats.first};
   }
 
   final List<TaskListCategory> cats;
@@ -151,9 +179,9 @@ class CommonTaskListView extends GetView<TaskListController> {
                           )
                           .toList(),
                   onSelectionChanged: (s) {
-                    controller.curCat.value = s;
+                    controller.curLayer.curCat.value = s;
                   },
-                  selected: controller.curCat.value,
+                  selected: controller.curLayer.curCat.value,
                   multiSelectionEnabled: false,
                 ),
               ),
@@ -170,7 +198,7 @@ void commonSetTaskListInfo({
   Int64 parentId = Int64.ZERO,
   TaskListCategory defaultCat = TaskListCategory.allPublished,
 }) {
-  Get.find<TaskListController>().setTaskListInfo(
+  Get.find<TaskListController>().setSecondLayerTaskListInfo(
     parentId: parentId,
     defaultCat: defaultCat,
   );

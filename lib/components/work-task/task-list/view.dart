@@ -21,7 +21,7 @@ class TaskListView extends GetView<TaskListController> {
   Widget build(BuildContext context) {
     return Obx(
       () =>
-          controller.tabChanging.value
+          controller.curLayer.tabChanging.value
               ? _buildLoading(context)
               : LayoutBuilder(
                 builder: (ctx, constraints) {
@@ -49,14 +49,14 @@ class TaskListView extends GetView<TaskListController> {
 
   Widget _buildRefresher(BuildContext context, int crossCount) {
     return SmartRefresher(
-      key: controller.smartRefreshKey,
+      key: controller.curLayer.smartRefreshKey,
       enablePullDown: true,
       enablePullUp: true,
       header: WaterDropHeader(),
-      onLoading: controller.loadTaskList,
+      onLoading: controller.curLayer.loadTaskList,
       onRefresh: () async {
-        controller.reset();
-        await controller.loadTaskList();
+        controller.curLayer.reset();
+        await controller.curLayer.loadTaskList();
       },
       footer: CustomFooter(
         builder: (BuildContext context, LoadStatus? mode) {
@@ -90,12 +90,12 @@ class TaskListView extends GetView<TaskListController> {
   Widget _buildTaskList(BuildContext context, int crossCount) {
     return Obx(
       () =>
-          controller.tasks.isEmpty
+          controller.curLayer.tasks.isEmpty
               ? Column(children: [emptyWidget(context)])
               : GridView.builder(
                 primary: true,
                 shrinkWrap: true,
-                itemCount: controller.tasks.value.length,
+                itemCount: controller.curLayer.tasks.value.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossCount,
                   crossAxisSpacing: crossCount == 1 ? 0 : 6,
@@ -103,11 +103,11 @@ class TaskListView extends GetView<TaskListController> {
                   childAspectRatio: crossCount == 1 ? 2 : 1.6,
                 ),
                 itemBuilder: (BuildContext context, int index) {
-                  final task = controller.tasks.value[index];
+                  final task = controller.curLayer.tasks.value[index];
                   return OneTaskCardView(
                     key: ValueKey(task.id),
                     task: task,
-                    taskCategory: controller.curCat.value.first,
+                    taskCategory: controller.curLayer.curCat.value.first,
                   );
                 },
               ),
@@ -215,7 +215,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           }
           final routeId = Get.find<RootTabController>().curRouteId;
           final args = WorkTaskPageParams(
-            Get.find<TaskListController>().parentId.value,
+            Get.find<TaskListController>().curLayer.parentId.value,
             task,
             taskCategory,
             opCat: op,
