@@ -26,7 +26,7 @@ class TaskListView extends GetView<TaskListController> {
               : LayoutBuilder(
                 builder: (ctx, constraints) {
                   final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
-                  return _buildTaskList(context, crossCount);
+                  return _buildRefresher(context, crossCount);
                 },
               ),
     );
@@ -88,26 +88,30 @@ class TaskListView extends GetView<TaskListController> {
   }
 
   Widget _buildTaskList(BuildContext context, int crossCount) {
-    return controller.tasks.isEmpty
-        ? Column(children: [emptyWidget(context)])
-        : GridView.builder(
-          primary: true,
-          shrinkWrap: true,
-          itemCount: controller.tasks.value.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossCount,
-            crossAxisSpacing: crossCount == 1 ? 0 : 6,
-            mainAxisSpacing: 1,
-            childAspectRatio: crossCount == 1 ? 2 : 1.6,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            return OneTaskCardView(
-              key: ValueKey(controller.tasks.value[index].id),
-              task: controller.tasks.value[index],
-              taskCategory: controller.curCat.value.first,
-            );
-          },
-        );
+    return Obx(
+      () =>
+          controller.tasks.isEmpty
+              ? Column(children: [emptyWidget(context)])
+              : GridView.builder(
+                primary: true,
+                shrinkWrap: true,
+                itemCount: controller.tasks.value.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossCount,
+                  crossAxisSpacing: crossCount == 1 ? 0 : 6,
+                  mainAxisSpacing: 1,
+                  childAspectRatio: crossCount == 1 ? 2 : 1.6,
+                ),
+                itemBuilder: (BuildContext context, int index) {
+                  final task = controller.tasks.value[index];
+                  return OneTaskCardView(
+                    key: ValueKey(task.id),
+                    task: task,
+                    taskCategory: controller.curCat.value.first,
+                  );
+                },
+              ),
+    );
   }
 }
 
