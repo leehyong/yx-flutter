@@ -64,6 +64,8 @@ class TaskListController extends GetxController {
     if (err == null) {
       // 剔除对应id的任务，保留其余的任务
       tasks.value = tasks.value.where((e) => e.id != id).toList();
+      // final refreshController = smartRefreshKey.currentState?.widget.controller;
+      // refreshController?.requestLoading();
     }
   }
 

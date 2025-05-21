@@ -20,88 +20,88 @@ class TaskListView extends GetView<TaskListController> {
   @override
   Widget build(BuildContext context) {
     final s = GetPlatform.isMobile ? 80.0 : 200.0;
-    return RepaintBoundary(
-      child: Obx(
-        () =>
-            controller.tabChanging.value
-                ? Center(
-                  child: SizedBox(
-                    height: s,
-                    width: s,
-                    child: LoadingIndicator(
-                      indicatorType: Indicator.lineSpinFadeLoader,
-                      colors: loadingColors,
-                      strokeWidth: 2,
-                    ),
+    return Obx(
+      () =>
+          controller.tabChanging.value
+              ? Center(
+                child: SizedBox(
+                  height: s,
+                  width: s,
+                  child: LoadingIndicator(
+                    indicatorType: Indicator.lineSpinFadeLoader,
+                    colors: loadingColors,
+                    strokeWidth: 2,
                   ),
-                )
-                : LayoutBuilder(
-                  builder: (ctx, constraints) {
-                    final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
-                    return SmartRefresher(
-                      key: controller.smartRefreshKey,
-                      enablePullDown: true,
-                      enablePullUp: true,
-                      header: WaterDropHeader(),
-                      onLoading: controller.loadTaskList,
-                      onRefresh: () async {
-                        controller.reset();
-                        await controller.loadTaskList();
-                      },
-                      footer: CustomFooter(
-                        builder: (BuildContext context, LoadStatus? mode) {
-                          Widget body;
-                          if (mode == LoadStatus.idle) {
-                            body = Text("上拉加载更多");
-                          } else if (mode == LoadStatus.loading) {
-                            body = LoadingIndicator(
-                              indicatorType: Indicator.audioEqualizer,
-
-                              /// Required, The loading type of the widget
-                              colors: loadingColors,
-                              strokeWidth: 2,
-                            );
-                          } else if (mode == LoadStatus.failed) {
-                            body = Text("加载失败，请重试");
-                          } else if (mode == LoadStatus.canLoading) {
-                            body = Text("释放加载更多");
-                          } else {
-                            return emptyWidget(context);
-                          }
-                          return SizedBox(
-                            height: 55.0,
-                            child: Center(child: body),
-                          );
-                        },
-                      ),
-                      controller: RefreshController(initialRefresh: false),
-                      // controller: controller.refreshController,
-                      child:
-                          controller.tasks.isEmpty
-                              ? Column(children: [emptyWidget(context)])
-                              : GridView.builder(
-                                primary: true,
-                                shrinkWrap: true,
-                                itemCount: controller.tasks.value.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: crossCount,
-                                      crossAxisSpacing: crossCount == 1 ? 0 : 6,
-                                      mainAxisSpacing: 1,
-                                      childAspectRatio:
-                                          crossCount == 1 ? 2 : 1.6,
-                                    ),
-                                itemBuilder: (BuildContext context, int index) {
-                                  return OneTaskCardView(
-                                    task: controller.tasks.value[index],
-                                    taskCategory: controller.curCat.value.first,
-                                  );
-                                },
-                              ),
-                    );
-                  },
                 ),
-      ),
+              )
+              : LayoutBuilder(
+                builder: (ctx, constraints) {
+                  final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
+                  return SmartRefresher(
+                    key: controller.smartRefreshKey,
+                    enablePullDown: true,
+                    enablePullUp: true,
+                    header: WaterDropHeader(),
+                    onLoading: controller.loadTaskList,
+                    onRefresh: () async {
+                      controller.reset();
+                      await controller.loadTaskList();
+                    },
+                    footer: CustomFooter(
+                      builder: (BuildContext context, LoadStatus? mode) {
+                        Widget body;
+                        if (mode == LoadStatus.idle) {
+                          body = Text("上拉加载更多");
+                        } else if (mode == LoadStatus.loading) {
+                          body = LoadingIndicator(
+                            indicatorType: Indicator.audioEqualizer,
+
+                            /// Required, The loading type of the widget
+                            colors: loadingColors,
+                            strokeWidth: 2,
+                          );
+                        } else if (mode == LoadStatus.failed) {
+                          body = Text("加载失败，请重试");
+                        } else if (mode == LoadStatus.canLoading) {
+                          body = Text("释放加载更多");
+                        } else {
+                          return emptyWidget(context);
+                        }
+                        return SizedBox(
+                          height: 55.0,
+                          child: Center(child: body),
+                        );
+                      },
+                    ),
+                    controller: RefreshController(initialRefresh: false),
+                    // controller: controller.refreshController,
+                    child:
+                        controller.tasks.isEmpty
+                            ? Column(children: [emptyWidget(context)])
+                            : GridView.builder(
+                              primary: true,
+                              shrinkWrap: true,
+                              itemCount: controller.tasks.value.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: crossCount,
+                                    crossAxisSpacing: crossCount == 1 ? 0 : 6,
+                                    mainAxisSpacing: 1,
+                                    childAspectRatio: crossCount == 1 ? 2 : 1.6,
+                                  ),
+                              itemBuilder: (BuildContext context, int index) {
+                                return OneTaskCardView(
+                                  key: ValueKey(
+                                    controller.tasks.value[index].id,
+                                  ),
+                                  task: controller.tasks.value[index],
+                                  taskCategory: controller.curCat.value.first,
+                                );
+                              },
+                            ),
+                  );
+                },
+              ),
     );
   }
 }
@@ -123,6 +123,9 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      // if (!controller.visible.value) {
+      //   return SizedBox.shrink();
+      // }
       final card = _buildCard(context);
       return controller.isDeleting.value
           ? _buildDeletingMask(context, card)
