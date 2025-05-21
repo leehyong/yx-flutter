@@ -13,7 +13,7 @@ Future<ProtoPageVo<UserTaskHistory>> queryWorkTasks(
   TaskListCategory cat,
   int page,
   int limit,
-  int parentId,
+    Int64 parentId,
 ) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
@@ -80,7 +80,7 @@ Future<String?> updateWorkTask(Int64 taskId, UpdateYooWorkTask data) async {
   }
 }
 
-Future<String?> deleteWorkTask(int id) async {
+Future<String?> deleteWorkTask(Int64 id) async {
   try {
     final resp = await HttpDioService.instance.dio.delete<String>(
       "$apiContextPath/work-task/$id",

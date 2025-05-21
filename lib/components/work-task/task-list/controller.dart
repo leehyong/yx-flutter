@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:get/get.dart';
+import 'package:yx/components/common.dart';
 
 class TimeLeftDetail {
   final int days;
@@ -20,8 +22,8 @@ class TimeLeftDetail {
 
 const left30Minutes = 1800;
 
-class OneTaskController extends GetxController {
-  OneTaskController({required this.deadline}) {
+class OneTaskCardController extends GetxController {
+  OneTaskCardController({required this.deadline}) {
     final nowTs = DateTime.now().toLocal().millisecondsSinceEpoch ~/ 1000;
     final _deadline = deadline;
     final _left = (_deadline - nowTs);
@@ -40,6 +42,8 @@ class OneTaskController extends GetxController {
   Timer? _timer = null;
   late final int deadline;
   final RxInt left = 0.obs;
+
+  final isDeleting = false.obs;
 
   // 启动倒计时
   void _startTimer() {
@@ -76,6 +80,14 @@ class OneTaskController extends GetxController {
       );
     }
     return TimeLeftDetail(left: 0);
+  }
+
+  Future<void> deleteTask(Int64 id) async {
+    isDeleting.value = true;
+    await Get.find<TaskListController>().deleteOneTask(id);
+    await Future.delayed(Duration(seconds: 1), () {
+      isDeleting.value = false;
+    });
   }
 
   // final selections = ['参与的','历史的', '委派的', '发布的'];

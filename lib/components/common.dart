@@ -1,3 +1,4 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -26,7 +27,7 @@ class TaskListController extends GetxController {
 
   final pageReq = PageReq();
   final smartRefreshKey = GlobalKey<SmartRefresherState>();
-  final parentId = 0.obs;
+  final parentId = Int64.ZERO.obs;
 
   void reset() {
     pageReq.hasMore.value = true;
@@ -51,11 +52,19 @@ class TaskListController extends GetxController {
   }
 
   void setTaskListInfo({
-    int parentId = 0,
+    Int64 parentId = Int64.ZERO,
     TaskListCategory defaultCat = TaskListCategory.allPublished,
   }) {
     curCat.value = {defaultCat};
     this.parentId.value = parentId;
+  }
+
+  Future<void> deleteOneTask(Int64 id) async {
+    final err = await task_api.deleteWorkTask(id);
+    if (err == null) {
+      // 剔除对应id的任务，保留其余的任务
+      tasks.value = tasks.value.where((e) => e.id != id).toList();
+    }
   }
 
   Future<void> loadTaskList() async {
@@ -156,7 +165,7 @@ class CommonTaskListView extends GetView<TaskListController> {
 }
 
 void commonSetTaskListInfo({
-  int parentId = 0,
+  Int64 parentId = Int64.ZERO,
   TaskListCategory defaultCat = TaskListCategory.allPublished,
 }) {
   Get.find<TaskListController>().setTaskListInfo(

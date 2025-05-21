@@ -1,4 +1,3 @@
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -83,7 +82,7 @@ class TaskListView extends GetView<TaskListController> {
                               : GridView.builder(
                                 primary: true,
                                 shrinkWrap: true,
-                                itemCount: controller.tasks.length,
+                                itemCount: controller.tasks.value.length,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: crossCount,
@@ -93,9 +92,9 @@ class TaskListView extends GetView<TaskListController> {
                                           crossCount == 1 ? 2 : 1.6,
                                     ),
                                 itemBuilder: (BuildContext context, int index) {
-                                  return OneTaskView(
-                                    task: controller.tasks[index],
-                                    taskCategory: controller.curCat.first,
+                                  return OneTaskCardView(
+                                    task: controller.tasks.value[index],
+                                    taskCategory: controller.curCat.value.first,
                                   );
                                 },
                               ),
@@ -107,10 +106,10 @@ class TaskListView extends GetView<TaskListController> {
   }
 }
 
-class OneTaskView extends GetView<OneTaskController> {
-  OneTaskView({super.key, required this.task, required this.taskCategory}) {
+class OneTaskCardView extends GetView<OneTaskCardController> {
+  OneTaskCardView({super.key, required this.task, required this.taskCategory}) {
     Get.put(
-      OneTaskController(deadline: task.receiveDeadline.toInt()),
+      OneTaskCardController(deadline: task.receiveDeadline.toInt()),
       tag: '${task.id}',
     );
   }
@@ -123,8 +122,52 @@ class OneTaskView extends GetView<OneTaskController> {
 
   @override
   Widget build(BuildContext context) {
+    return Obx(() {
+      final card = _buildCard(context);
+      return controller.isDeleting.value
+          ? _buildDeletingMask(context, card)
+          : card;
+    });
+  }
+
+  Widget _buildDeletingMask(BuildContext context, Widget card) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            RepaintBoundary(child: card),
+            Positioned(
+              left: 0,
+              top: 0,
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.withAlpha(140),
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: Center(
+                  child: SizedBox(
+                    height: constraints.maxHeight * 0.3,
+                    width: constraints.maxWidth * 0.3,
+                    child: LoadingIndicator(
+                      indicatorType: Indicator.lineScaleParty,
+                      colors: loadingColors,
+                      strokeWidth: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCard(BuildContext context) {
     return commonCard(
-      GestureDetector(
+      InkWell(
         onTap: () {
           TaskOperationCategory op;
           switch (taskCategory) {
@@ -160,7 +203,7 @@ class OneTaskView extends GetView<OneTaskController> {
           }
           final routeId = Get.find<RootTabController>().curRouteId;
           final args = WorkTaskPageParams(
-            Int64(Get.find<TaskListController>().parentId.value),
+            Get.find<TaskListController>().parentId.value,
             task,
             taskCategory,
             opCat: op,
@@ -261,6 +304,15 @@ class OneTaskView extends GetView<OneTaskController> {
                         size: 20,
                         color: Colors.yellow,
                       ),
+                      if (taskCategory == TaskListCategory.myManuscript) ...[
+                        const SizedBox(width: 4),
+                        InkWell(
+                          onTap: () async {
+                            await controller.deleteTask(task.id);
+                          },
+                          child: Icon(Icons.close, color: Colors.red),
+                        ),
+                      ],
                     ],
                   ),
                 ),

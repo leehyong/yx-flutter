@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -204,7 +205,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
         switch (first) {
           case TaskAttributeCategory.childrenTask:
             commonSetTaskListInfo(
-              parentId: controller.parentTask.value?.id.toInt() ?? 0,
+              parentId: controller.parentTask.value?.id ?? Int64.ZERO,
               defaultCat: TaskListCategory.childrenTaskInfo,
             );
             break;
@@ -450,7 +451,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                   return SizedBox(
                     width: width,
                     height: width * 0.4,
-                    child: OneTaskView(
+                    child: OneTaskCardView(
                       task: controller.parentTask.value!,
                       taskCategory: TaskListCategory.parentTaskInfo,
                     ),
