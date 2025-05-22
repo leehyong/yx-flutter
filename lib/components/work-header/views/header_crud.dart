@@ -19,13 +19,13 @@ import '../controller.dart';
 
 class PublishItemsViewSimpleCrud extends StatefulWidget {
   const PublishItemsViewSimpleCrud(
-    this.submitItemAnimatedTreeData,
+    this.rootSubmitItemAnimatedTreeData,
     this.readOnly, {
     super.key,
   });
 
   final bool readOnly;
-  final TreeNode<WorkHeader> submitItemAnimatedTreeData;
+  final TreeNode<WorkHeader> rootSubmitItemAnimatedTreeData;
 
   @override
   PublishItemsViewSimpleCrudState createState() =>
@@ -34,7 +34,7 @@ class PublishItemsViewSimpleCrud extends StatefulWidget {
 
 class PublishItemsViewSimpleCrudState
     extends State<PublishItemsViewSimpleCrud> {
-  // late final TreeNode<WorkHeader>  widget.submitItemAnimatedTreeData ;
+  // late final TreeNode<WorkHeader>  widget.rootSubmitItemAnimatedTreeData ;
   TreeViewController? treeViewController;
 
   TreeNode<WorkHeader>? _isEditingNode;
@@ -51,24 +51,24 @@ class PublishItemsViewSimpleCrudState
       return node;
     }
 
-    widget.submitItemAnimatedTreeData.addAll(
+    widget.rootSubmitItemAnimatedTreeData.addAll(
       headers.map((item) => innerBuildAnimatedTreeViewData(item)),
     );
-    // debugPrint(widget.submitItemAnimatedTreeData.toString());
+    // debugPrint(widget.rootSubmitItemAnimatedTreeData.toString());
   }
 
   void addNodesToRoot(Iterable<TreeNode<WorkHeader>> nodes) {
     if (widget.readOnly) {
       return;
     }
-    widget.submitItemAnimatedTreeData.addAll(nodes.toList());
+    widget.rootSubmitItemAnimatedTreeData.addAll(nodes.toList());
   }
 
   void clearAllNodes() {
     if (widget.readOnly) {
       return;
     }
-    widget.submitItemAnimatedTreeData.clear();
+    widget.rootSubmitItemAnimatedTreeData.clear();
   }
 
   void addChildToNode([TreeNode<WorkHeader>? node]) {
@@ -80,7 +80,7 @@ class PublishItemsViewSimpleCrudState
       treeViewController?.scrollToItem(_isEditingNode!);
     } else {
       final newNode = newEmptyHeaderTree();
-      (node ?? widget.submitItemAnimatedTreeData).add(newNode);
+      (node ?? widget.rootSubmitItemAnimatedTreeData).add(newNode);
       // 修改状态
       setState(() {
         _isEditingNode = newNode;
@@ -208,12 +208,12 @@ class PublishItemsViewSimpleCrudState
   }
 
   void expandAllChildren() {
-    treeViewController?.expandAllChildren(widget.submitItemAnimatedTreeData);
+    treeViewController?.expandAllChildren(widget.rootSubmitItemAnimatedTreeData);
   }
 
   void collapseAllChildren() {
     if (treeViewController != null) {
-      for (var node in widget.submitItemAnimatedTreeData.children.values) {
+      for (var node in widget.rootSubmitItemAnimatedTreeData.children.values) {
         treeViewController?.collapseNode(node as ITreeNode);
       }
     }
@@ -224,7 +224,7 @@ class PublishItemsViewSimpleCrudState
     return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
       showRootNode: false,
       // focusToNewNode: true,
-      tree: widget.submitItemAnimatedTreeData,
+      tree: widget.rootSubmitItemAnimatedTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthers,
       expansionIndicatorBuilder:
           (ctx, node) =>
@@ -509,7 +509,7 @@ class PublishItemsViewSimpleCrudState
     super.initState();
     debugPrint("PublishItemsViewSimpleCrudState initState");
     final taskInfoController = Get.find<TaskInfoController>();
-    widget.submitItemAnimatedTreeData.clear();
+    widget.rootSubmitItemAnimatedTreeData.clear();
     if (taskInfoController.taskId.value > Int64.ZERO) {
       header_api.queryWorkHeaders(taskInfoController.taskId.value).then((v) {
         if (v?.isNotEmpty ?? false) {

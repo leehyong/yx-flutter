@@ -29,7 +29,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
         Expanded(
           child: RepaintBoundary(
             child: PublishItemsViewSimpleCrud(
-              controller.submitItemAnimatedTreeData,
+              controller.rootSubmitItemAnimatedTreeData,
               controller.readOnly,
               key: controller.itemsSimpleCrudKey,
             ),

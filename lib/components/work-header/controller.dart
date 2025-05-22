@@ -16,7 +16,7 @@ class PublishItemsCrudController extends GetxController {
   final expandAll = false.obs;
   final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
   final selectHeaderItemsKey = GlobalKey<SelectSubmitItemViewState>();
-  final submitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
+  final rootSubmitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
   final isSaving = false.obs;
 
   TaskInfoController get taskInfoController =>
@@ -37,7 +37,7 @@ class PublishItemsCrudController extends GetxController {
       }
     }
 
-    headerId(submitItemAnimatedTreeData);
+    headerId(rootSubmitItemAnimatedTreeData);
     return headerIds;
   }
 }
