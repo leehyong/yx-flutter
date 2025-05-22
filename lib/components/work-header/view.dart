@@ -1,10 +1,12 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
+import 'package:yx/utils/common_widget.dart';
 
 import '../work-task/task-info/controller.dart';
 import 'controller.dart';
@@ -113,15 +115,16 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                             final taskId =
                                 controller.taskInfoController.taskId.value;
                             // 先清空旧的
-                            controller.itemsSimpleCrudKey.currentState?.clearAllNodes();
+                            controller.itemsSimpleCrudKey.currentState
+                                ?.clearAllNodes();
                             // 再设置现在选择的
                             controller.itemsSimpleCrudKey.currentState
                                 ?.addNodesToRoot(
-                              controller
-                                  .selectHeaderItemsKey
-                                  .currentState!
-                                  .allCheckedNode,
-                            );
+                                  controller
+                                      .selectHeaderItemsKey
+                                      .currentState!
+                                      .allCheckedNode,
+                                );
                             // 如果存在任务id， 则直接在确定的时候跟它进行绑定
                             if (taskId > Int64.ZERO) {
                               task_api
@@ -131,6 +134,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                                         .taskHeaderIds,
                                   )
                                   .then((err) {
+                                    controller.isSaving.value = false;
                                     if (err == null &&
                                         modalSheetContext.mounted) {
                                       // 如果任务出错，则需要手动关闭咯
@@ -154,13 +158,16 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                           constraints: BoxConstraints(
                             maxHeight: GetPlatform.isMobile ? 500 : 800,
                           ),
-                          child: GetBuilder(
-                            builder: (TaskInfoController ctor) {
-                              return SelectSubmitItemView(
-                                ctor.taskId.value,
-                                key: controller.selectHeaderItemsKey,
-                              );
-                            },
+                          child: Obx(
+                            () =>
+                                controller.isSaving.value
+                                    ? maskingOperation(
+                                      context,
+                                      _buildSelectSubmitItemView(context),
+                                      indicatorType:
+                                          Indicator.ballClipRotatePulse,
+                                    )
+                                    : _buildSelectSubmitItemView(context),
                           ),
                         ),
                       ),
@@ -187,4 +194,12 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
       ],
     );
   }
+
+  Widget _buildSelectSubmitItemView(BuildContext context) => GetBuilder(
+    builder:
+        (TaskInfoController ctor) => SelectSubmitItemView(
+          ctor.taskId.value,
+          key: controller.selectHeaderItemsKey,
+        ),
+  );
 }

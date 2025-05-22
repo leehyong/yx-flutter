@@ -17,6 +17,7 @@ class PublishItemsCrudController extends GetxController {
   final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
   final selectHeaderItemsKey = GlobalKey<SelectSubmitItemViewState>();
   final submitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
+  final isSaving = false.obs;
 
   TaskInfoController get taskInfoController =>
       Get.find<TaskInfoController>();

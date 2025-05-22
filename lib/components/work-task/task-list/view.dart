@@ -137,44 +137,9 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       // }
       final card = _buildCard(context);
       return controller.isDeleting.value
-          ? _buildDeletingMask(context, card)
+          ? maskingOperation(context, card)
           : card;
     });
-  }
-
-  Widget _buildDeletingMask(BuildContext context, Widget card) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Stack(
-          children: [
-            RepaintBoundary(child: card),
-            Positioned(
-              left: 0,
-              top: 0,
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.red.withAlpha(140),
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: Center(
-                  child: SizedBox(
-                    height: constraints.maxHeight * 0.3,
-                    width: constraints.maxWidth * 0.3,
-                    child: LoadingIndicator(
-                      indicatorType: Indicator.lineScaleParty,
-                      colors: loadingColors,
-                      strokeWidth: 1,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Widget _buildCard(BuildContext context) {

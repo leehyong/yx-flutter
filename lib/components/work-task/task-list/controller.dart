@@ -39,7 +39,7 @@ class OneTaskCardController extends GetxController {
 
   // 定时器
 
-  Timer? _timer = null;
+  Timer? _timer;
   late final int deadline;
   final RxInt left = 0.obs;
 
