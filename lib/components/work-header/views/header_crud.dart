@@ -41,7 +41,7 @@ class PublishItemsViewSimpleCrudState
   WorkHeader? _isEditingNodeData;
   TreeNode<WorkHeader>? _isNewNode;
 
-  void _buildAnimatedTreeViewData(List<CusYooHeader> headers) {
+  void _initAnimatedTreeViewData(List<CusYooHeader> headers) {
     // dfs 遍历获取所有的 TreeNode
     TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(CusYooHeader tree) {
       final node = TreeNode(key: treeNodeKey(tree.node.id), data: tree.node);
@@ -51,7 +51,10 @@ class PublishItemsViewSimpleCrudState
       return node;
     }
 
-    addNodesToRoot(headers.map((item) => innerBuildAnimatedTreeViewData(item)));
+    widget.submitItemAnimatedTreeData.addAll(
+      headers.map((item) => innerBuildAnimatedTreeViewData(item)),
+    );
+    // debugPrint(widget.submitItemAnimatedTreeData.toString());
   }
 
   void addNodesToRoot(Iterable<TreeNode<WorkHeader>> nodes) {
@@ -151,7 +154,7 @@ class PublishItemsViewSimpleCrudState
         required: node.data!.required,
       );
       // 新增时保存变更，以后弹窗提醒
-      if (curTaskId <= Int64.ZERO){
+      if (curTaskId <= Int64.ZERO) {
         Get.find<TaskInfoController>().saveModification(
           ModifyWarningCategory.header,
         );
@@ -222,7 +225,7 @@ class PublishItemsViewSimpleCrudState
       showRootNode: false,
       // focusToNewNode: true,
       tree: widget.submitItemAnimatedTreeData,
-      expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
+      expansionBehavior: ExpansionBehavior.collapseOthers,
       expansionIndicatorBuilder:
           (ctx, node) =>
               _isEditingNode == node
@@ -253,7 +256,7 @@ class PublishItemsViewSimpleCrudState
           child:
               _isEditingNode == node
                   ? _buildWritingItemHeader(context, node)
-                  : _buildReadonlyItemHeader(context, node),
+                  : _buildItemHeaderMaybeWithAction(context, node),
         );
       },
       onItemTap: (node) {
@@ -265,7 +268,10 @@ class PublishItemsViewSimpleCrudState
     );
   }
 
-  Widget _buildReadonlyItemHeader(BuildContext ctx, TreeNode<WorkHeader> node) {
+  Widget _buildItemHeaderMaybeWithAction(
+    BuildContext ctx,
+    TreeNode<WorkHeader> node,
+  ) {
     final item = Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -507,7 +513,9 @@ class PublishItemsViewSimpleCrudState
     if (taskInfoController.taskId.value > Int64.ZERO) {
       header_api.queryWorkHeaders(taskInfoController.taskId.value).then((v) {
         if (v?.isNotEmpty ?? false) {
-          _buildAnimatedTreeViewData(v!);
+          // WidgetsBinding.instance.addPostFrameCallback((_){
+          _initAnimatedTreeViewData(v!);
+          // });
         }
       });
     }

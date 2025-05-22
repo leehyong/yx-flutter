@@ -13,10 +13,10 @@ class SelectTaskPersonView extends StatefulWidget {
   const SelectTaskPersonView({super.key});
 
   @override
-  State<StatefulWidget> createState() => SelectTaskPersonState();
+  State<StatefulWidget> createState() => SelectTaskUserState();
 }
 
-class SelectTaskPersonState extends State<SelectTaskPersonView> {
+class SelectTaskUserState extends State<SelectTaskPersonView> {
   final TreeNode<CheckableOrganizationOrUser> _checkableTree =
       TreeNode<CheckableOrganizationOrUser>.root(
         data: CheckableOrganizationOrUser(newFakeEmptyOrg()),
@@ -29,7 +29,7 @@ class SelectTaskPersonState extends State<SelectTaskPersonView> {
   final selectedUsers = <User>[];
   final _searchNameController = TextEditingController();
 
-  SelectTaskPersonState() {
+  SelectTaskUserState() {
     // 初始化数据
     var idx = 0;
     TreeNode<CheckableOrganizationOrUser> cur = _checkableTree;

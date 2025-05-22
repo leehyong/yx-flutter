@@ -99,7 +99,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                         isTopBarLayerAlwaysVisible: true,
                         leadingNavBarWidget: IconButton(
                           padding: const EdgeInsets.all(4),
-                          icon: Text("重置"),
+                          icon: Text("取消"),
                           onPressed: () {
                             Navigator.of(modalSheetContext).pop();
                           },

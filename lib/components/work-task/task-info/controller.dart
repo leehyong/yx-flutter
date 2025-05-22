@@ -26,8 +26,8 @@ class TaskInfoController extends GetxController {
   final GlobalKey<SelectParentTaskState> selectParentTaskKey =
       GlobalKey<SelectParentTaskState>();
 
-  final GlobalKey<SelectTaskPersonState> selectTaskUsersKey =
-      GlobalKey<SelectTaskPersonState>();
+  final GlobalKey<SelectTaskUserState> selectTaskUsersKey =
+      GlobalKey<SelectTaskUserState>();
   final task = (null as WorkTask?).obs;
   final taskId = Int64.ZERO.obs;
   final parentTask = (null as WorkTask?).obs;
