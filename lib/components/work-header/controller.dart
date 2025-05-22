@@ -18,30 +18,10 @@ class PublishItemsCrudController extends GetxController {
   final selectHeaderItemsKey = GlobalKey<SelectSubmitItemViewState>();
   final submitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
 
-  TaskInfoController get getTaskInfoController =>
+  TaskInfoController get taskInfoController =>
       Get.find<TaskInfoController>();
 
-  bool get readOnly => getTaskInfoController.readOnly;
-
-  @override
-  void onInit() {
-    super.onInit();
-
-    // _buildSubmitItemsMap();
-    // 监听taskId， 如有变化，则重新加载表头
-    ever(getTaskInfoController.taskId, (taskId) {
-      debugPrint("PublishItemsCrudController-getTaskInfoController: $taskId");
-      // 不管如何taskId都变化了， 那么就需要把整棵树都清空，再重新构造这棵树
-      // WidgetsBinding.instance.addPostFrameCallback((f){
-      //   itemsSimpleCrudKey.currentState?.clearAllNodes();
-      //   if (taskId > Int64.ZERO) {
-      //
-      //   }
-      // });
-    });
-  }
-
-
+  bool get readOnly => taskInfoController.readOnly;
 
   List<Int64> get taskHeaderIds {
     final headerIds = <Int64>[];

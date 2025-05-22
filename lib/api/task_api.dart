@@ -80,6 +80,23 @@ Future<String?> updateWorkTask(Int64 taskId, UpdateYooWorkTask data) async {
   }
 }
 
+Future<String?> bindWorkTaskHeader(Int64 taskId, List<Int64> headerIds) async {
+  try {
+    final resp = await HttpDioService.instance.dio.put<String>(
+      "$apiContextPath/work-task/bind-header/$taskId",
+      data: encodeProtoData(UpdateYooWorkTask(common: CommonYooWorkTask(headerIds: headerIds))),
+    );
+    return handleProtoCommonInstanceVo(
+      resp,
+      toastSuccess: true,
+    );
+  } catch (e) {
+    debugPrint(e.toString());
+    return e.toString();
+  }
+
+}
+
 Future<String?> deleteWorkTask(Int64 id) async {
   try {
     final resp = await HttpDioService.instance.dio.delete<String>(

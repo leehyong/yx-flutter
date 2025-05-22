@@ -1,6 +1,8 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 
@@ -108,18 +110,44 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                           ),
                           // icon: Text("确定"),
                           onPressed: () {
+                            final taskId =
+                                controller.taskInfoController.taskId.value;
+                            // 先清空旧的
+                            controller.itemsSimpleCrudKey.currentState?.clearAllNodes();
+                            // 再设置现在选择的
                             controller.itemsSimpleCrudKey.currentState
                                 ?.addNodesToRoot(
-                                  controller
-                                      .selectHeaderItemsKey
-                                      .currentState!
-                                      .allCheckedNode,
-                                );
-                            // 保存变更，以后弹窗提醒
-                            Get.find<TaskInfoController>().saveModification(
-                              ModifyWarningCategory.header,
+                              controller
+                                  .selectHeaderItemsKey
+                                  .currentState!
+                                  .allCheckedNode,
                             );
-                            Navigator.of(modalSheetContext).maybePop();
+                            // 如果存在任务id， 则直接在确定的时候跟它进行绑定
+                            if (taskId > Int64.ZERO) {
+                              task_api
+                                  .bindWorkTaskHeader(
+                                    taskId,
+                                    Get.find<PublishItemsCrudController>()
+                                        .taskHeaderIds,
+                                  )
+                                  .then((err) {
+                                    if (err == null &&
+                                        modalSheetContext.mounted) {
+                                      // 如果任务出错，则需要手动关闭咯
+                                      Navigator.of(
+                                        modalSheetContext,
+                                      ).maybePop();
+                                    }
+                                  });
+                            } else {
+                              // 此时，就是新建的任务还没有保存，
+                              // 需要在保存的时候，跟它进行绑定
+                              // 保存变更，以后弹窗提醒
+                              controller.taskInfoController.saveModification(
+                                ModifyWarningCategory.header,
+                              );
+                              Navigator.of(modalSheetContext).maybePop();
+                            }
                           },
                         ),
                         child: ConstrainedBox(
