@@ -52,7 +52,8 @@ class PublishItemsViewSimpleCrudState
     }
 
     widget.rootSubmitItemAnimatedTreeData.addAll(
-      headers.map((item) => innerBuildAnimatedTreeViewData(item)),
+      // 必须使用toList，否则这棵树不会渲染出来
+      headers.map((item) => innerBuildAnimatedTreeViewData(item)).toList(),
     );
     // debugPrint(widget.rootSubmitItemAnimatedTreeData.toString());
   }
@@ -208,7 +209,9 @@ class PublishItemsViewSimpleCrudState
   }
 
   void expandAllChildren() {
-    treeViewController?.expandAllChildren(widget.rootSubmitItemAnimatedTreeData);
+    treeViewController?.expandAllChildren(
+      widget.rootSubmitItemAnimatedTreeData,
+    );
   }
 
   void collapseAllChildren() {
