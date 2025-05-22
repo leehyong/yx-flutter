@@ -4,8 +4,14 @@ import 'dart:math';
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:yt_dart/cus_header.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/api/header_api.dart' as header_api;
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import '../controller.dart';
@@ -23,6 +29,8 @@ class SelectSubmitItemView extends StatefulWidget {
 class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
   final TreeNode<CheckableWorkHeader> _checkableTree =
       TreeNode<CheckableWorkHeader>.root();
+
+  bool _loading = false;
 
   Iterable<TreeNode<WorkHeader>> get allCheckedNode sync* {
     final queue = Queue.from(_checkableTree.childrenAsList);
@@ -65,66 +73,100 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
     }
   }
 
-  SelectSubmitItemViewState() {
-    // 初始化数据
-    var idx = 0;
-    WorkHeader header;
-    TreeNode<CheckableWorkHeader> cur = _checkableTree;
-    while (idx < 100) {
-      header = newEmptyWorkHeader(name: idx.toString());
-      final node = TreeNode(data: CheckableWorkHeader(header));
-      cur.add(node);
-      if (Random().nextBool()) {
-        // 随机改变下次节点的父节点
-        cur = node;
-      } else {
-        cur = _checkableTree;
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _loading = true;
+    });
+    final taskHeaders =
+        Get.find<PublishItemsCrudController>().taskHeaderIds.toSet();
+    // 递归构建树节点
+    header_api.queryWorkHeaders().then((headers) {
+      for (var header in (headers ?? <CusYooHeader>[])) {
+        _buildTree(_checkableTree, header, taskHeaders);
       }
-      ++idx;
+      setState(() {
+        _loading = false;
+      });
+    });
+  }
+
+  void _buildTree(
+    TreeNode<CheckableWorkHeader> parent,
+    CusYooHeader header,
+    Set<Int64> taskHeaders,
+  ) {
+    final headerId = header.node.id;
+    final checked = taskHeaders.contains(headerId);
+    final node = TreeNode(
+      key: treeNodeKey(headerId),
+      data: CheckableWorkHeader(
+        header: header.node,
+        db: checked,
+        checked: checked,
+      ),
+    );
+    parent.add(node);
+    for (var child in header.children) {
+      _buildTree(node, child, taskHeaders);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return TreeView.simpleTyped<
-      CheckableWorkHeader,
-      TreeNode<CheckableWorkHeader>
-    >(
-      showRootNode: false,
-      tree: _checkableTree,
-      expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
-      expansionIndicatorBuilder:
-          (ctx, node) => ChevronIndicator.rightDown(
-            tree: node,
-            alignment: Alignment.centerLeft,
-            color: Colors.red,
+    return _loading
+        ? Center(
+          child: SizedBox(
+            width: 100,
+            height: 100,
+            child: LoadingIndicator(
+              indicatorType: Indicator.ballSpinFadeLoader,
+              /// Required, The loading type of the widget
+              colors: loadingColors,
+              strokeWidth: 2,
+            ),
           ),
-      shrinkWrap: true,
-      indentation: const Indentation(style: IndentStyle.roundJoint),
-      builder: (context, node) {
-        // 不显示根节点
-        if (node.key == INode.ROOT_KEY) {
-          return SizedBox.shrink();
-        }
-        final colorIdx =
-            Random(node.data!.header.id.toInt()).nextInt(10000) %
-            loadingColors.length;
-        // 把颜色做成随机透明的
-        // 区分编辑和只读
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 2),
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          decoration: BoxDecoration(
-            color: loadingColors[colorIdx].withAlpha(40),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: _buildReadonlyItemHeader(context, node),
+        )
+        : TreeView.simpleTyped<
+          CheckableWorkHeader,
+          TreeNode<CheckableWorkHeader>
+        >(
+          showRootNode: false,
+          tree: _checkableTree,
+          expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
+          expansionIndicatorBuilder:
+              (ctx, node) => ChevronIndicator.rightDown(
+                tree: node,
+                alignment: Alignment.centerLeft,
+                color: Colors.red,
+              ),
+          shrinkWrap: true,
+          indentation: const Indentation(style: IndentStyle.roundJoint),
+          builder: (context, node) {
+            // 不显示根节点
+            if (node.key == INode.ROOT_KEY) {
+              return SizedBox.shrink();
+            }
+            final colorIdx =
+                Random(node.data!.header.id.toInt()).nextInt(10000) %
+                loadingColors.length;
+            // 把颜色做成随机透明的
+            // 区分编辑和只读
+            return Container(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              decoration: BoxDecoration(
+                color: loadingColors[colorIdx].withAlpha(40),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: _buildReadonlyItemHeader(context, node),
+            );
+          },
+          onItemTap: (node) {
+            debugPrint("${node.level}");
+          },
         );
-      },
-      onItemTap: (node) {
-        debugPrint("${node.level}");
-      },
-    );
   }
 
   void _recursiveSelectNodes(TreeNode<CheckableWorkHeader> node, bool checked) {
@@ -163,12 +205,24 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
             children: [
               Tooltip(
                 message: node.data!.header.name,
-                child: Text(
-                  node.data!.header.name,
-                  style: TextStyle(
-                    fontSize: 18,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                child: Row(
+                  spacing: 4,
+                  children: [
+                    Text(
+                      node.data!.header.name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (node.data!.db)
+                      TDBadge(
+                        TDBadgeType.message,
+                        color: Colors.blue,
+                        textColor: Colors.white,
+                        message: "已有的",
+                      ),
+                  ],
                 ),
               ),
               SizedBox(height: 6),

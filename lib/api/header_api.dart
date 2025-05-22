@@ -9,7 +9,7 @@ import 'package:yx/utils/proto.dart';
 
 import 'codes.dart';
 
-Future<List<CusYooHeader>?> queryWorkHeaders(Int64? taskId) async {
+Future<List<CusYooHeader>?> queryWorkHeaders([Int64? taskId]) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
       "$apiContextPath/work-header/all",
