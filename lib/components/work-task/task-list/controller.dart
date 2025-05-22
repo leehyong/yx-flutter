@@ -1,7 +1,10 @@
 import 'dart:async';
 
-import 'package:fixnum/fixnum.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:toastification/toastification.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/components/common.dart';
 
 class TimeLeftDetail {
@@ -82,12 +85,45 @@ class OneTaskCardController extends GetxController {
     return TimeLeftDetail(left: 0);
   }
 
-  Future<void> deleteTask(Int64 id) async {
+  Future<void> deleteTask(WorkTask task, BuildContext context) async {
     isDeleting.value = true;
-    await Get.find<TaskListController>().deleteOneTask(id);
-    await Future.delayed(Duration(seconds: 1), () {
-      isDeleting.value = false;
-    });
+    // 弹窗确认之后，再调用接口进行删除
+    showGeneralDialog(
+      context: context,
+      pageBuilder: (
+          BuildContext buildContext,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          ) {
+        return TDAlertDialog(
+          title: "确定删除吗？",
+          contentWidget: Text(
+            task.name,
+            style: TextStyle(
+              fontSize: 16,
+              color: warningColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          leftBtnAction: () async {
+            isDeleting.value = false;
+            Navigator.of(buildContext).pop();
+          },
+          rightBtnAction: () async {
+            await Get.find<TaskListController>().deleteOneTask(task.id);
+            // delayed 延迟以便体现效果
+            await Future.delayed(Duration(milliseconds: 300), () {
+              isDeleting.value = false;
+            });
+            if (buildContext.mounted) {
+              Navigator.of(buildContext).pop();
+            }
+          },
+        );
+      },
+    );
+
+
   }
 
   // final selections = ['参与的','历史的', '委派的', '发布的'];

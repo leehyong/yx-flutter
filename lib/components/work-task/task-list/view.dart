@@ -285,7 +285,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
                         const SizedBox(width: 4),
                         InkWell(
                           onTap: () async {
-                            await controller.deleteTask(task.id);
+                            await controller.deleteTask(task, context);
                           },
                           child: Icon(Icons.close, color: Colors.red),
                         ),
