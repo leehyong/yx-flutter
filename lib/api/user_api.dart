@@ -80,10 +80,10 @@ Future<String> changePwd(String oldPwd, String pwd, {isLog = true}) async {
 }
 
 //
-Future<CusUserOrganization?> getOrganizationUsers() async {
+Future<CusUserOrganization?> getOrganizationUsers([bool all=true]) async {
   try {
     final resp = await HttpDioService.instance.dio.put<String>(
-      "$apiContextPath/org_user/all",
+      "$apiContextPath/org_user/all?all=$all",
     );
     return handleProtoInstanceVo<CusUserOrganization>(
       resp,
