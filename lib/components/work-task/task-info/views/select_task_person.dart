@@ -4,8 +4,13 @@ import 'dart:math';
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:yt_dart/cus_user_organization.pbserver.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/api/user_api.dart' as user_api;
+import 'package:yx/components/work-task/task-info/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 
@@ -21,66 +26,115 @@ class SelectTaskPersonView extends StatefulWidget {
 class SelectTaskUserState extends State<SelectTaskPersonView> {
   final TreeNode<CheckableOrganizationOrUser> _checkableTreeRoot =
       TreeNode<CheckableOrganizationOrUser>.root(
-        data: CheckableOrganizationOrUser(newFakeEmptyOrg()),
+        // data: CheckableOrganizationOrUser(newFakeEmptyOrg()),
       );
 
-  // 每个组织对应的用户
-  final _orgUsers = HashMap<Int64, List<User>>();
-
   // 已选择中用户
-  final selectedUsers = <User>[];
+  LinkedHashMap<Int64, User> selectedUsers = LinkedHashMap<Int64, User>();
   final _searchNameController = TextEditingController();
+  int _loading = 0;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    user_api.getOrganizationUsers().then((userOrgs) {
-      if (userOrgs != null) {
-        final id = userOrgs.organization.id;
-        _checkableTreeRoot.add(
-          TreeNode(key: treeNodeKey(id),
-              data: CheckableOrganizationOrUser(
-                  userOrgs.organization,
-              //     fixme:
-              )),
-        );
-      } else {
-        _checkableTreeRoot.clear();
-      }
+    setState(() {
+      _loading++;
     });
+    final taskInfoController = Get.find<TaskInfoController>();
+    task_api
+        .taskRelSelectedUsers(taskInfoController.taskId.value)
+        .then((v) {
+          setState(() {
+            selectedUsers = LinkedHashMap.fromIterable(
+              v.map((v) => MapEntry(v.id, v)).toList(),
+            );
+            _loading++;
+          });
+        })
+        .then((_) {
+          user_api.getOrganizationUsers().then((userOrg) {
+            if (userOrg != null) {
+              _buildCheckableUserOrganization(_checkableTreeRoot, userOrg);
+            } else {
+              _checkableTreeRoot.clear();
+            }
+            setState(() {
+              _loading++;
+            });
+          });
+        });
   }
 
-  SelectTaskUserState() {
-    // 初始化数据
-    var idx = 0;
-    TreeNode<CheckableOrganizationOrUser> cur = _checkableTreeRoot;
-    while (idx < 100) {
-      final isOrg = Random().nextBool();
-      Object data;
-      if (isOrg) {
-        data = newFakeEmptyOrg(name: idx.toString());
-      } else {
-        data = newFakeEmptyUser(name: idx.toString());
-        if (!_orgUsers.containsKey(cur.data!.id)) {
-          _orgUsers[cur.data!.id] = [];
-        }
-        // 记录每个组织的用户
-        _orgUsers[cur.data!.id]!.add(data as User);
-      }
-      final node = TreeNode(data: CheckableOrganizationOrUser(data));
-      cur.add(node);
-      if (isOrg) {
-        if (Random().nextBool()) {
-          // 随机改变下次节点的父节点
-          cur = node;
-        } else {
-          cur = _checkableTreeRoot;
-        }
-      }
-      ++idx;
+  void _buildCheckableUserOrganization(
+    TreeNode<CheckableOrganizationOrUser> parent,
+    CusUserOrganization userOrg,
+  ) {
+    final id = userOrg.organization.id;
+    final orgData = CheckableOrganizationOrUser(
+      userOrg.organization,
+      checked:
+          // 组织下的全部用户都选中时，该组织就显示为勾选状态，反之则不会
+          userOrg.users
+              .where((u) => selectedUsers.containsKey(u.id))
+              .toList()
+              .length ==
+          userOrg.users.length,
+    );
+    final parentOrgNode = TreeNode(
+      key: "org-${treeNodeKey(id)}",
+      data: orgData,
+    );
+    // 添加组织
+    parent.add(parentOrgNode);
+    // 添加该组织下的用户
+    for (var user in userOrg.users) {
+      final id = user.id;
+      parentOrgNode.add(
+        TreeNode(
+          key: "user-${treeNodeKey(id)}",
+          data: CheckableOrganizationOrUser(
+            user,
+            checked: selectedUsers.containsKey(id),
+          ),
+        ),
+      );
+    }
+    //  递归构建下级组织及其所属用户
+    for (var uo in userOrg.children) {
+      _buildCheckableUserOrganization(parentOrgNode, uo);
     }
   }
+
+  // SelectTaskUserState() {
+  //   // 初始化数据
+  //   var idx = 0;
+  //   TreeNode<CheckableOrganizationOrUser> cur = _checkableTreeRoot;
+  //   while (idx < 100) {
+  //     final isOrg = Random().nextBool();
+  //     Object data;
+  //     if (isOrg) {
+  //       data = newFakeEmptyOrg(name: idx.toString());
+  //     } else {
+  //       data = newFakeEmptyUser(name: idx.toString());
+  //       if (!_orgUsers.containsKey(cur.data!.id)) {
+  //         _orgUsers[cur.data!.id] = [];
+  //       }
+  //       // 记录每个组织的用户
+  //       _orgUsers[cur.data!.id]!.add(data as User);
+  //     }
+  //     final node = TreeNode(data: CheckableOrganizationOrUser(data));
+  //     cur.add(node);
+  //     if (isOrg) {
+  //       if (Random().nextBool()) {
+  //         // 随机改变下次节点的父节点
+  //         cur = node;
+  //       } else {
+  //         cur = _checkableTreeRoot;
+  //       }
+  //     }
+  //     ++idx;
+  //   }
+  // }
 
   void _recursiveCheckOneNodeByDfs(
     ITreeNode<CheckableOrganizationOrUser> node,
@@ -124,13 +178,27 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildSearchableTask(context),
-        SizedBox(height: 8),
-        Expanded(child: _buildSelectableTaskTree(context)),
-      ],
-    );
+    return _loading < 2
+        ? Center(
+          child: SizedBox(
+            width: 200,
+            height: 200,
+            child: LoadingIndicator(
+              indicatorType: Indicator.ballGridBeat,
+
+              /// Required, The loading type of the widget
+              colors: loadingColors,
+              strokeWidth: 2,
+            ),
+          ),
+        )
+        : Column(
+          children: [
+            _buildSearchableTask(context),
+            SizedBox(height: 8),
+            Expanded(child: _buildSelectableTaskTree(context)),
+          ],
+        );
   }
 
   Widget _buildSearchableTask(BuildContext context) {

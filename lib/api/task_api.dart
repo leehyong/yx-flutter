@@ -13,7 +13,7 @@ Future<ProtoPageVo<UserTaskHistory>> queryWorkTasks(
   TaskListCategory cat,
   int page,
   int limit,
-    Int64 parentId,
+  Int64 parentId,
 ) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
@@ -84,28 +84,27 @@ Future<String?> bindWorkTaskHeader(Int64 taskId, List<Int64> headerIds) async {
   try {
     final resp = await HttpDioService.instance.dio.put<String>(
       "$apiContextPath/work-task/bind-header/$taskId",
-      data: encodeProtoData(UpdateYooWorkTask(common: CommonYooWorkTask(headerIds: headerIds))),
+      data: encodeProtoData(
+        UpdateYooWorkTask(common: CommonYooWorkTask(headerIds: headerIds)),
+      ),
     );
-    return handleProtoCommonInstanceVo(
-      resp,
-      toastSuccess: true,
-    );
+    return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
     debugPrint(e.toString());
     return e.toString();
   }
 }
 
-Future<void> handleActionWorkTaskHeader(Int64 taskId, UserTaskAction  action) async {
+Future<void> handleActionWorkTaskHeader(
+  Int64 taskId,
+  UserTaskAction action,
+) async {
   try {
     final resp = await HttpDioService.instance.dio.put<String>(
       "$apiContextPath/work-task/action/$taskId",
       queryParameters: {"action": action.index},
     );
-    handleProtoCommonInstanceVo(
-      resp,
-      toastSuccess: true,
-    );
+    handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
     debugPrint(e.toString());
     return;
@@ -121,5 +120,21 @@ Future<String?> deleteWorkTask(Int64 id) async {
   } catch (e) {
     debugPrint(e.toString());
     return e.toString();
+  }
+}
+
+Future<List<User>> taskRelSelectedUsers(Int64 id) async {
+  try {
+    if (id < Int64(1)) {
+      return <User>[];
+    }
+    final resp = await HttpDioService.instance.dio.delete<String>(
+      "$apiContextPath/work-task/select-user/$id",
+    );
+    final data = handleProtoPageInstanceVo<User>(resp, User.fromBuffer);
+    return data.data ?? <User>[];
+  } catch (e) {
+    debugPrint(e.toString());
+    return <User>[];
   }
 }

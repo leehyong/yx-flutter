@@ -1,8 +1,10 @@
 import 'dart:math';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -813,23 +815,32 @@ class TaskInfoView extends GetView<TaskInfoController> {
                         icon: Text("确定", style: TextStyle(color: Colors.blue)),
                         // icon: Text("确定"),
                         onPressed: () {
-                          final old = controller.checkedTaskUsers.value ?? [];
+                          final old =
+                              controller.checkedTaskUsers.value ?? <User>[];
                           final new_ =
                               controller
                                   .selectTaskUsersKey
                                   .currentState
-                                  ?.selectedUsers ??
-                              [];
+                                  ?.selectedUsers
+                                  .keys
+                                  .toSet() ??
+                              <Int64>{};
                           if (old
                               .map((u) => u.id)
                               .toSet()
-                              .difference(new_.map((u) => u.id).toSet())
+                              .difference(new_)
                               .isNotEmpty) {
                             controller.saveModification(
                               ModifyWarningCategory.participant,
                             );
                           }
-                          controller.checkedTaskUsers.value = new_;
+                          controller.checkedTaskUsers.value =
+                              controller
+                                  .selectTaskUsersKey
+                                  .currentState
+                                  ?.selectedUsers
+                                  .values
+                                  .toList();
                           Navigator.of(modalSheetContext).maybePop();
                         },
                       ),
