@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:yt_dart/cus_user_organization.pb.dart';
 import 'package:yt_dart/login.pb.dart';
+import 'package:yx/services/http_service.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/proto.dart';
 import 'package:yx/vo/user_info_vo.dart';
-import 'package:yx/services/http_service.dart';
+
 import 'codes.dart';
 
 Future<String> getCaptchaCode(String key, int typ) async {
@@ -21,7 +23,7 @@ Future<String> getCaptchaCode(String key, int typ) async {
 Future<(bool, String)> captchaCodeApi(String key, int typ) async {
   final resp = await HttpDioService.instance.dio.post<String>(
     "$apiContextPath/captcha",
-    data:encodeProtoData(SendCaptcha(key: key, typ: typ)),
+    data: encodeProtoData(SendCaptcha(key: key, typ: typ)),
   );
   if (isOkResponse(resp)) {
     final captchaResp = decodeCommonVoDataFromResponse(resp);
@@ -33,14 +35,13 @@ Future<(bool, String)> captchaCodeApi(String key, int typ) async {
   }
 }
 
-
 Future<Response<String>> loginApi(
   String user,
   String pwd,
   String captcha,
 ) async => await HttpDioService.instance.dio.post<String>(
   "$apiContextPath/login",
-  data:encryptProtoData(
+  data: encryptProtoData(
     Login(captcha: captcha, userLogin: Login_UserLogin(name: user, pwd: pwd)),
   ),
 );
@@ -50,7 +51,6 @@ Future<Response<String>> refreshTokenApi(String token) async =>
       "$apiContextPath/token/refresh",
       data: encodeProtoData(LoginResponseVo(refreshToken: token)),
     );
-
 
 Future<String> login(String user, String pwd, String captcha) async {
   try {
@@ -80,6 +80,21 @@ Future<String> changePwd(String oldPwd, String pwd, {isLog = true}) async {
 }
 
 //
+Future<CusUserOrganization?> getOrganizationUsers() async {
+  try {
+    final resp = await HttpDioService.instance.dio.put<String>(
+      "$apiContextPath/org_user/all",
+    );
+    return handleProtoInstanceVo<CusUserOrganization>(
+      resp,
+      CusUserOrganization.fromBuffer,
+    ).$2;
+  } catch (e) {
+    debugPrint(e.toString());
+    return null;
+  }
+}
+
 Future<List<UserInfoVo>> getUserByOrgId(String orgId) async {
   return [];
   // try {

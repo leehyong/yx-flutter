@@ -5,7 +5,9 @@ import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/api/user_api.dart' as user_api;
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 
 import '../data.dart';
 
@@ -17,7 +19,7 @@ class SelectTaskPersonView extends StatefulWidget {
 }
 
 class SelectTaskUserState extends State<SelectTaskPersonView> {
-  final TreeNode<CheckableOrganizationOrUser> _checkableTree =
+  final TreeNode<CheckableOrganizationOrUser> _checkableTreeRoot =
       TreeNode<CheckableOrganizationOrUser>.root(
         data: CheckableOrganizationOrUser(newFakeEmptyOrg()),
       );
@@ -29,10 +31,30 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
   final selectedUsers = <User>[];
   final _searchNameController = TextEditingController();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    user_api.getOrganizationUsers().then((userOrgs) {
+      if (userOrgs != null) {
+        final id = userOrgs.organization.id;
+        _checkableTreeRoot.add(
+          TreeNode(key: treeNodeKey(id),
+              data: CheckableOrganizationOrUser(
+                  userOrgs.organization,
+              //     fixme:
+              )),
+        );
+      } else {
+        _checkableTreeRoot.clear();
+      }
+    });
+  }
+
   SelectTaskUserState() {
     // 初始化数据
     var idx = 0;
-    TreeNode<CheckableOrganizationOrUser> cur = _checkableTree;
+    TreeNode<CheckableOrganizationOrUser> cur = _checkableTreeRoot;
     while (idx < 100) {
       final isOrg = Random().nextBool();
       Object data;
@@ -53,7 +75,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
           // 随机改变下次节点的父节点
           cur = node;
         } else {
-          cur = _checkableTree;
+          cur = _checkableTreeRoot;
         }
       }
       ++idx;
@@ -128,7 +150,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
           onPressed: () {
             //   搜索用户
             _recursiveSearchUserNameByDfs(
-              _checkableTree,
+              _checkableTreeRoot,
               _searchNameController.text.trim(),
             );
           },
@@ -138,7 +160,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
           onPressed: () {
             //   重置用户
             _searchNameController.text = '';
-            _recursiveSearchUserNameByDfs(_checkableTree, '');
+            _recursiveSearchUserNameByDfs(_checkableTreeRoot, '');
           },
           label: Row(children: [const Icon(Icons.search), const Text("重置")]),
         ),
@@ -152,7 +174,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
       TreeNode<CheckableOrganizationOrUser>
     >(
       showRootNode: false,
-      tree: _checkableTree,
+      tree: _checkableTreeRoot,
       expansionBehavior: ExpansionBehavior.collapseOthersAndSnapToTop,
       expansionIndicatorBuilder:
           (ctx, node) => ChevronIndicator.rightDown(
