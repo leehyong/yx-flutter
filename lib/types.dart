@@ -310,3 +310,9 @@ extension ExtensionModifyWarningCategory on ModifyWarningCategory {
     }
   }
 }
+
+enum UserTaskAction {
+  claim,     // 领取
+  accept,      // 接受
+  refuse,     // 拒绝
+}

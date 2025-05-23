@@ -94,7 +94,22 @@ Future<String?> bindWorkTaskHeader(Int64 taskId, List<Int64> headerIds) async {
     debugPrint(e.toString());
     return e.toString();
   }
+}
 
+Future<void> handleActionWorkTaskHeader(Int64 taskId, UserTaskAction  action) async {
+  try {
+    final resp = await HttpDioService.instance.dio.put<String>(
+      "$apiContextPath/work-task/action/$taskId",
+      queryParameters: {"action": action.index},
+    );
+    handleProtoCommonInstanceVo(
+      resp,
+      toastSuccess: true,
+    );
+  } catch (e) {
+    debugPrint(e.toString());
+    return;
+  }
 }
 
 Future<String?> deleteWorkTask(Int64 id) async {

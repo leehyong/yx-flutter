@@ -458,6 +458,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           InkWell(
             onTap: () {
               debugPrint("领取${task.name}成功！");
+              controller.handleTaskAction(task.id, UserTaskAction.claim);
             },
             child: const Text(
               "领取",
@@ -533,6 +534,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           InkWell(
             onTap: () {
               debugPrint("拒绝${task.name}的子任务成功！");
+              controller.handleTaskAction(task.id, UserTaskAction.refuse);
             },
             child: Row(
               children: [
@@ -545,6 +547,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           InkWell(
             onTap: () {
               debugPrint("接受${task.name}成功！");
+              controller.handleTaskAction(task.id, UserTaskAction.accept);
             },
             child: Row(
               children: [

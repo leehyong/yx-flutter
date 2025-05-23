@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/components/common.dart';
+import 'package:yx/types.dart';
+import 'package:yx/api/task_api.dart' as task_api;
 
 class TimeLeftDetail {
   final int days;
@@ -47,6 +50,10 @@ class OneTaskCardController extends GetxController {
   final RxInt left = 0.obs;
 
   final isDeleting = false.obs;
+
+  Future<void> handleTaskAction(Int64 taskId, UserTaskAction action) async {
+    return task_api.handleActionWorkTaskHeader(taskId, action);
+  }
 
   // 启动倒计时
   void _startTimer() {
@@ -91,10 +98,10 @@ class OneTaskCardController extends GetxController {
     showGeneralDialog(
       context: context,
       pageBuilder: (
-          BuildContext buildContext,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-          ) {
+        BuildContext buildContext,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+      ) {
         return TDAlertDialog(
           title: "确定删除吗？",
           contentWidget: Text(
@@ -122,8 +129,6 @@ class OneTaskCardController extends GetxController {
         );
       },
     );
-
-
   }
 
   // final selections = ['参与的','历史的', '委派的', '发布的'];
