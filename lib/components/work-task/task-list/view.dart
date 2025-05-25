@@ -540,7 +540,8 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         children = [
           ...tips,
           const SizedBox(width: 2),
-          if (!controller.accepted)
+          if (!controller.accepted &&
+              task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index)
             InkWell(
               onTap: () {
                 debugPrint("领取${task.name}成功！");
@@ -610,36 +611,40 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         children = [];
         break;
       case TaskListCategory.delegatedToMe:
-        children = [
-          InkWell(
-            onTap: () {
-              debugPrint("拒绝${task.name}的子任务成功！");
-              controller.handleTaskAction(task.id, UserTaskAction.refuse);
-            },
-            child: Row(
-              children: [
-                const Icon(Icons.close),
-                const Text("拒绝", style: TextStyle(fontSize: 16)),
-              ],
+        if (task.receiveStrategy == ReceiveTaskStrategy.twoWaySelection.index) {
+          children = [
+            InkWell(
+              onTap: () {
+                debugPrint("拒绝${task.name}的子任务成功！");
+                controller.handleTaskAction(task.id, UserTaskAction.refuse);
+              },
+              child: Row(
+                children: [
+                  const Icon(Icons.close),
+                  const Text("拒绝", style: TextStyle(fontSize: 16)),
+                ],
+              ),
             ),
-          ),
-          Spacer(),
-          InkWell(
-            onTap: () {
-              debugPrint("接受${task.name}成功！");
-              controller.handleTaskAction(task.id, UserTaskAction.accept);
-            },
-            child: Row(
-              children: [
-                const Text(
-                  "接受",
-                  style: TextStyle(color: Colors.green, fontSize: 16),
-                ),
-                const Icon(Icons.done, color: Colors.green),
-              ],
+            Spacer(),
+            InkWell(
+              onTap: () {
+                debugPrint("接受${task.name}成功！");
+                controller.handleTaskAction(task.id, UserTaskAction.accept);
+              },
+              child: Row(
+                children: [
+                  const Text(
+                    "接受",
+                    style: TextStyle(color: Colors.green, fontSize: 16),
+                  ),
+                  const Icon(Icons.done, color: Colors.green),
+                ],
+              ),
             ),
-          ),
-        ];
+          ];
+        } else {
+          children = [];
+        }
         break;
       case TaskListCategory.parentTaskInfo:
       case TaskListCategory.childrenTaskInfo:
