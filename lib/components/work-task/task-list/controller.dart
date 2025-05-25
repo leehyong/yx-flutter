@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
@@ -29,11 +30,12 @@ class TimeLeftDetail {
 const left30Minutes = 1800;
 
 class OneTaskCardController extends GetxController {
-  OneTaskCardController({required this.deadline}) {
+  OneTaskCardController({required this.deadline, required int action}) {
     final nowTs = DateTime.now().toLocal().millisecondsSinceEpoch ~/ 1000;
     final _deadline = deadline;
     final _left = (_deadline - nowTs);
     left.value = _left;
+    this.action.value = action;
     _startTimer();
   }
 
@@ -45,6 +47,10 @@ class OneTaskCardController extends GetxController {
 
   // 定时器
 
+ final action = (-1).obs;
+
+  bool get accepted => action.value == UserTaskAction.claim.index || action.value == UserTaskAction.accept.index;
+
   Timer? _timer;
   late final int deadline;
   final RxInt left = 0.obs;
@@ -54,8 +60,21 @@ class OneTaskCardController extends GetxController {
 
   Future<void> handleTaskAction(Int64 taskId, UserTaskAction action) async {
     final success = await task_api.handleActionWorkTaskHeader(taskId, action);
+    if (success) {
+      this.action.value = action.index;
+    }
   }
 
+  String get userTaskActionDesc {
+    if (action.value == UserTaskAction.claim.index) {
+      return '已领取';
+    } else if (action.value == UserTaskAction.accept.index) {
+      return '已接受';
+    } else if (action.value == UserTaskAction.refuse.index) {
+      return '已拒绝';
+    }
+    return '';
+  }
   // 启动倒计时
   void _startTimer() {
     if (left.value < 1) {

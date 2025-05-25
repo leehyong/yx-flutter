@@ -123,7 +123,10 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     required this.taskCategory,
   }) {
     Get.put(
-      OneTaskCardController(deadline: task.receiveDeadline.toInt()),
+      OneTaskCardController(
+        deadline: task.receiveDeadline.toInt(),
+        action: taskOriginAction,
+      ),
       tag: '${task.id}',
     );
   }
@@ -136,13 +139,11 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   final TaskListCategory taskCategory;
 
   // 是否已接受，已接受了的任务不会再显示 接受拒绝按钮
-  bool get isAccepted {
+  int get taskOriginAction {
     if (userTaskHis.history.isEmpty) {
-      return false;
+      return -1;
     }
-    final action = userTaskHis.history.last.action;
-    return action == UserTaskAction.accept.index ||
-        action == UserTaskAction.claim.index;
+    return userTaskHis.history.last.action;
   }
 
   String get left =>
@@ -153,12 +154,13 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   double get taskCredits {
     final creditsStrategy = task.creditsStrategy;
     // 如果任务积分
-    if (isAccepted) {
-      assert(userTaskHis.history.isNotEmpty);
+    if (controller.accepted) {
       // 接受了的任务，返回接受时的积分大小
-      return creditsStrategy == TaskCreditStrategy.latest.index
-          ? userTaskHis.history.last.credits
-          : userTaskHis.history.first.credits;
+      if (userTaskHis.history.isNotEmpty) {
+        return creditsStrategy == TaskCreditStrategy.latest.index
+            ? userTaskHis.history.last.credits
+            : userTaskHis.history.first.credits;
+      }
     }
     // fixme： 没有接受的直接返回任务的当前积分 ， 而不管任务拒绝之后，某个任务的积分有更新，使其与当前任务的积分不一致
     return task.credits;
@@ -167,14 +169,52 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // if (!controller.visible.value) {
-      //   return SizedBox.shrink();
-      // }
       final card = _buildCard(context);
-      return controller.isDeleting.value
-          ? maskingOperation(context, card)
-          : card;
+      if (controller.isDeleting.value) {
+        return maskingOperation(context, card);
+      }
+      switch (taskCategory) {
+        case TaskListCategory.allPublished:
+        case TaskListCategory.delegatedToMe:
+          final desc = controller.userTaskActionDesc;
+          return desc.isEmpty
+              ? card
+              : _buildTaskActionIndicator(context, card, desc);
+        default:
+          return card;
+      }
     });
+  }
+
+  Widget _buildTaskActionIndicator(
+    BuildContext context,
+    Widget target,
+    String desc,
+  ) {
+    return Stack(
+      children: [
+        target,
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.center,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(width: 4.0, color: Colors.red),
+              ),
+              child: Text(
+                desc,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildCard(BuildContext context) {
@@ -353,7 +393,11 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         //还超过30分钟的话
         children.addAll([
           const Text("剩余"),
-          if (left.days > 0) Text('${left.days}', style: countdownNumberStyle),
+          if (left.days > 0)
+            Text(
+              '${left.days > 9 ? "10+" : left.days}',
+              style: countdownNumberStyle,
+            ),
           if (left.days > 0) const Text('天'),
           if (left.hours > 0 || left.days > 0)
             Text('${left.hours}', style: countdownNumberStyle),
@@ -496,7 +540,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         children = [
           ...tips,
           const SizedBox(width: 2),
-          if (!isAccepted)
+          if (!controller.accepted)
             InkWell(
               onTap: () {
                 debugPrint("领取${task.name}成功！");
