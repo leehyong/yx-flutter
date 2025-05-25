@@ -4,6 +4,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -454,8 +455,13 @@ class TaskInfoView extends GetView<TaskInfoController> {
                   return SizedBox(
                     width: width,
                     height: width * 0.4,
+                    // todo: 是否需要查询 left 、history 属性
                     child: OneTaskCardView(
-                      task: controller.parentTask.value!,
+                      userTaskHis: UserTaskHistory(
+                        task: controller.parentTask.value!,
+                        total: 0,
+                        history: [],
+                      ),
                       taskCategory: TaskListCategory.parentTaskInfo,
                     ),
                   );

@@ -6,9 +6,9 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/components/common.dart';
 import 'package:yx/types.dart';
-import 'package:yx/api/task_api.dart' as task_api;
 
 class TimeLeftDetail {
   final int days;
@@ -49,10 +49,11 @@ class OneTaskCardController extends GetxController {
   late final int deadline;
   final RxInt left = 0.obs;
 
+
   final isDeleting = false.obs;
 
   Future<void> handleTaskAction(Int64 taskId, UserTaskAction action) async {
-    return task_api.handleActionWorkTaskHeader(taskId, action);
+    final success = await task_api.handleActionWorkTaskHeader(taskId, action);
   }
 
   // 启动倒计时

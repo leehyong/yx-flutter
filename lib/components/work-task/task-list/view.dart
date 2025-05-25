@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
@@ -103,10 +104,10 @@ class TaskListView extends GetView<TaskListController> {
                   childAspectRatio: crossCount == 1 ? 2 : 1.6,
                 ),
                 itemBuilder: (BuildContext context, int index) {
-                  final task = controller.curLayer.tasks.value[index];
+                  final userTaskHis = controller.curLayer.tasks.value[index];
                   return OneTaskCardView(
-                    key: ValueKey(task.id),
-                    task: task,
+                    key: ValueKey(userTaskHis.task.id),
+                    userTaskHis: userTaskHis,
                     taskCategory: controller.curLayer.curCat.value.first,
                   );
                 },
@@ -116,7 +117,11 @@ class TaskListView extends GetView<TaskListController> {
 }
 
 class OneTaskCardView extends GetView<OneTaskCardController> {
-  OneTaskCardView({super.key, required this.task, required this.taskCategory}) {
+  OneTaskCardView({
+    super.key,
+    required this.userTaskHis,
+    required this.taskCategory,
+  }) {
     Get.put(
       OneTaskCardController(deadline: task.receiveDeadline.toInt()),
       tag: '${task.id}',
@@ -126,8 +131,38 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   @override
   String? get tag => '${task.id}';
 
-  final WorkTask task;
+  WorkTask get task => userTaskHis.task;
+  final UserTaskHistory userTaskHis;
   final TaskListCategory taskCategory;
+
+  // 是否已接受，已接受了的任务不会再显示 接受拒绝按钮
+  bool get isAccepted {
+    if (userTaskHis.history.isEmpty) {
+      return false;
+    }
+    final action = userTaskHis.history.last.action;
+    return action == UserTaskAction.accept.index ||
+        action == UserTaskAction.claim.index;
+  }
+
+  String get left =>
+      task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index
+          ? '${task.maxReceiverCount - userTaskHis.total}'
+          : '无限制';
+
+  double get taskCredits {
+    final creditsStrategy = task.creditsStrategy;
+    // 如果任务积分
+    if (isAccepted) {
+      assert(userTaskHis.history.isNotEmpty);
+      // 接受了的任务，返回接受时的积分大小
+      return creditsStrategy == TaskCreditStrategy.latest.index
+          ? userTaskHis.history.last.credits
+          : userTaskHis.history.first.credits;
+    }
+    // fixme： 没有接受的直接返回任务的当前积分 ， 而不管任务拒绝之后，某个任务的积分有更新，使其与当前任务的积分不一致
+    return task.credits;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +307,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
                   child: Row(
                     children: [
                       Text(
-                        twoValidNumber.format(task.credits.toDouble()),
+                        twoValidNumber.format(taskCredits),
                         style: TextStyle(fontSize: 16, color: Colors.yellow),
                       ),
                       const SizedBox(width: 4),
@@ -450,46 +485,64 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     List<Widget> children;
     switch (taskCategory) {
       case TaskListCategory.allPublished:
+        final tips =
+            task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index
+                ? [
+                  const Text("剩余名额"),
+                  Text(left, style: defaultNumberStyle),
+                  const Text("人"),
+                ]
+                : [const Text("剩余名额"), Text('无限制', style: defaultNumberStyle)];
         children = [
-          const Text("剩余名额"),
-          Text('0', style: defaultNumberStyle),
-          const Text("人"),
-          SizedBox(width: 4),
-          InkWell(
-            onTap: () {
-              debugPrint("领取${task.name}成功！");
-              controller.handleTaskAction(task.id, UserTaskAction.claim);
-            },
-            child: const Text(
-              "领取",
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+          ...tips,
+          const SizedBox(width: 2),
+          if (!isAccepted)
+            InkWell(
+              onTap: () {
+                debugPrint("领取${task.name}成功！");
+                controller.handleTaskAction(task.id, UserTaskAction.claim);
+              },
+              child: const Text(
+                "领取",
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
         ];
         break;
 
       case TaskListCategory.myPublished:
         children = [
-          Text('3', style: defaultNumberStyle.copyWith(fontSize: 16)),
+          Text(
+            '${userTaskHis.total}',
+            style: defaultNumberStyle.copyWith(fontSize: 16),
+          ),
           const Text("人领取，剩余"),
-          // fixme: 需要 任务剩余名额的字段
-          Text('7', style: defaultNumberStyle.copyWith(fontSize: 16)),
+          Text(left, style: defaultNumberStyle.copyWith(fontSize: 16)),
           const Text("人"),
         ];
         break;
       case TaskListCategory.myManuscript:
         children = [
-          InkWell(
-            onTap: () {
-              debugPrint("发布${task.name}的子任务成功！");
-            },
-            child: const Text(
-              "创建子任务",
-              style: TextStyle(color: Colors.black, fontSize: 16),
+          Tooltip(
+            message: "创建子任务",
+            child: InkWell(
+              child: const Row(
+                children: [
+                  Icon(Icons.add),
+                  SizedBox(width: 2),
+                  Text(
+                    "子任务",
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                  ),
+                ],
+              ),
+              onTap: () {
+                // todo: 跳转到子任务发布界面
+              },
             ),
           ),
           Spacer(),
@@ -510,24 +563,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         break;
       case TaskListCategory.myParticipant:
       case TaskListCategory.finished:
-        final routeId = Get.find<RootTabController>().curRouteId;
-
-        children = [
-          // InkWell(
-          //   onTap: () {
-          //     debugPrint("${task.name}任务详情！");
-          //     Get.toNamed(
-          //       '/task_detail',
-          //       arguments: WorkTaskPageParams(Int64.ZERO, task),
-          //       id: routeId,
-          //     );
-          //   },
-          //   child: const Text(
-          //     "点击查看详情",
-          //     style: TextStyle(color: Colors.blue, fontSize: 16),
-          //   ),
-          // ),
-        ];
+        children = [];
         break;
       case TaskListCategory.delegatedToMe:
         children = [

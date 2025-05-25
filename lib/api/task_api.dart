@@ -95,7 +95,7 @@ Future<String?> bindWorkTaskHeader(Int64 taskId, List<Int64> headerIds) async {
   }
 }
 
-Future<void> handleActionWorkTaskHeader(
+Future<bool> handleActionWorkTaskHeader(
   Int64 taskId,
   UserTaskAction action,
 ) async {
@@ -104,10 +104,11 @@ Future<void> handleActionWorkTaskHeader(
       "$apiContextPath/work-task/action/$taskId",
       queryParameters: {"action": action.index},
     );
-    handleProtoCommonInstanceVo(resp, toastSuccess: true);
+    final err = handleProtoCommonInstanceVo(resp, toastSuccess: true);
+    return err == null || err.isEmpty;
   } catch (e) {
     debugPrint(e.toString());
-    return;
+    return false;
   }
 }
 

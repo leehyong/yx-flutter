@@ -2,7 +2,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/components/work-task/task-list/view.dart';
 import 'package:yx/utils/toast.dart';
@@ -21,7 +21,7 @@ class PageReq {
 
 class TaskListLayer {
   final curCat = <TaskListCategory>{}.obs;
-  final tasks = <WorkTask>[].obs;
+  final tasks = <UserTaskHistory>[].obs;
   final isLoading = false.obs;
   final tabChanging = false.obs;
   final pageReq = PageReq();
@@ -51,7 +51,7 @@ class TaskListLayer {
         parentId.value,
       );
       if (data.error == null) {
-        tasks.value.addAll(data.data!.map((e) => e.task));
+        tasks.value.addAll(data.data as List<UserTaskHistory>);
         isLoading.value = false;
         assert(pageReq.limit == data.limit);
         pageReq.hasMore.value = pageReq.page < data.totalPages;
@@ -133,7 +133,7 @@ class TaskListController extends GetxController {
     final err = await task_api.deleteWorkTask(id);
     if (err == null) {
       // 剔除对应id的任务，保留其余的任务
-      curLayer.tasks.value = curLayer.tasks.value.where((e) => e.id != id).toList();
+      curLayer.tasks.value = curLayer.tasks.value.where((e) => e.task.id != id).toList();
     }
   }
 }
