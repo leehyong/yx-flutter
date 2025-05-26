@@ -80,7 +80,7 @@ class TaskInfoController extends GetxController {
     taskReceiverQuotaLimitedController.text = '';
   }
 
-  void resetAll(){
+  void resetAll() {
     resetTask();
     parentTask.value = null;
   }
@@ -111,8 +111,17 @@ class TaskInfoController extends GetxController {
     ever(task, (v) {
       if (v != null) {
         initTask(v);
+        // 查询用户关联的用户
+        if(v.receiveStrategy != ReceiveTaskStrategy.freeSelection.index){
+          task_api.taskRelSelectedUsers(v.id).then((v) {
+            checkedTaskUsers.value = v;
+          });
+        }else{
+          checkedTaskUsers.value = null;
+        }
       } else {
         resetTask();
+        checkedTaskUsers.value = null;
       }
     });
     ever(parentId, (v) {
@@ -158,9 +167,13 @@ class TaskInfoController extends GetxController {
 
   final childrenTask = <WorkTask>[].obs;
 
-  List<String> get selectedPersons => checkedTaskUsers.value?.map((u)=> u.name).toList() ?? [];
+  List<String> get selectedPersons =>
+      checkedTaskUsers.value?.map((u) => u.name).toList() ?? [];
 
-  Future<bool> saveTask({SystemTaskStatus? status, bool clearModifications=false}) async {
+  Future<bool> saveTask({
+    SystemTaskStatus? status,
+    bool clearModifications = false,
+  }) async {
     if (saving.value) {
       // 限流，避免重复点击
       EasyThrottle.throttle("save-task", Duration(seconds: 1), () {

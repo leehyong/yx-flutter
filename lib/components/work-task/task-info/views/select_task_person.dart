@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yt_dart/cus_user_organization.pbserver.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
-import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/api/user_api.dart' as user_api;
 import 'package:yx/components/work-task/task-info/controller.dart';
 import 'package:yx/types.dart';
@@ -30,39 +29,30 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
       );
 
   // 已选择中用户
-  LinkedHashMap<Int64, User> selectedUsers = LinkedHashMap<Int64, User>();
+  LinkedHashMap<Int64, User> selectedUsers = LinkedHashMap.fromEntries(
+    (Get.find<TaskInfoController>().checkedTaskUsers.value ?? []).map(
+      (u) => MapEntry(u.id, u),
+    ),
+  );
   final _searchNameController = TextEditingController();
-  int _loading = 0;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      _loading++;
+      _loading = true;
     });
-    final taskInfoController = Get.find<TaskInfoController>();
-    task_api
-        .taskRelSelectedUsers(taskInfoController.taskId.value)
-        .then((v) {
-          setState(() {
-            selectedUsers = LinkedHashMap.fromIterable(
-              v.map((v) => MapEntry(v.id, v)).toList(),
-            );
-            _loading++;
-          });
-        })
-        .then((_) {
-          user_api.getOrganizationUsers().then((userOrg) {
-            if (userOrg != null) {
-              _buildCheckableUserOrganization(_checkableTreeRoot, userOrg);
-            } else {
-              _checkableTreeRoot.clear();
-            }
-            setState(() {
-              _loading++;
-            });
-          });
-        });
+    user_api.getOrganizationUsers().then((userOrg) {
+      if (userOrg != null) {
+        _buildCheckableUserOrganization(_checkableTreeRoot, userOrg);
+      } else {
+        _checkableTreeRoot.clear();
+      }
+      setState(() {
+        _loading = false;
+      });
+    });
   }
 
   void _buildCheckableUserOrganization(
@@ -178,7 +168,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
 
   @override
   Widget build(BuildContext context) {
-    return _loading < 2
+    return _loading
         ? Center(
           child: SizedBox(
             width: 200,
