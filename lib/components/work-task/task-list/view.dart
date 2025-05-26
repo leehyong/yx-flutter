@@ -182,6 +182,20 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     return leftNum.toString();
   }
 
+  String get maxReceiverCount {
+    if (task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index) {
+      if (task.maxReceiverCount > 0) {
+        return '${task.maxReceiverCount}';
+      }
+    } else if ([
+      ReceiveTaskStrategy.onlyTwoWaySelection.index,
+      ReceiveTaskStrategy.onlyForceDelegation.index,
+    ].contains(task.receiveStrategy)) {
+      return '限定';
+    }
+    return '无限制';
+  }
+
   bool get hasLeft => leftNum > 0;
 
   double get taskCredits {
@@ -536,7 +550,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         spacing: 4,
         children: [
           const Text("名额:"),
-          Text('${task.maxReceiverCount}', style: defaultNumberStyle),
+          Text(maxReceiverCount, style: defaultNumberStyle),
         ],
       ),
     ];
@@ -566,17 +580,13 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     List<Widget> children;
     switch (taskCategory) {
       case TaskListCategory.allPublished:
-        final tips =
-            task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index
-                ? [
-                  const Text("剩余名额"),
-                  Text(left, style: defaultNumberStyle),
-                  const Text("人"),
-                ]
-                : [const Text("剩余名额"), Text(left, style: defaultNumberStyle)];
+        final tips = [
+          const Text("剩余名额"),
+          Text(left, style: defaultNumberStyle),
+        ];
         children = [
           ...tips,
-          const SizedBox(width: 2),
+          const SizedBox(width: 4),
           if (!controller.accepted &&
               hasLeft &&
               {
