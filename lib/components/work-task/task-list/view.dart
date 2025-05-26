@@ -430,8 +430,10 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   Widget? _buildCountDown(BuildContext context) {
     final ignores = [
       TaskListCategory.myManuscript,
-      // TaskListCategory.parentTaskInfo,
-      // TaskListCategory.childrenTaskInfo,
+      TaskListCategory.myParticipant,
+      TaskListCategory.finished,
+      TaskListCategory.parentTaskInfo,
+      TaskListCategory.childrenTaskInfo,
     ];
     if (ignores.contains(taskCategory)) {
       return null;
@@ -451,9 +453,9 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             ),
           if (left.days > 0) const Text('天'),
           if (left.hours > 0 || left.days > 0)
-            Text('${left.hours}', style: countdownNumberStyle),
+            Text('${left.hours}'.padLeft(2), style: countdownNumberStyle),
           if (left.hours > 0 || left.hours > 0) const Text('小时'),
-          Text('${left.minutes}', style: countdownNumberStyle),
+          Text('${left.minutes}'.padLeft(2), style: countdownNumberStyle),
           const Text('分'),
         ]);
       } else if (left.left == 0) {
@@ -461,9 +463,9 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       } else {
         children.addAll([
           const Text("剩余"),
-          Text('${left.minutes}', style: countdownNumberStyle),
+          Text('${left.minutes}'.padLeft(2), style: countdownNumberStyle),
           const Text(":"),
-          Text('${left.seconds}', style: countdownNumberStyle),
+          Text('${left.seconds}'.padLeft(2), style: countdownNumberStyle),
         ]);
       }
       // return Obx(() => Row(children: children));
