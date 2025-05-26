@@ -157,13 +157,22 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     return userTaskHis.history.last.action;
   }
 
-  int get leftNum =>
-      task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index
-          ? (task.maxReceiverCount <= 0
-              // maxReceiverCount <= 0, 那就都是 无限制的
-              ? -1
-              : task.maxReceiverCount - userTaskHis.total)
-          : -1;
+  int get leftNum {
+    if (task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index) {
+      return task.maxReceiverCount <= 0
+          // maxReceiverCount <= 0, 那就都是 无限制的
+          ? -1
+          : task.maxReceiverCount - userTaskHis.total;
+    } else if ([
+      ReceiveTaskStrategy.onlyForceDelegation.index,
+      ReceiveTaskStrategy.onlyTwoWaySelection.index,
+    ].contains(task.receiveStrategy)) {
+      // 只有指定的人才可以在委托列表里看到
+      return 0;
+    }
+    // 无限制
+    return -1;
+  }
 
   String get left {
     if (leftNum < 0) return '无限制';
@@ -570,7 +579,12 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           const SizedBox(width: 2),
           if (!controller.accepted &&
               hasLeft &&
-              task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index)
+              {
+                // 这些任务类型，还是可以领取的
+                ReceiveTaskStrategy.freeSelection.index,
+                ReceiveTaskStrategy.forceDelegation.index,
+                ReceiveTaskStrategy.twoWaySelection.index,
+              }.contains(task.receiveStrategy))
             InkWell(
               onTap: () {
                 debugPrint("领取${task.name}成功！");

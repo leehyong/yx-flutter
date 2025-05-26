@@ -131,7 +131,7 @@ extension TaskAttributeCategoryExtension on TaskAttributeCategory {
   }
 }
 
-enum ReceiveTaskStrategy { freeSelection, forceDelegation, twoWaySelection }
+enum ReceiveTaskStrategy { freeSelection, forceDelegation, twoWaySelection, onlyForceDelegation, onlyTwoWaySelection }
 
 extension ReceiveTaskStrategyExtension on ReceiveTaskStrategy {
   String get i18name {
@@ -139,9 +139,13 @@ extension ReceiveTaskStrategyExtension on ReceiveTaskStrategy {
       case ReceiveTaskStrategy.freeSelection:
         return '自由选择';
       case ReceiveTaskStrategy.forceDelegation:
-        return '强制委派';
+        return '强制委派'; // 除了强制委派的人，其他人还可以领取
       case ReceiveTaskStrategy.twoWaySelection:
-        return '双向选择';
+        return '双向选择';// 除了双向选择的人，其他人还可以领取
+      case ReceiveTaskStrategy.onlyForceDelegation:
+        return '只允许强制委派的人';
+      case ReceiveTaskStrategy.onlyTwoWaySelection:
+        return '只允许双向选择的人';
     }
   }
 }
