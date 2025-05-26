@@ -129,7 +129,7 @@ Future<List<User>> taskRelSelectedUsers(Int64 id) async {
     if (id < Int64(1)) {
       return <User>[];
     }
-    final resp = await HttpDioService.instance.dio.delete<String>(
+    final resp = await HttpDioService.instance.dio.get<String>(
       "$apiContextPath/work-task/select-user/$id",
     );
     final data = handleProtoPageInstanceVo<User>(resp, User.fromBuffer);

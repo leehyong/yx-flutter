@@ -726,14 +726,12 @@ class TaskInfoView extends GetView<TaskInfoController> {
 
   Widget _buildTaskReceivers(BuildContext context) {
     final List<Widget> children = [];
-    if (controller.selectedPersons.value.isNotEmpty) {
+    final selectedPersons = controller.selectedPersons;
+    final total = selectedPersons.length;
+
+    if (selectedPersons.isNotEmpty) {
       const maxCnt = 3;
-      final cnt = controller.selectedPersons.value.length;
-      final persons = controller.selectedPersons.value.sublist(
-        0,
-        min(maxCnt, cnt),
-      );
-      children.add(const Text("已选择"));
+      final persons = selectedPersons.sublist(0, min(maxCnt, total));
       children.addAll(
         persons.map(
           (p) => Container(
@@ -760,9 +758,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
       children.add(
         Row(
           children: [
-            Text(cnt > maxCnt ? "等" : "共"),
+            Text(total > maxCnt ? "等" : "共"),
             Text(
-              controller.selectedPersons.value.length.toString(),
+              total.toString(),
               style: TextStyle(color: Colors.red, fontSize: 16),
             ),
             const Text("人"),
@@ -781,7 +779,6 @@ class TaskInfoView extends GetView<TaskInfoController> {
             padding: EdgeInsets.symmetric(horizontal: 8),
             // 文字颜色
           ),
-
           onPressed: () {
             if (controller.readOnly) {
               return;
@@ -811,7 +808,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                       isTopBarLayerAlwaysVisible: true,
                       leadingNavBarWidget: IconButton(
                         padding: const EdgeInsets.all(4),
-                        icon: Text("重置"),
+                        icon: Text("取消"),
                         onPressed: () {
                           Navigator.of(modalSheetContext).pop();
                         },
@@ -865,7 +862,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                   ],
             );
           },
-          child: const Text("选择人员"),
+          child: Text(total > 0 ? '已选择' : '选择人员'),
         ),
         if (children.isNotEmpty)
           Expanded(child: Row(spacing: 4, children: children)),
@@ -899,6 +896,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                 }
                 controller.saveModification(ModifyWarningCategory.basic);
                 controller.taskReceiveStrategy.value = v!;
+                controller.taskReceiverQuotaLimitedController.text = '0';
               },
             ),
           ),
