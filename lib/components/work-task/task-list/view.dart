@@ -7,6 +7,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
+import 'package:yx/services/auth_service.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -142,14 +143,37 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   int get taskOriginAction {
     if (userTaskHis.history.isEmpty) {
       return -1;
+    } else if (taskCategory == TaskListCategory.myPublished) {
+      try {
+        final my = userTaskHis.history.firstWhere(
+          (e) => e.userId == AuthService.instance.user?.userId,
+        );
+        return my.action;
+      } catch (e) {
+        // firstWhere 抛出异常，则表明，没有本人的领取记录，则返回 -1 即可
+        return -1;
+      }
     }
     return userTaskHis.history.last.action;
   }
 
-  String get left =>
+  int get leftNum =>
       task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index
-          ? '${task.maxReceiverCount - userTaskHis.total}'
-          : '无限制';
+          ? (task.maxReceiverCount <= 0
+              // maxReceiverCount <= 0, 那就都是 无限制的
+              ? -1
+              : task.maxReceiverCount - userTaskHis.total)
+          : -1;
+
+  String get left {
+    if (leftNum < 0) return '无限制';
+    if (leftNum > 9999) {
+      return '10000+';
+    }
+    return leftNum.toString();
+  }
+
+  bool get hasLeft => leftNum > 0;
 
   double get taskCredits {
     final creditsStrategy = task.creditsStrategy;
@@ -197,17 +221,21 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         Positioned.fill(
           child: Align(
             alignment: Alignment.center,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border.all(width: 4.0, color: Colors.red),
-              ),
-              child: Text(
-                desc,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+            child: Transform.rotate(
+              angle: -30 * 3.141592653589793 / 180,
+              child: Container(
+                padding: EdgeInsets.all(4.0),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(width: 3.0, color: Colors.red),
+                ),
+                child: Text(
+                  desc,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -536,11 +564,12 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
                   Text(left, style: defaultNumberStyle),
                   const Text("人"),
                 ]
-                : [const Text("剩余名额"), Text('无限制', style: defaultNumberStyle)];
+                : [const Text("剩余名额"), Text(left, style: defaultNumberStyle)];
         children = [
           ...tips,
           const SizedBox(width: 2),
           if (!controller.accepted &&
+              hasLeft &&
               task.receiveStrategy == ReceiveTaskStrategy.freeSelection.index)
             InkWell(
               onTap: () {
