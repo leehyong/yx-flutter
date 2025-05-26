@@ -153,11 +153,12 @@ class TaskInfoController extends GetxController {
   final taskSubmitCycleStrategy = TaskSubmitCycleStrategy.week.obs;
   final taskCreditStrategy = TaskCreditStrategy.latest.obs;
   final selectedAttrSet = {TaskAttributeCategory.basic}.obs;
-  final selectedPersons = <String>["1恶趣味", "恶趣味www", "恶趣味", "2dad服"].obs;
 
   final saving = false.obs;
 
   final childrenTask = <WorkTask>[].obs;
+
+  List<String> get selectedPersons => checkedTaskUsers.value?.map((u)=> u.name).toList() ?? [];
 
   Future<bool> saveTask({SystemTaskStatus? status, bool clearModifications=false}) async {
     if (saving.value) {
@@ -211,6 +212,7 @@ class TaskInfoController extends GetxController {
         receiveDeadline: parseDateTimeFromSecond(
           taskReceiveDeadlineController.text,
         ),
+        receiveStrategy: taskReceiveStrategy.value.index,
         maxReceiverCount:
             int.tryParse(taskReceiverQuotaLimitedController.text) ?? 0,
         status: status?.index ?? task.value?.status,
@@ -240,6 +242,7 @@ class TaskInfoController extends GetxController {
         credits: double.tryParse(taskCreditsController.text) ?? 0.0,
         creditsStrategy: taskCreditStrategy.value.index,
         submitCycle: taskSubmitCycleStrategy.value.index,
+        receiveStrategy: taskReceiveStrategy.value.index,
         receiveDeadline:
             parseDateTimeFromSecond(taskReceiveDeadlineController.text) ??
             Int64.ZERO,
