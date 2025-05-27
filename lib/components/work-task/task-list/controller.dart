@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
@@ -47,14 +46,16 @@ class OneTaskCardController extends GetxController {
 
   // 定时器
 
- final action = (-1).obs;
+  final action = (-1).obs;
 
-  bool get accepted => action.value == UserTaskAction.claim.index || action.value == UserTaskAction.accept.index;
+  bool get accepted => [
+    UserTaskAction.claim.index,
+    UserTaskAction.accept.index,
+  ].contains(action.value);
 
   Timer? _timer;
   late final int deadline;
   final RxInt left = 0.obs;
-
 
   final isDeleting = false.obs;
 
