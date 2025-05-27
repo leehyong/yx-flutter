@@ -112,11 +112,11 @@ class TaskInfoController extends GetxController {
       if (v != null) {
         initTask(v);
         // 查询用户关联的用户
-        if(v.receiveStrategy != ReceiveTaskStrategy.freeSelection.index){
+        if (v.receiveStrategy != ReceiveTaskStrategy.freeSelection.index) {
           task_api.taskRelSelectedUsers(v.id).then((v) {
             checkedTaskUsers.value = v;
           });
-        }else{
+        } else {
           checkedTaskUsers.value = null;
         }
       } else {
@@ -235,6 +235,7 @@ class TaskInfoController extends GetxController {
       common: CommonYooWorkTask(
         parentTaskId: parentId.value,
         headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+        userIds: checkedTaskUsers.value?.map((user) => user.id).toList(),
       ),
     );
   }
@@ -267,6 +268,7 @@ class TaskInfoController extends GetxController {
       common: CommonYooWorkTask(
         parentTaskId: parentId.value,
         headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+        userIds: checkedTaskUsers.value?.map((user) => user.id).toList(),
       ),
     );
   }

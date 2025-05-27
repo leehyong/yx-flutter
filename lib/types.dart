@@ -319,4 +319,5 @@ enum UserTaskAction {
   claim,     // 领取
   accept,      // 接受
   refuse,     // 拒绝
+  unconfirmed, // 待确认
 }
