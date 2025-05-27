@@ -76,12 +76,12 @@ extension TaskListCategoryExtension on TaskListCategory {
   static List<TaskListCategory> get hallTaskList => [
     TaskListCategory.allPublished,
     TaskListCategory.myPublished,
+    TaskListCategory.delegatedToMe,
     TaskListCategory.myManuscript,
   ];
 
   static List<TaskListCategory> get homeTaskList => [
     TaskListCategory.myParticipant,
-    TaskListCategory.delegatedToMe,
     TaskListCategory.finished,
   ];
 }
