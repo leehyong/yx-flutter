@@ -623,28 +623,14 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           const Text("人领取，剩余"),
           Text(left, style: defaultNumberStyle.copyWith(fontSize: 16)),
           const Text("人"),
+          const Spacer(),
+          _buildAddSubTask(context),
+          const SizedBox(width: 2),
         ];
         break;
       case TaskListCategory.myManuscript:
         children = [
-          Tooltip(
-            message: "创建子任务",
-            child: InkWell(
-              child: const Row(
-                children: [
-                  Icon(Icons.add),
-                  SizedBox(width: 2),
-                  Text(
-                    "子任务",
-                    style: TextStyle(color: Colors.black, fontSize: 16),
-                  ),
-                ],
-              ),
-              onTap: () {
-                // todo: 跳转到子任务发布界面
-              },
-            ),
-          ),
+          _buildAddSubTask(context),
           Spacer(),
           InkWell(
             onTap: () {
@@ -659,6 +645,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
               ),
             ),
           ),
+          const SizedBox(width: 2),
         ];
         break;
       case TaskListCategory.myParticipant:
@@ -714,6 +701,33 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: children,
+      ),
+    );
+  }
+
+  Widget _buildAddSubTask(BuildContext context) {
+    return Tooltip(
+      preferBelow: false,
+      message: "创建子任务",
+      child: InkWell(
+        child: const Row(
+          children: [
+            Icon(Icons.add),
+            // Text("子任务", style: TextStyle(color: Colors.black, fontSize: 16)),
+          ],
+        ),
+        onTap: () {
+          // 跳转到新增子任务界面
+          final routeId = Get.find<RootTabController>().curRouteId;
+          final args = WorkTaskPageParams(
+            task.id,
+            null,
+            taskCategory,
+            opCat: TaskOperationCategory.publishTask,
+          );
+          setCurTaskInfo(args);
+          Get.toNamed(WorkTaskRoutes.hallTaskDetail, arguments: args, id: routeId);
+        },
       ),
     );
   }

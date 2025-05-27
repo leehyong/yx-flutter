@@ -38,7 +38,7 @@ Future<ProtoPageVo<UserTaskHistory>> queryWorkTasks(
 Future<WorkTask?> queryWorkTaskInfoById(Int64 id) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
-      "$apiContextPath/work-task/$id",
+      "$apiContextPath/work-task/detail/$id",
     );
     return handleProtoInstanceVo<WorkTask>(resp, WorkTask.fromBuffer).$2;
   } catch (e) {
