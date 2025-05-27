@@ -25,7 +25,7 @@ DateTime dtLocalFromMilliSecondsTimestamp(int utcMilliSeconds) =>
     DateTime.fromMillisecondsSinceEpoch(utcMilliSeconds * 1000, isUtc: true).toLocal();
 
 String localFromSeconds(int utcSeconds) =>
-    defaultDateTimeFormat.format(dtLocalFromMilliSecondsTimestamp(utcSeconds));
+    defaultDateTimeFormat1.format(dtLocalFromMilliSecondsTimestamp(utcSeconds));
 
 String localDateFromSeconds(int utcSeconds) =>
     defaultDateFormat.format(dtLocalFromMilliSecondsTimestamp(utcSeconds));
