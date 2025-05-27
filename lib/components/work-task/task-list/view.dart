@@ -199,18 +199,53 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   bool get hasLeft => leftNum > 0;
 
   double get taskCredits {
-    final creditsStrategy = task.creditsStrategy;
     // 如果任务积分
     if (controller.accepted) {
-      // 接受了的任务，返回接受时的积分大小
+      // 接受了的任务，返回接受时的积分大小,
       if (userTaskHis.history.isNotEmpty) {
-        return creditsStrategy == TaskCreditStrategy.latest.index
-            ? userTaskHis.history.last.credits
-            : userTaskHis.history.first.credits;
+        // 领取的任务的积分即是最后一条记录的积分
+        return userTaskHis.history.last.credits;
       }
     }
     // fixme： 没有接受的直接返回任务的当前积分 ， 而不管任务拒绝之后，某个任务的积分有更新，使其与当前任务的积分不一致
     return task.credits;
+  }
+
+  String get userTaskActionDesc {
+    if (task.receiveStrategy == ReceiveTaskStrategy.onlyForceDelegation.index) {
+      if (controller.action.value == UserTaskAction.accept.index) {
+        // 强制委派的用户是没有拒绝机会的
+        return '强制委派';
+      }
+    } else if (task.receiveStrategy ==
+        ReceiveTaskStrategy.forceDelegation.index) {
+      if (controller.action.value == UserTaskAction.accept.index) {
+        // 强制委派的用户是没有拒绝机会的
+        return '强制委派';
+      }
+      if (controller.action.value == UserTaskAction.unconfirmed.index) {
+        return '待确认';
+      }
+    } else if ([
+      ReceiveTaskStrategy.onlyTwoWaySelection.index,
+      ReceiveTaskStrategy.twoWaySelection.index,
+    ].contains(task.receiveStrategy)) {
+      if (controller.action.value == UserTaskAction.accept.index) {
+        return '自愿接受';
+      }
+      if (controller.action.value == UserTaskAction.unconfirmed.index) {
+        return '待确认';
+      }
+    }
+
+    if (controller.action.value == UserTaskAction.claim.index) {
+      return '已领取';
+    } else if (controller.action.value == UserTaskAction.accept.index) {
+      return '已接受';
+    } else if (controller.action.value == UserTaskAction.refuse.index) {
+      return '已拒绝';
+    }
+    return '';
   }
 
   @override
@@ -223,7 +258,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       switch (taskCategory) {
         case TaskListCategory.allPublished:
         case TaskListCategory.delegatedToMe:
-          final desc = controller.userTaskActionDesc;
+          final desc = userTaskActionDesc;
           return desc.isEmpty
               ? card
               : _buildTaskActionIndicator(context, card, desc);
@@ -726,7 +761,11 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             opCat: TaskOperationCategory.publishTask,
           );
           setCurTaskInfo(args);
-          Get.toNamed(WorkTaskRoutes.hallTaskDetail, arguments: args, id: routeId);
+          Get.toNamed(
+            WorkTaskRoutes.hallTaskDetail,
+            arguments: args,
+            id: routeId,
+          );
         },
       ),
     );

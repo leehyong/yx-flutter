@@ -65,16 +65,6 @@ class OneTaskCardController extends GetxController {
     }
   }
 
-  String get userTaskActionDesc {
-    if (action.value == UserTaskAction.claim.index) {
-      return '已领取';
-    } else if (action.value == UserTaskAction.accept.index) {
-      return '已接受';
-    } else if (action.value == UserTaskAction.refuse.index) {
-      return '已拒绝';
-    }
-    return '';
-  }
   // 启动倒计时
   void _startTimer() {
     if (left.value < 1) {
