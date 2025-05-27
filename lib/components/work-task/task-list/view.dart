@@ -613,40 +613,82 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     );
   }
 
+  Widget _buildClaimAction(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        debugPrint("领取${task.name}成功！");
+        controller.handleTaskAction(task.id, UserTaskAction.claim);
+      },
+      child: const Text(
+        "领取",
+        style: TextStyle(
+          color: Colors.blue,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildAcceptRefuseAction(BuildContext context) {
+    return [
+      InkWell(
+        onTap: () {
+          debugPrint("拒绝${task.name}的子任务成功！");
+          controller.handleTaskAction(task.id, UserTaskAction.refuse);
+        },
+        child: Row(
+          children: [
+            const Icon(Icons.close),
+            const Text("拒绝", style: TextStyle(fontSize: 16)),
+          ],
+        ),
+      ),
+      Spacer(),
+      InkWell(
+        onTap: () {
+          debugPrint("接受${task.name}成功！");
+          controller.handleTaskAction(task.id, UserTaskAction.accept);
+        },
+        child: Row(
+          children: [
+            const Text(
+              "接受",
+              style: TextStyle(color: Colors.green, fontSize: 16),
+            ),
+            const Icon(Icons.done, color: Colors.green),
+          ],
+        ),
+      ),
+    ];
+  }
+
   Widget? _buildAction(BuildContext context) {
     List<Widget> children;
     switch (taskCategory) {
       case TaskListCategory.allPublished:
-        final tips = [
+        children = [
           const Text("剩余名额"),
           Text(left, style: defaultNumberStyle),
-        ];
-        children = [
-          ...tips,
           const SizedBox(width: 4),
-          if (!controller.accepted &&
-              hasLeft &&
-              {
-                // 这些任务类型，还是可以领取的
-                ReceiveTaskStrategy.freeSelection.index,
-                ReceiveTaskStrategy.forceDelegation.index,
-                ReceiveTaskStrategy.twoWaySelection.index,
-              }.contains(task.receiveStrategy))
-            InkWell(
-              onTap: () {
-                debugPrint("领取${task.name}成功！");
-                controller.handleTaskAction(task.id, UserTaskAction.claim);
-              },
-              child: const Text(
-                "领取",
-                style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
         ];
+        if (!controller.accepted &&
+            hasLeft &&
+            {
+              // 这些任务类型，还是可以领取的
+              ReceiveTaskStrategy.freeSelection.index,
+              ReceiveTaskStrategy.forceDelegation.index,
+              ReceiveTaskStrategy.twoWaySelection.index,
+            }.contains(task.receiveStrategy)) {
+          if ([
+            UserTaskAction.unconfirmed.index,
+            UserTaskAction.refuse.index,
+          ].contains(controller.action.value)) {
+            children.addAll(_buildAcceptRefuseAction(context));
+          } else {
+            children.add(_buildClaimAction(context));
+          }
+        }
         break;
 
       case TaskListCategory.myPublished:
@@ -689,36 +731,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         break;
       case TaskListCategory.delegatedToMe:
         if (task.receiveStrategy == ReceiveTaskStrategy.twoWaySelection.index) {
-          children = [
-            InkWell(
-              onTap: () {
-                debugPrint("拒绝${task.name}的子任务成功！");
-                controller.handleTaskAction(task.id, UserTaskAction.refuse);
-              },
-              child: Row(
-                children: [
-                  const Icon(Icons.close),
-                  const Text("拒绝", style: TextStyle(fontSize: 16)),
-                ],
-              ),
-            ),
-            Spacer(),
-            InkWell(
-              onTap: () {
-                debugPrint("接受${task.name}成功！");
-                controller.handleTaskAction(task.id, UserTaskAction.accept);
-              },
-              child: Row(
-                children: [
-                  const Text(
-                    "接受",
-                    style: TextStyle(color: Colors.green, fontSize: 16),
-                  ),
-                  const Icon(Icons.done, color: Colors.green),
-                ],
-              ),
-            ),
-          ];
+          children = _buildAcceptRefuseAction(context);
         } else {
           children = [];
         }
