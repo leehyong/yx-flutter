@@ -20,23 +20,26 @@ final defaultDateFormat = DateFormat('yyyy-MM-dd');
 final defaultDateFormat1 = DateFormat('yyyy/MM/dd');
 final twoValidNumber = NumberFormat('0.##');
 
-DateTime dtLocalFromMilliSecondsTimestamp(int milliSeconds) =>
-    DateTime.fromMillisecondsSinceEpoch(milliSeconds * 1000, isUtc: false);
+DateTime dtLocalFromMilliSecondsTimestamp(int utcMilliSeconds) =>
+    // utcMilliSeconds 是utc的秒数
+    DateTime.fromMillisecondsSinceEpoch(utcMilliSeconds * 1000, isUtc: true).toLocal();
 
-String localFromSeconds(int seconds) =>
-    defaultDateTimeFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
+String localFromSeconds(int utcSeconds) =>
+    defaultDateTimeFormat.format(dtLocalFromMilliSecondsTimestamp(utcSeconds));
 
-String localDateFromSeconds(int seconds) =>
-    defaultDateFormat.format(dtLocalFromMilliSecondsTimestamp(seconds));
+String localDateFromSeconds(int utcSeconds) =>
+    defaultDateFormat.format(dtLocalFromMilliSecondsTimestamp(utcSeconds));
 
 Int64 parseDateFromSecond(String dt) {
   final d = parseDateFromStr(dt);
-  return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);
+  if(d== null) return Int64.ZERO;
+  return Int64(d.toUtc().millisecondsSinceEpoch ~/ 1000);
 }
 
 Int64 parseDateTimeFromSecond(String dt) {
   final d = parseDatetimeFromStr(dt);
-  return d == null ? Int64.ZERO : Int64(d!.millisecondsSinceEpoch ~/ 1000);
+  if(d== null) return Int64.ZERO;
+  return Int64(d.toUtc().millisecondsSinceEpoch ~/ 1000);
 }
 
 String inputDateTimeTxtFromSecond(Int64? seconds) =>
