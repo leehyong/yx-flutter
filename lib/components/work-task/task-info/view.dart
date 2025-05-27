@@ -727,11 +727,13 @@ class TaskInfoView extends GetView<TaskInfoController> {
   Widget _buildTaskReceivers(BuildContext context) {
     final List<Widget> children = [];
     final selectedPersons = controller.selectedPersons;
-    final total = selectedPersons.length;
 
     if (selectedPersons.isNotEmpty) {
       const maxCnt = 3;
-      final persons = selectedPersons.sublist(0, min(maxCnt, total));
+      final persons = selectedPersons.sublist(
+        0,
+        min(maxCnt, selectedPersons.length),
+      );
       children.addAll(
         persons.map(
           (p) => Container(
@@ -758,9 +760,9 @@ class TaskInfoView extends GetView<TaskInfoController> {
       children.add(
         Row(
           children: [
-            Text(total > maxCnt ? "等" : "共"),
+            Text(selectedPersons.length > maxCnt ? "等" : "共"),
             Text(
-              total.toString(),
+              selectedPersons.length.toString(),
               style: TextStyle(color: Colors.red, fontSize: 16),
             ),
             const Text("人"),
@@ -820,30 +822,23 @@ class TaskInfoView extends GetView<TaskInfoController> {
                         onPressed: () {
                           final old =
                               controller.checkedTaskUsers.value ?? <User>[];
-                          final new_ =
+                          final newUsers =
                               controller
                                   .selectTaskUsersKey
                                   .currentState
-                                  ?.selectedUsers
-                                  .keys
-                                  .toSet() ??
-                              <Int64>{};
+                                  ?.curTaskSelectedUsers;
                           if (old
                               .map((u) => u.id)
                               .toSet()
-                              .difference(new_)
+                              .difference(
+                                newUsers?.map((e) => e.id).toSet() ?? <Int64>{},
+                              )
                               .isNotEmpty) {
                             controller.saveModification(
                               ModifyWarningCategory.participant,
                             );
                           }
-                          controller.checkedTaskUsers.value =
-                              controller
-                                  .selectTaskUsersKey
-                                  .currentState
-                                  ?.selectedUsers
-                                  .values
-                                  .toList();
+                          controller.checkedTaskUsers.value = newUsers;
                           Navigator.of(modalSheetContext).maybePop();
                         },
                       ),
@@ -862,7 +857,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                   ],
             );
           },
-          child: Text(total > 0 ? '已选择' : '选择人员'),
+          child: Text(selectedPersons.isNotEmpty ? '已选择' : '选择人员'),
         ),
         if (children.isNotEmpty)
           Expanded(child: Row(spacing: 4, children: children)),
@@ -1030,7 +1025,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
         ReceiveTaskStrategy.freeSelection) {
       widgets.add(_buildTaskReceiversLimitedQuota(context));
     } else {
-      widgets.add(_buildTaskReceivers(context));
+      widgets.add( _buildTaskReceivers(context));
     }
     widgets.add(_buildTaskCredits(context));
     // return GetBuilder(builder: (controller) => Column(children: widgets));

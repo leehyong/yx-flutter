@@ -24,22 +24,45 @@ class SelectTaskPersonView extends StatefulWidget {
 
 class SelectTaskUserState extends State<SelectTaskPersonView> {
   final TreeNode<CheckableOrganizationOrUser> _checkableTreeRoot =
-      TreeNode<CheckableOrganizationOrUser>.root(
-        // data: CheckableOrganizationOrUser(newFakeEmptyOrg()),
-      );
+      TreeNode<CheckableOrganizationOrUser>.root();
 
-  // 已选择中用户
-  LinkedHashMap<Int64, User> selectedUsers = LinkedHashMap.fromEntries(
-    (Get.find<TaskInfoController>().checkedTaskUsers.value ?? []).map(
-      (u) => MapEntry(u.id, u),
-    ),
-  );
+  // 某任务已选中用户
+  LinkedHashMap<Int64, User>? _taskSelectedUsers;
   final _searchNameController = TextEditingController();
   bool _loading = false;
+
+  List<User> get curTaskSelectedUsers {
+    final users = <User>[];
+
+    void findCheckableUsersByDfs(TreeNode<CheckableOrganizationOrUser> node) {
+      final data = node.data!;
+      final instance = data.data;
+      if (instance is User) {
+        if (data.checked) users.add(instance);
+      } else if (instance is Organization) {
+        for (var child in node.childrenAsList) {
+          findCheckableUsersByDfs(
+            child as TreeNode<CheckableOrganizationOrUser>,
+          );
+        }
+      }
+    }
+
+    // 找到所有勾选的用户
+    for (var node in _checkableTreeRoot.childrenAsList) {
+      findCheckableUsersByDfs(node as TreeNode<CheckableOrganizationOrUser>);
+    }
+    return users;
+  }
 
   @override
   void initState() {
     super.initState();
+    _taskSelectedUsers = LinkedHashMap.fromEntries(
+      (Get.find<TaskInfoController>().checkedTaskUsers.value ?? []).map(
+        (u) => MapEntry(u.id, u),
+      ),
+    );
     setState(() {
       _loading = true;
     });
@@ -65,7 +88,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
       checked:
           // 组织下的全部用户都选中时，该组织就显示为勾选状态，反之则不会
           userOrg.users
-              .where((u) => selectedUsers.containsKey(u.id))
+              .where((u) => _taskSelectedUsers?.containsKey(u.id) ?? false)
               .toList()
               .length ==
           userOrg.users.length,
@@ -84,7 +107,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
           key: "user-${treeNodeKey(id)}",
           data: CheckableOrganizationOrUser(
             user,
-            checked: selectedUsers.containsKey(id),
+            checked: _taskSelectedUsers?.containsKey(id) ?? false,
           ),
         ),
       );
@@ -94,37 +117,6 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
       _buildCheckableUserOrganization(parentOrgNode, uo);
     }
   }
-
-  // SelectTaskUserState() {
-  //   // 初始化数据
-  //   var idx = 0;
-  //   TreeNode<CheckableOrganizationOrUser> cur = _checkableTreeRoot;
-  //   while (idx < 100) {
-  //     final isOrg = Random().nextBool();
-  //     Object data;
-  //     if (isOrg) {
-  //       data = newFakeEmptyOrg(name: idx.toString());
-  //     } else {
-  //       data = newFakeEmptyUser(name: idx.toString());
-  //       if (!_orgUsers.containsKey(cur.data!.id)) {
-  //         _orgUsers[cur.data!.id] = [];
-  //       }
-  //       // 记录每个组织的用户
-  //       _orgUsers[cur.data!.id]!.add(data as User);
-  //     }
-  //     final node = TreeNode(data: CheckableOrganizationOrUser(data));
-  //     cur.add(node);
-  //     if (isOrg) {
-  //       if (Random().nextBool()) {
-  //         // 随机改变下次节点的父节点
-  //         cur = node;
-  //       } else {
-  //         cur = _checkableTreeRoot;
-  //       }
-  //     }
-  //     ++idx;
-  //   }
-  // }
 
   void _recursiveCheckOneNodeByDfs(
     ITreeNode<CheckableOrganizationOrUser> node,
@@ -145,10 +137,13 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
     ITreeNode<CheckableOrganizationOrUser> node,
     String search,
   ) {
-    final hidden = search.isEmpty ? false : !node.data!.name.contains(search);
+    final hidden =
+        search.isEmpty ? false : (!(node.data?.name.contains(search) ?? false));
     if (node.isLeaf) {
       setState(() {
-        node.data!.hidden = hidden;
+        if (node.data != null) {
+          node.data!.hidden = hidden;
+        }
       });
       return hidden ? 0 : 1;
     }
@@ -161,7 +156,9 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
         )
         .fold(0, (prev, cur) => prev + cur);
     setState(() {
-      node.data!.hidden = hiddenNum == 0;
+      if (node.data != null) {
+        node.data!.hidden = hiddenNum == 0;
+      }
     });
     return hiddenNum;
   }
@@ -259,7 +256,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
                 color: loadingColors[colorIdx].withAlpha(40),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: _buildReadonlyItemHeader(context, node),
+              child: _buildReadonlyItem(context, node),
             );
       },
       onItemTap: (node) {
@@ -268,7 +265,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
     );
   }
 
-  Widget _buildReadonlyItemHeader(
+  Widget _buildReadonlyItem(
     BuildContext ctx,
     TreeNode<CheckableOrganizationOrUser> node,
   ) {
@@ -290,9 +287,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
             message: node.data!.name,
             child: Row(
               children: [
-                Icon(
-                  node.data!.data is User ? Icons.person : Icons.insert_chart,
-                ),
+                Icon(node.data!.data is User ? Icons.person : Icons.reorder),
                 Text(
                   node.data!.name,
                   style: TextStyle(
