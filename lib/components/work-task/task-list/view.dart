@@ -472,7 +472,10 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     ];
     if (ignores.contains(taskCategory)) {
       return null;
-    } else {
+    } else if (task.receiveDeadline <= 0){
+      // 任务没填截止时间
+      return null;
+    }else{
       final left = controller.leftDetail;
       final countdownNumberStyle = defaultNumberStyle.copyWith(fontSize: 18);
       final children = <Widget>[];
