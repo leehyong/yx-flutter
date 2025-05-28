@@ -43,7 +43,27 @@ class TaskInfoView extends GetView<TaskInfoController> {
         );
         break;
       case TaskOperationCategory.publishTask:
-        children.add(Text(opCategory.i18name, style: defaultTitleStyle));
+        if (publishTaskParams.parentId > Int64.ZERO) {
+          children.add(
+            Obx(
+              () => Row(
+                children: [
+                  Text('新建', style: defaultTitleStyle),
+                  Text(
+                    controller.parentTask.value?.name ?? '',
+                    style: defaultTitleStyle.copyWith(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('的子任务', style: defaultTitleStyle),
+                ],
+              ),
+            ),
+          );
+        } else {
+          children.add(Text(opCategory.i18name, style: defaultTitleStyle));
+        }
         break;
       case TaskOperationCategory.submitTask:
         children.add(
@@ -1025,7 +1045,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
         ReceiveTaskStrategy.freeSelection) {
       widgets.add(_buildTaskReceiversLimitedQuota(context));
     } else {
-      widgets.add( _buildTaskReceivers(context));
+      widgets.add(_buildTaskReceivers(context));
     }
     widgets.add(_buildTaskCredits(context));
     // return GetBuilder(builder: (controller) => Column(children: widgets));

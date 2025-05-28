@@ -83,6 +83,7 @@ class TaskInfoController extends GetxController {
   void resetAll() {
     resetTask();
     parentTask.value = null;
+    parentId.value = Int64.ZERO;
   }
 
   void initTask(WorkTask v) {
