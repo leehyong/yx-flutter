@@ -730,11 +730,17 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         children = [];
         break;
       case TaskListCategory.delegatedToMe:
-        if (task.receiveStrategy == ReceiveTaskStrategy.twoWaySelection.index) {
-          children = _buildAcceptRefuseAction(context);
-        } else {
-          children = [];
+        if ([
+          ReceiveTaskStrategy.twoWaySelection.index,
+          ReceiveTaskStrategy.onlyTwoWaySelection.index,
+        ].contains(task.receiveStrategy)) {
+          final desc = userTaskActionDesc;
+          if (['待确认', '已拒绝'].contains(desc)) {
+            children = _buildAcceptRefuseAction(context);
+            break;
+          }
         }
+        children = [];
         break;
       case TaskListCategory.parentTaskInfo:
       case TaskListCategory.childrenTaskInfo:
