@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:timer_count_down/timer_count_down.dart';
+import 'package:yx/utils/common_util.dart';
 
 import '../controllers/phone_login_controller.dart';
 
@@ -17,9 +18,9 @@ class PhoneLoginView extends GetView<PhoneLoginController> {
         icon: Icon(Icons.phone),
       ),
       validator: (v) {
-        if (!PhoneLoginController.phoneReg.hasMatch(v!)) {
+        if (!isValidPhone(v!)) {
           controller.hasPhoneError.value = true;
-          return PhoneLoginController.phoneRegErrorTxt;
+          return phoneRegErrorTxt;
         }
         controller.hasPhoneError.value = false;
         return null;

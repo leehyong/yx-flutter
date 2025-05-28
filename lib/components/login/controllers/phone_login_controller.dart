@@ -19,14 +19,10 @@ class PhoneLoginController extends GetxController {
     caseSensitive: true,
   );
   final GlobalKey formKey = GlobalKey<FormState>();
-  static RegExp phoneReg = RegExp(
-    r"^1(3[0-9]|4[01456879]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[0-35-9])\d{8}$",
-  );
   static String pwdRegErrorTxt = "请输入至少6位字符密码";
   static String captchaErrorTxt = "请输入验证码";
 
   // static String pwdRegErrorTxt = "请输入至少6个字符的密码";
-  static String phoneRegErrorTxt = "手机号格式不对";
 
   static PhoneLoginController get to => Get.find();
 

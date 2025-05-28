@@ -300,6 +300,11 @@ bool isValidUser(String user) {
   return RegExp(r"^[a-zA-Z][a-zA-Z0-9_\-@#*&!%]{4,59}").hasMatch(user);
 }
 
+const String phoneRegErrorTxt = "手机号格式不对";
+
+bool isValidPhone(String phone)=> RegExp(
+  r"^1(3[0-9]|4[01456879]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[0-35-9])\d{8}$",
+).hasMatch(phone);
 
 // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
 String treeNodeKey(Int64 id) =>  "$id$innerNodeKey";

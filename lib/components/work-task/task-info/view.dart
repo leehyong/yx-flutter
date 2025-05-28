@@ -621,11 +621,12 @@ class TaskInfoView extends GetView<TaskInfoController> {
               icon: Icon(Icons.phone_android),
             ),
             validator: (v) {
-              // 暂不需要验证
-              return null;
-            },
-            onChanged: (_) {
+              // 验证手机号
+              if (!isValidPhone(v!)) {
+                return phoneRegErrorTxt;
+              }
               controller.saveModification(ModifyWarningCategory.basic);
+              return null;
             },
           ),
         ),
