@@ -174,12 +174,25 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     return -1;
   }
 
-  String get left {
-    if (leftNum < 0) return '无限制';
-    if (leftNum > 9999) {
-      return '10000+';
+  String get actualLeft {
+    final maxR = maxReceiverCount;
+    if (maxR.isNumericOnly) {
+      if (leftNum < 0) return '无限制';
+      return leftNum.toString();
     }
-    return leftNum.toString();
+    return maxR;
+  }
+
+  String get left {
+    final maxR = maxReceiverCount;
+    if (maxR.isNumericOnly) {
+      if (leftNum < 0) return '无限制';
+      if (leftNum > 999) {
+        return '999+';
+      }
+      return leftNum.toString();
+    }
+    return maxR;
   }
 
   String get maxReceiverCount {
@@ -472,10 +485,10 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     ];
     if (ignores.contains(taskCategory)) {
       return null;
-    } else if (task.receiveDeadline <= 0){
+    } else if (task.receiveDeadline <= 0) {
       // 任务没填截止时间
       return null;
-    }else{
+    } else {
       final left = controller.leftDetail;
       final countdownNumberStyle = defaultNumberStyle.copyWith(fontSize: 18);
       final children = <Widget>[];
@@ -673,7 +686,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         children = [
           const Text("剩余名额"),
           Text(left, style: defaultNumberStyle),
-          const SizedBox(width: 4),
+          const SizedBox(width: 2),
         ];
         if (!controller.accepted &&
             hasLeft &&
@@ -695,33 +708,49 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         break;
 
       case TaskListCategory.myPublished:
+        final left_ = left;
         children = [
-          Text(
-            '${userTaskHis.total}',
-            style: defaultNumberStyle.copyWith(fontSize: 16),
+          Tooltip(
+            preferBelow: false,
+            message: '剩余:$actualLeft',
+            child: Row(
+              children: [
+                Text(
+                  '${userTaskHis.total}',
+                  style: defaultNumberStyle.copyWith(fontSize: 16),
+                ),
+                const Text("人领取"),
+                if (!['无限制', '限定'].contains(left_)) ...[
+                  const Text("，剩余"),
+                  Text(left, style: defaultNumberStyle.copyWith(fontSize: 16)),
+                  const Text("人"),
+                ],
+              ],
+            ),
           ),
-          const Text("人领取，剩余"),
-          Text(left, style: defaultNumberStyle.copyWith(fontSize: 16)),
-          const Text("人"),
-          const Spacer(),
-          _buildAddSubTask(context),
+          // const Spacer(),
           const SizedBox(width: 2),
+          _buildAddSubTask(context),
         ];
         break;
       case TaskListCategory.myManuscript:
         children = [
           _buildAddSubTask(context),
           Spacer(),
-          InkWell(
-            onTap: () {
-              debugPrint("发布${task.name}成功！");
-            },
-            child: const Text(
-              "发布",
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+          Tooltip(
+            message: '把任务置为发布状态',
+            preferBelow: false,
+            child: InkWell(
+              onTap: () {
+                debugPrint("发布${task.name}成功！");
+              },
+              child: const Text(
+                "发布",
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -749,17 +778,19 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       case TaskListCategory.childrenTaskInfo:
         return null;
     }
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.blueGrey.shade50,
-        borderRadius: BorderRadius.only(bottomRight: Radius.circular(16)),
-      ),
-      padding: EdgeInsets.only(top: 2, bottom: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: children,
-      ),
-    );
+    return children.isEmpty
+        ? null
+        : Container(
+          decoration: BoxDecoration(
+            color: Colors.blueGrey.shade50,
+            borderRadius: BorderRadius.only(bottomRight: Radius.circular(16)),
+          ),
+          padding: EdgeInsets.only(top: 2, bottom: 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: children,
+          ),
+        );
   }
 
   Widget _buildAddSubTask(BuildContext context) {
