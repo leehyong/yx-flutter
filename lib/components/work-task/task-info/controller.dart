@@ -9,6 +9,7 @@ import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
+import 'package:yx/api/header_api.dart' as header_api;
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/components/work-header/controller.dart';
 import 'package:yx/root/controller.dart';
@@ -296,7 +297,10 @@ class SubmitTasksController extends GetxController {
       return;
     }
     isLoadingSubmitItem.value = DataLoadingStatus.loading;
-    Future.delayed(Duration(milliseconds: 200), () {
+    header_api.queryWorkHeaders(taskInfoController.taskId.value).then((
+      headers,
+    ) {
+      taskSubmitItems.value = headers ?? [];
       _buildLeafSubmitItemTextEditingController(taskSubmitItems.value ?? []);
       isLoadingSubmitItem.value = DataLoadingStatus.loaded;
     });

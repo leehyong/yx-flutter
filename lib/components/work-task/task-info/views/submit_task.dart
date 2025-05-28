@@ -75,7 +75,7 @@ class SubmitTasksView extends GetView<SubmitTasksController> {
                 width: 200,
                 height: 200,
                 child: LoadingIndicator(
-                  indicatorType: Indicator.ballScaleRipple,
+                  indicatorType: Indicator.ballScaleRippleMultiple,
                   /// Required, The loading type of the widget
                   colors: loadingColors,
                   strokeWidth: 3,
