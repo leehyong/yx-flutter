@@ -639,7 +639,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         },
         child: Row(
           children: [
-            const Icon(Icons.close),
+            // const Icon(Icons.close),
             const Text("拒绝", style: TextStyle(fontSize: 16)),
           ],
         ),
@@ -656,7 +656,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
               "接受",
               style: TextStyle(color: Colors.green, fontSize: 16),
             ),
-            const Icon(Icons.done, color: Colors.green),
+            // const Icon(Icons.done, color: Colors.green),
           ],
         ),
       ),
