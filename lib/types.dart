@@ -101,7 +101,7 @@ extension TaskOperationCategoryExtension on TaskOperationCategory {
       case TaskOperationCategory.detailTask:
         return '任务详情';
       case TaskOperationCategory.publishTask:
-        return '发布任务';
+        return '新建任务';
       case TaskOperationCategory.submitTask:
         return '填报任务';
       case TaskOperationCategory.submitDetailTask:

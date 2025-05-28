@@ -33,7 +33,7 @@ class TaskHallView extends StatelessWidget {
                 arguments: args,
               );
             },
-            child: Row(children: [const Text('发布'), Icon(Icons.add)]),
+            child: Row(children: [const Text('新建'), Icon(Icons.add)]),
           ),
         ],
       ),
