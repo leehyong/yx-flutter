@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -50,7 +52,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
           } else if (mode == LoadStatus.canLoading) {
             body = Text("释放加载更多");
           } else {
-            return emptyWidget(context);
+            return SizedBox.shrink();
           }
           return SizedBox(height: 55.0, child: Center(child: body));
         },
@@ -67,41 +69,88 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
       controller: ScrollController(initialScrollOffset: 0),
       itemCount: contents!.length,
       itemBuilder: (context, index) {
-        return Column(
-          children: [
-            Text(contents![index].content.name),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    localFromSeconds(
-                      contents![index].content.createdAt.toInt(),
-                    ),
+        final thisContent = contents![index];
+        final colorIdx =
+            Random(thisContent.content.id.toInt()).nextInt(10000) %
+            loadingColors.length;
+        // 把颜色做成随机透明的
+        // 区分编辑和只读
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 4),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: loadingColors[colorIdx].withAlpha(50),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            // spacing: 8,
+            children: [
+              Tooltip(
+                message: thisContent.content.name,
+                child: Text(
+                  thisContent.content.name,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                InkWell(
-                  onTap: () {
-                    setTaskCurrentHistory(
-                      TaskSubmitAction.detail,
-                      contents![index],
-                    );
-                  },
-                  child: Text('详情'),
-                ),
-                InkWell(
-                  onTap: () {
-                    setTaskCurrentHistory(
-                      TaskSubmitAction.modify,
-                      contents![index],
-                    );
-                  },
-                  child: Text('修改'),
-                ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setTaskCurrentHistory(
+                        TaskSubmitAction.detail,
+                        contents![index],
+                      );
+                    },
+                    icon: Text(
+                      '详情',
+                      style: TextStyle(
+                        color: Colors.blue.withAlpha(120),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: () {
+                      setTaskCurrentHistory(
+                        TaskSubmitAction.modify,
+                        contents![index],
+                      );
+                    },
+                    icon: Text(
+                      '修改',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+
+                  const Text('创建时间:', style: TextStyle(fontSize: 12)),
+                  const SizedBox(width: 4),
+                  Text(
+                    defaultDateTimeFormat.format(
+                      DateTime.fromMillisecondsSinceEpoch(
+                        contents![index].content.createdAt.toInt(),
+                      ),
+                    ),
+                    style: TextStyle(
+                      color: Colors.purple.withAlpha(120),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
@@ -131,8 +180,9 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
       );
     } else if (contents == null || contents!.isEmpty) {
       return emptyWidget(context);
+    } else {
+      return _buildRefresher(context);
     }
-    return _buildRefresher(context);
   }
 
   bool _loading = false;

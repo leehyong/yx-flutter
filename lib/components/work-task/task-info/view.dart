@@ -178,7 +178,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
                                   WoltModalSheetPage(
                                     topBarTitle: Center(
                                       child: Text(
-                                        "填报历史",
+                                        "历史填报",
                                         style: TextStyle(
                                           color: Colors.red,
                                           fontWeight: FontWeight.bold,
