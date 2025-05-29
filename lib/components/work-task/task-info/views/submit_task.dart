@@ -31,6 +31,21 @@ class SubmitTasksView extends StatefulWidget {
 }
 
 class SubmitTasksViewState extends State<SubmitTasksView> {
+  bool get canWrite {
+    switch (_action) {
+      case TaskSubmitAction.add:
+        return true;
+      case TaskSubmitAction.modify:
+        return true;
+      case TaskSubmitAction.detail:
+        return false;
+      default:
+        return widget.readOnly;
+    }
+  }
+
+  TaskSubmitAction _action = TaskSubmitAction.add;
+
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   DataLoadingStatus isLoadingSubmitItem = DataLoadingStatus.none;
 
@@ -41,7 +56,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   final _contentNameTextEditingController = TextEditingController();
 
   TaskInfoController get taskInfoController => Get.find<TaskInfoController>();
-  CusYooWorkContent? content;
+  CusYooWorkContent? _content;
 
   TextEditingController getLeafTextEditingController(Int64 headerId) =>
       _leafTaskSubmitItemsTextEditingControllers[headerId]!;
@@ -52,31 +67,37 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     await _initTaskSubmitItems();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    // 重置动作
-    // taskInfoController.taskSubmitAction.value = null;
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   // 重置动作
+  //   // taskInfoController.taskSubmitAction.value = null;
+  // }
 
   Future<void> handleTaskSubmitAction(
     TaskSubmitAction action, {
     CusYooWorkContent? content,
   }) async {
-    if (widget.readOnly) return;
     switch (action) {
       case TaskSubmitAction.add:
+        setState(() {
+          _action = action;
+        });
         // 新增新的内容的时候，清空所有的填报项
         _clearAllTxtInput();
         await _initTaskSubmitItems();
         break;
       case TaskSubmitAction.save:
+        setState(() {
+          _action = action;
+        });
         return _saveTaskContent();
       case TaskSubmitAction.modify:
         // 查询待修改的原始数据
         assert(content != null);
         setState(() {
-          this.content = content!;
+          _action = action;
+          _content = content!;
         });
         // 填充原始数据
         _buildLeafSubmitItemTextEditingController(
@@ -84,6 +105,9 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
           oldContents: content.contentItems,
         );
       default:
+        setState(() {
+          _action = action;
+        });
         break;
     }
   }
@@ -156,9 +180,6 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     List<CusYooHeader> headers, {
     Map<Int64, WorkContentItem>? oldContents,
   }) {
-    if (widget.readOnly) {
-      return;
-    }
     for (var entry in headers) {
       if (entry.children.isEmpty) {
         setState(() {
@@ -253,7 +274,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
           },
           decoration: InputDecoration(
             labelText: '名字',
-            enabled: !widget.readOnly,
+            enabled: canWrite,
             suffixIcon: IconButton(
               onPressed: () {
                 _contentNameTextEditingController.clear();
@@ -282,12 +303,12 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                 ? _WebSubmitWorkHeaderItemView(
                   headerTree.node,
                   headerTree.children,
-                  widget.readOnly,
+              !canWrite,
                 )
                 : _MobileSubmitWorkHeaderItemView(
                   headerTree.node,
                   headerTree.children,
-                  widget.readOnly,
+                  !canWrite,
                 ),
           );
           return commonCard(
@@ -299,8 +320,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
       );
 
   Future<void> _saveTaskContent() async {
+    // 不能写时，禁止提交修改
+    if(!canWrite) return;
     // 调用存储内容相关接口
-    if (content == null) {
+    if (_content == null) {
       // 新增
       content_api.newWorkTaskContent(
         NewCusYooWorkContentReq(
@@ -322,7 +345,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     } else {
       // 修改
       content_api.updateWorkTaskContent(
-        content!.content.id,
+        _content!.content.id,
         UpdateCusYooWorkContentReq(
           content: UpdateWorkContent(
             name: _contentNameTextEditingController.text,
@@ -332,7 +355,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
               _leafTaskSubmitItemsTextEditingControllers.entries
                   .map(
                     (entry) => UpdateWorkContentItem(
-                      contentId: content!.content.id,
+                      contentId: _content!.content.id,
                       headerId: entry.key,
                       content: entry.value.text,
                     ),

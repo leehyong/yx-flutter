@@ -327,5 +327,6 @@ enum TaskSubmitAction{
   add, // 新增操作
   save, // 保存操作
   modify, // 修改操作， 指的是修改历史记录中的数据
+  detail, // 查看详情
   history, // 历史记录操作
 }

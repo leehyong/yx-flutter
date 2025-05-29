@@ -17,6 +17,7 @@ import 'controller.dart';
 import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
 import 'views/submit_task.dart';
+import 'views/task_content_history.dart';
 
 class TaskInfoView extends GetView<TaskInfoController> {
   const TaskInfoView({
@@ -165,7 +166,44 @@ class TaskInfoView extends GetView<TaskInfoController> {
                           // 文字颜色
                         ),
                         onPressed: () {
-                          debugPrint("历史记录");
+                          WoltModalSheet.show(
+                            onModalDismissedWithBarrierTap: () {
+                              Navigator.of(context).maybePop();
+                            },
+                            useSafeArea: true,
+                            context: context,
+                            modalTypeBuilder: woltModalType,
+                            pageListBuilder:
+                                (modalSheetContext) => [
+                                  WoltModalSheetPage(
+                                    topBarTitle: Center(
+                                      child: Text(
+                                        "填报历史",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 24,
+                                        ),
+                                      ),
+                                    ),
+                                    hasTopBarLayer: true,
+                                    // hasSabGradient: false,
+                                    isTopBarLayerAlwaysVisible: true,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxHeight:
+                                            GetPlatform.isMobile ? 500 : 800,
+                                      ),
+                                      child: RepaintBoundary(
+                                        child: TaskContentHistoryView(
+                                          task: controller.task.value!,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // child: ,
+                                ],
+                          );
                         },
                         // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
                         child: const Text('历史'),

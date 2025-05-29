@@ -38,7 +38,6 @@ class TaskInfoController extends GetxController {
 
   final checkedParentTask = (null as WorkTask?).obs;
   final checkedTaskUsers = (null as List<User>?).obs;
-
   TaskInfoAction get action {
     switch (opCategory.value) {
       case TaskOperationCategory.detailTask:
