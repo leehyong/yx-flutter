@@ -15,6 +15,7 @@ import '../types.dart' show innerNodeKey;
 
 final defaultDateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 final defaultDateTimeFormat1 = DateFormat('yyyy-MM-dd HH:mm');
+final defaultDateTimeFormat3 = DateFormat('yyyy-MM-dd HH');
 
 final defaultDateFormat = DateFormat('yyyy-MM-dd');
 final defaultDateFormat1 = DateFormat('yyyy/MM/dd');
@@ -310,3 +311,10 @@ bool isValidPhone(String phone)=> RegExp(
 String treeNodeKey(Int64 id) =>  "$id$innerNodeKey";
 
 
+(DateTime, DateTime) weekRange(DateTime dt){
+  // 获取本周第一天（周一）
+  DateTime firstDayOfWeek = dt.subtract(Duration(days: dt.weekday - 1));
+  // 获取本周最后一天（周日）
+  DateTime lastDayOfWeek = firstDayOfWeek.add(Duration(days: 6));
+  return (firstDayOfWeek, lastDayOfWeek);
+}

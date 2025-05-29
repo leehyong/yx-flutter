@@ -1,3 +1,4 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/cus_content.pb.dart';
 import 'package:yx/services/http_service.dart';
@@ -7,7 +8,7 @@ import 'package:yx/utils/proto.dart';
 import 'codes.dart';
 
 Future<ProtoPageVo<CusYooWorkContent>?> queryWorkTaskContents(
-  int taskId,
+  Int64 taskId,
   int page,
   int limit,
 ) async {
@@ -39,7 +40,10 @@ Future<String?> newWorkTaskContent(NewCusYooWorkContentReq data) async {
   }
 }
 
-Future<String?> updateWorkTaskContent(int id ,UpdateCusYooWorkContentReq data) async {
+Future<String?> updateWorkTaskContent(
+  Int64 id,
+  UpdateCusYooWorkContentReq data,
+) async {
   try {
     final resp = await HttpDioService.instance.dio.put<String>(
       "$apiContextPath/work-content/$id",
@@ -52,7 +56,7 @@ Future<String?> updateWorkTaskContent(int id ,UpdateCusYooWorkContentReq data) a
   }
 }
 
-Future<String?> deleteWorkTaskContent(int id) async {
+Future<String?> deleteWorkTaskContent(Int64 id) async {
   try {
     final resp = await HttpDioService.instance.dio.delete<String>(
       "$apiContextPath/work-content/$id",

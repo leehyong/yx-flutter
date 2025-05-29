@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:easy_debounce/easy_throttle.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +7,6 @@ import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
-import 'package:yx/api/header_api.dart' as header_api;
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/components/work-header/controller.dart';
 import 'package:yx/root/controller.dart';
@@ -21,11 +18,14 @@ import 'package:yx/utils/toast.dart';
 import 'data.dart';
 import 'views/select_parent_task.dart';
 import 'views/select_task_person.dart';
+import 'views/submit_task.dart';
 
 class TaskInfoController extends GetxController {
   final GlobalKey formKey = GlobalKey<FormState>();
   final GlobalKey<SelectParentTaskState> selectParentTaskKey =
       GlobalKey<SelectParentTaskState>();
+  final GlobalKey<SubmitTasksViewState> submitTasksViewStateKey =
+      GlobalKey<SubmitTasksViewState>();
 
   final GlobalKey<SelectTaskUserState> selectTaskUsersKey =
       GlobalKey<SelectTaskUserState>();
@@ -33,7 +33,7 @@ class TaskInfoController extends GetxController {
   final taskId = Int64.ZERO.obs;
   final parentTask = (null as WorkTask?).obs;
   final parentId = Int64.ZERO.obs;
-
+  // final taskSubmitAction = (null as TaskSubmitAction?).obs;
   final opCategory = TaskOperationCategory.detailTask.obs;
 
   final checkedParentTask = (null as WorkTask?).obs;
@@ -106,6 +106,9 @@ class TaskInfoController extends GetxController {
     );
     taskReceiverQuotaLimitedController.text = v.maxReceiverCount.toString();
   }
+
+  SubmitTasksViewState? get submitTasksViewState =>
+      submitTasksViewStateKey.currentState;
 
   @override
   void onInit() {
@@ -276,63 +279,6 @@ class TaskInfoController extends GetxController {
   }
 }
 
-class SubmitTasksController extends GetxController {
-  ScrollController scrollController = ScrollController(initialScrollOffset: 0);
-  final isLoadingSubmitItem = DataLoadingStatus.none.obs;
-
-  final taskSubmitItems = (null as List<CusYooHeader>?).obs;
-  final _leafTaskSubmitItemsTextEditingControllers =
-      HashMap<Int64, TextEditingController>();
-
-  TaskInfoController get taskInfoController => Get.find<TaskInfoController>();
-
-  bool get readOnly => taskInfoController.action == TaskInfoAction.submitDetail;
-
-  TextEditingController getLeafTextEditingController(Int64 headerId) =>
-      _leafTaskSubmitItemsTextEditingControllers[headerId]!;
-
-  Future<void> initTaskSubmitItems() async {
-    if (isLoadingSubmitItem.value == DataLoadingStatus.loaded) {
-      // 避免重复加载
-      return;
-    }
-    isLoadingSubmitItem.value = DataLoadingStatus.loading;
-    header_api.queryWorkHeaders(taskInfoController.taskId.value).then((
-      headers,
-    ) {
-      taskSubmitItems.value = headers ?? [];
-      _buildLeafSubmitItemTextEditingController(taskSubmitItems.value ?? []);
-      isLoadingSubmitItem.value = DataLoadingStatus.loaded;
-    });
-  }
-
-  Future<void> saveTaskContent() async {
-    //   todo: 调用相关接口
-  }
-
-  void saveModification() {
-    Get.find<RootTabController>().addModification(
-      saveTaskContent,
-      ModifyWarningCategory.submitContent,
-    );
-  }
-
-  void _buildLeafSubmitItemTextEditingController(List<CusYooHeader> headers) {
-    if (readOnly) {
-      return;
-    }
-    for (var entry in headers) {
-      if (entry.children.isEmpty) {
-        // todo: 给 TextEditingController 填充初始值
-        _leafTaskSubmitItemsTextEditingControllers[entry.node.id] =
-            TextEditingController();
-      } else {
-        _buildLeafSubmitItemTextEditingController(entry.children);
-      }
-    }
-  }
-}
-
 void setCurTaskInfo(WorkTaskPageParams param) {
   final controller = Get.find<TaskInfoController>();
   controller.task.value = param.task;
@@ -360,13 +306,7 @@ TaskOperationCategory getTaskInfoOperationCategory(WorkTaskPageParams param) {
   return opCategory;
 }
 
-abstract class _SubmitOneTaskHeaderItemController extends GetxController {
-  SubmitTasksController get submitTasksController =>
-      Get.find<SubmitTasksController>();
-}
-
-class MobileSubmitOneTaskHeaderItemController
-    extends _SubmitOneTaskHeaderItemController {
+class MobileSubmitOneTaskHeaderItemController extends GetxController {
   late final List<SubmitOneWorkTaskHeader> children;
 
   // late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
@@ -396,8 +336,7 @@ class MobileSubmitOneTaskHeaderItemController
   }
 }
 
-class WebSubmitOneTaskHeaderItemController
-    extends _SubmitOneTaskHeaderItemController {
+class WebSubmitOneTaskHeaderItemController extends GetxController {
   final List<CusYooHeader> children;
 
   WebSubmitOneTaskHeaderItemController(this.children);

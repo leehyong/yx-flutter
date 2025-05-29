@@ -10,7 +10,6 @@ class TaskHallBinding implements Bindings {
     debugPrint("TaskHallBinding");
     Get.put(TaskListController(), permanent: true);
     Get.put(TaskInfoController(), permanent: true);
-    Get.put(SubmitTasksController(), permanent: true);
     // Get.lazyPut(() => TaskInfoController());
   }
 }

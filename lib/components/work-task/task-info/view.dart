@@ -132,16 +132,46 @@ class TaskInfoView extends GetView<TaskInfoController> {
         child: Scaffold(
           appBar: AppBar(
             title: title,
-            actions: [
-              if (opCategory == TaskOperationCategory.submitTask)
-                ElevatedButton(
-                  onPressed: () {
-                    debugPrint("提交");
-                  },
-                  // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
-                  child: Row(children: [const Text('提交'), Icon(Icons.check)]),
-                ),
-            ],
+            actions:
+                opCategory == TaskOperationCategory.submitTask
+                    ? [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade500, // 背景色
+                          foregroundColor: Colors.white,
+                          // 文字颜色
+                        ),
+                        onPressed: () {
+                          debugPrint("新增");
+                          controller.submitTasksViewState
+                              ?.handleTaskSubmitAction(TaskSubmitAction.add);
+                        },
+                        child: const Text('新增'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          debugPrint("保存");
+                          controller.submitTasksViewState
+                              ?.handleTaskSubmitAction(TaskSubmitAction.save);
+                        },
+                        child: const Text('保存'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade400, // 背景色
+                          foregroundColor: Colors.black,
+                          // 文字颜色
+                        ),
+                        onPressed: () {
+                          debugPrint("历史记录");
+                        },
+                        // child: Row(children: [const Text('提交'), Icon(Icons.check)]),
+                        child: const Text('历史'),
+                      ),
+                    ]
+                    : null,
           ),
 
           body: Padding(
@@ -262,7 +292,10 @@ class TaskInfoView extends GetView<TaskInfoController> {
               Expanded(
                 child:
                     controller.isSubmitRelated
-                        ? SubmitTasksView(controller.readOnly)
+                        ? SubmitTasksView(
+                          key: controller.submitTasksViewStateKey,
+                          readOnly: controller.readOnly,
+                        )
                         : PublishSubmitItemsCrudView(
                           // controller.taskId.value,
                           // readOnly,
@@ -276,7 +309,10 @@ class TaskInfoView extends GetView<TaskInfoController> {
 
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
-            ? SubmitTasksView(controller.readOnly)
+            ? SubmitTasksView(
+              key: controller.submitTasksViewStateKey,
+              readOnly: controller.readOnly,
+            )
             : PublishSubmitItemsCrudView();
 
       case TaskAttributeCategory.parentTask:

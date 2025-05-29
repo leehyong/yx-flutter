@@ -321,3 +321,11 @@ enum UserTaskAction {
   refuse,     // 拒绝
   unconfirmed, // 待确认
 }
+
+// 提交任务项时，涉及到的各个操作
+enum TaskSubmitAction{
+  add, // 新增操作
+  save, // 保存操作
+  modify, // 修改操作， 指的是修改历史记录中的数据
+  history, // 历史记录操作
+}

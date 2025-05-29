@@ -10,6 +10,5 @@ class TaskHomeBinding implements Bindings {
     debugPrint("TaskHomeBinding");
     Get.put(TaskListController(), permanent: true);
     Get.put(TaskInfoController(), permanent: true);
-    Get.put(SubmitTasksController(), permanent: true);
   }
 }

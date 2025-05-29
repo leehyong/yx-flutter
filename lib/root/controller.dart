@@ -15,7 +15,7 @@ import 'views/profile_view.dart';
 class RootTabController extends GetxController {
   // GlobalKey， 使用GlobalKey， 可以让showGeneralDialog不需要每次都传递BuildContext对象
   final rootTabKey = GlobalKey<ScaffoldState>();
-  final curTab = 1.obs;
+  final curTab = 0.obs;
   final menuOpen = false.obs;
   // LinkedHashMap 保证插入顺序，以便函数按照正确的顺序执行
   final _modifyCategories =
