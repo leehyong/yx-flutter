@@ -287,7 +287,7 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
             message: node.data!.name,
             child: Row(
               children: [
-                Icon(node.data!.data is User ? Icons.person : Icons.reorder),
+                Icon(node.data!.data is User ? Icons.person : Icons.table_chart),
                 Text(
                   node.data!.name,
                   style: TextStyle(
