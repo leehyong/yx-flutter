@@ -138,9 +138,9 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
   final _refreshController = RefreshController(initialRefresh: false);
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
-    await _queryTaskHistory();
+    _queryTaskHistory();
   }
 
   Future<void> _queryTaskHistory() async {

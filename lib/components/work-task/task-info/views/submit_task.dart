@@ -24,7 +24,8 @@ import '../data.dart';
 class SubmitTasksView extends StatefulWidget {
   final bool readOnly;
 
-  const SubmitTasksView({super.key, required this.readOnly});
+  SubmitTasksView({required this.readOnly})
+    : super(key: Get.find<TaskInfoController>().submitTasksViewStateKey);
 
   @override
   SubmitTasksViewState createState() => SubmitTasksViewState();
@@ -62,9 +63,9 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
       _leafTaskSubmitItemsTextEditingControllers[headerId]!;
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
-    await _initTaskSubmitItems();
+    _initTaskSubmitItems();
   }
 
   // @override

@@ -330,14 +330,8 @@ class TaskInfoView extends GetView<TaskInfoController> {
               Expanded(
                 child:
                     controller.isSubmitRelated
-                        ? SubmitTasksView(
-                          key: controller.submitTasksViewStateKey,
-                          readOnly: controller.readOnly,
-                        )
-                        : PublishSubmitItemsCrudView(
-                          // controller.taskId.value,
-                          // readOnly,
-                        ),
+                        ? SubmitTasksView(readOnly: controller.readOnly)
+                        : PublishSubmitItemsCrudView(),
               ),
               SizedBox(width: 4),
             ],
@@ -347,10 +341,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
 
       case TaskAttributeCategory.submitItem:
         return controller.isSubmitRelated
-            ? SubmitTasksView(
-              key: controller.submitTasksViewStateKey,
-              readOnly: controller.readOnly,
-            )
+            ? SubmitTasksView(readOnly: controller.readOnly)
             : PublishSubmitItemsCrudView();
 
       case TaskAttributeCategory.parentTask:
