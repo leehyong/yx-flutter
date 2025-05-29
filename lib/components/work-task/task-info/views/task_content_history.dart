@@ -28,7 +28,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
       onLoading: _queryTaskHistory,
       onRefresh: () async {
         setState(() {
-          page = 0;
+          _page = 0;
         });
         _queryTaskHistory();
       },
@@ -136,8 +136,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
   }
 
   bool _loading = false;
-  int page = 0;
-  int limit = 10;
+  int _page = 0;
   List<CusYooWorkContent>? contents;
   final _refreshController = RefreshController(initialRefresh: false);
 
@@ -149,10 +148,10 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
 
   Future<void> _queryTaskHistory() async {
     setState(() {
-      page++;
+      _page++;
       _loading = true;
     });
-    content_api.queryWorkTaskContents(widget.task.id, page, limit).then((v) {
+    content_api.queryWorkTaskContents(widget.task.id, _page, 10).then((v) {
       setState(() {
         _loading = false;
         contents = v?.data;

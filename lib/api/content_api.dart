@@ -27,10 +27,10 @@ Future<ProtoPageVo<CusYooWorkContent>?> queryWorkTaskContents(
   }
 }
 
-Future<String?> newWorkTaskContent(NewCusYooWorkContentReq data) async {
+Future<String?> newWorkTaskContent(Int64 taskId, NewCusYooWorkContentReq data) async {
   try {
     final resp = await HttpDioService.instance.dio.post<String>(
-      "$apiContextPath/work-content",
+      "$apiContextPath/work-content/$taskId",
       data: encodeProtoData(data),
     );
     return handleProtoCommonInstanceVo(resp);

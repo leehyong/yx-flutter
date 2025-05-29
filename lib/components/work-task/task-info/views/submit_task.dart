@@ -65,6 +65,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   @override
   void initState() {
     super.initState();
+    _contentNameTextEditingController.text = _defaultContentName;
     _initTaskSubmitItems();
   }
 
@@ -240,11 +241,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     if (isLoadingSubmitItem != DataLoadingStatus.loaded) {
       return Center(
         child: SizedBox(
-          width: 200,
-          height: 200,
+          width: 100,
+          height: 100,
           child: LoadingIndicator(
             indicatorType: Indicator.ballScaleRippleMultiple,
-
             /// Required, The loading type of the widget
             colors: loadingColors,
             strokeWidth: 3,
@@ -324,6 +324,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     if (_content == null) {
       // 新增
       content_api.newWorkTaskContent(
+        taskInfoController.task.value!.id,
         NewCusYooWorkContentReq(
           content: NewWorkContent(
             name: _contentNameTextEditingController.text,
