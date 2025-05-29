@@ -80,30 +80,28 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   }) async {
     switch (action) {
       case TaskSubmitAction.add:
-        setState(() {
-          _action = action;
-        });
+        _action = action;
         // 新增新的内容的时候，清空所有的填报项
         _clearAllTxtInput();
+        setState(() {}); //通知有更新
         await _initTaskSubmitItems();
         break;
       case TaskSubmitAction.save:
-        setState(() {
-          _action = action;
-        });
-        return _saveTaskContent();
+        await _saveTaskContent();
+        _action = action;
+        setState(() {}); //通知有更新
+        break;
       case TaskSubmitAction.modify:
         // 查询待修改的原始数据
         assert(content != null);
-        setState(() {
-          _action = action;
-          _content = content!;
-        });
+        _action = action;
+        _content = content!;
         // 填充原始数据
         _buildLeafSubmitItemTextEditingController(
           content!.headers,
           oldContents: content.contentItems,
         );
+        setState(() {}); //通知有更新
       default:
         setState(() {
           _action = action;
@@ -168,11 +166,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     header_api.queryWorkHeaders(taskInfoController.taskId.value).then((
       headers,
     ) {
-      setState(() {
-        taskSubmitItems = headers ?? [];
-        isLoadingSubmitItem = DataLoadingStatus.loaded;
-      });
+      taskSubmitItems = headers ?? [];
+      isLoadingSubmitItem = DataLoadingStatus.loaded;
       _buildLeafSubmitItemTextEditingController(headers ?? []);
+      setState(() {});
     });
   }
 
@@ -182,14 +179,12 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   }) {
     for (var entry in headers) {
       if (entry.children.isEmpty) {
-        setState(() {
-          _leafTaskSubmitItemsTextEditingControllers[entry
-              .node
-              //  给 TextEditingController 填充初始值
-              .id] = TextEditingController(
-            text: oldContents?[entry.node.id]?.content,
-          );
-        });
+        _leafTaskSubmitItemsTextEditingControllers[entry
+            .node
+            //  给 TextEditingController 填充初始值
+            .id] = TextEditingController(
+          text: oldContents?[entry.node.id]?.content,
+        );
       } else {
         _buildLeafSubmitItemTextEditingController(entry.children);
       }
@@ -303,7 +298,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                 ? _WebSubmitWorkHeaderItemView(
                   headerTree.node,
                   headerTree.children,
-              !canWrite,
+                  !canWrite,
                 )
                 : _MobileSubmitWorkHeaderItemView(
                   headerTree.node,
@@ -321,7 +316,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
 
   Future<void> _saveTaskContent() async {
     // 不能写时，禁止提交修改
-    if(!canWrite) return;
+    if (!canWrite) return;
     // 调用存储内容相关接口
     if (_content == null) {
       // 新增
