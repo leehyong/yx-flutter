@@ -270,6 +270,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
           },
           decoration: InputDecoration(
             labelText: '名字',
+            icon: Icon(Icons.text_snippet),
             enabled: canWrite,
             suffixIcon: IconButton(
               onPressed: () {
@@ -279,7 +280,8 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
             ),
           ),
         ),
-        _buildTaskSubmitItems(context, cnt),
+        const SizedBox(height: 8),
+        Expanded(child: _buildTaskSubmitItems(context, cnt)),
       ]);
     }
 
