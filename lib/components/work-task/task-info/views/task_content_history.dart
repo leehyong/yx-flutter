@@ -120,10 +120,14 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return LoadingIndicator(
-        indicatorType: Indicator.lineScale,
-        colors: loadingColors,
-        strokeWidth: 2,
+      return SizedBox(
+        width: 200,
+        height: 200,
+        child: LoadingIndicator(
+          indicatorType: Indicator.lineScale,
+          colors: loadingColors,
+          strokeWidth: 2,
+        ),
       );
     } else if (contents == null || contents!.isEmpty) {
       return emptyWidget(context);

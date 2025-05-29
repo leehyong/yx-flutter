@@ -535,12 +535,12 @@ class _WebSubmitWorkHeaderItemView
   @override
   Widget build(BuildContext context) {
     if (controller.children.isEmpty) {
-      return submitTasksViewState.widget.readOnly
-          ? Text("112233")
-          : TextFormField(
-            controller: submitTasksViewState.getLeafTextEditingController(
-              rootHeader.id,
-            ),
+      final ctrl = submitTasksViewState.getLeafTextEditingController(
+        rootHeader.id,
+      );
+      return submitTasksViewState.canWrite
+          ? TextFormField(
+            controller: ctrl,
             textInputAction: TextInputAction.done,
             autofocus: true,
             maxLines: 4,
@@ -554,7 +554,8 @@ class _WebSubmitWorkHeaderItemView
               submitTasksViewState.saveModification();
               return null;
             },
-          );
+          )
+          : Text(ctrl.text);
     }
     return Column(
       children:
@@ -578,6 +579,9 @@ class _WebSubmitWorkHeaderItemView
     if (node.children.isEmpty) {
       final headerColor = node.node.required ? Colors.red : Colors.black;
       // 没有子节点时，独占一行
+      final ctrl = submitTasksViewState.getLeafTextEditingController(
+        rootHeader.id,
+      );
       return Column(
         children: [
           Container(
@@ -605,12 +609,9 @@ class _WebSubmitWorkHeaderItemView
               ],
             ),
           ),
-          submitTasksViewState.widget.readOnly
-              ? Text("112233")
-              : TextFormField(
-                controller: submitTasksViewState.getLeafTextEditingController(
-                  node.node.id,
-                ),
+          submitTasksViewState.canWrite
+              ? TextFormField(
+                controller: ctrl,
                 textInputAction: TextInputAction.done,
                 autofocus: true,
                 maxLines: 4,
@@ -620,13 +621,12 @@ class _WebSubmitWorkHeaderItemView
                   if (node.node.required && v!.trim().isEmpty) {
                     return "该项不能空";
                   }
-                  return null;
-                },
-                onChanged: (_) {
                   // 保存变更，以便提示
                   submitTasksViewState.saveModification();
+                  return null;
                 },
-              ),
+              )
+              : Text(ctrl.text),
         ],
       );
     } else {

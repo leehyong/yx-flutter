@@ -14,7 +14,7 @@ Future<ProtoPageVo<CusYooWorkContent>?> queryWorkTaskContents(
 ) async {
   try {
     final resp = await HttpDioService.instance.dio.get<String>(
-      "$apiContextPath/work-content/$taskId}",
+      "$apiContextPath/work-content/$taskId",
       queryParameters: {"page": page, "limit": limit},
     );
     return handleProtoPageInstanceVo<CusYooWorkContent>(
