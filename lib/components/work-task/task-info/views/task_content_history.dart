@@ -106,6 +106,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
                       setTaskCurrentHistory(
                         TaskSubmitAction.detail,
                         contents![index],
+                        context,
                       );
                     },
                     icon: Text(
@@ -122,6 +123,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
                       setTaskCurrentHistory(
                         TaskSubmitAction.modify,
                         contents![index],
+                        context,
                       );
                     },
                     icon: Text(
@@ -159,11 +161,13 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
   void setTaskCurrentHistory(
     TaskSubmitAction action,
     CusYooWorkContent content,
+    BuildContext context,
   ) {
     Get.find<TaskInfoController>().submitTasksViewState?.handleTaskSubmitAction(
       TaskSubmitAction.modify,
       content: content,
     );
+    Navigator.of(context).maybePop();
   }
 
   @override
