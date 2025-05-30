@@ -377,7 +377,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                   )
                   .toList(),
         ),
-      );
+      ).then((_){
+        // 新增成功后，清空所有信息
+        _clearAllTxtInput();
+      });
     } else {
       // 修改
       content_api.updateWorkTaskContent(
