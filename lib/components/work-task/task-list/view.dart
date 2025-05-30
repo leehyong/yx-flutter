@@ -277,6 +277,14 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           return desc.isEmpty
               ? card
               : _buildTaskActionIndicator(context, card, desc);
+        case TaskListCategory.myManuscript:
+          String desc =
+              controller.taskStatus.value == SystemTaskStatus.initial.index
+                  ? ''
+                  : '已发布';
+          return desc.isEmpty
+              ? card
+              : _buildTaskActionIndicator(context, card, desc);
         default:
           return card;
       }
