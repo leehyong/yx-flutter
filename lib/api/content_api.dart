@@ -33,7 +33,7 @@ Future<String?> newWorkTaskContent(Int64 taskId, NewCusYooWorkContentReq data) a
       "$apiContextPath/work-content/$taskId",
       data: encodeProtoData(data),
     );
-    return handleProtoCommonInstanceVo(resp);
+    return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
     debugPrint(e.toString());
     return e.toString();
@@ -49,7 +49,7 @@ Future<String?> updateWorkTaskContent(
       "$apiContextPath/work-content/$id",
       data: encodeProtoData(data),
     );
-    return handleProtoCommonInstanceVo(resp);
+    return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
     debugPrint(e.toString());
     return e.toString();

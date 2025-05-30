@@ -47,6 +47,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
 
   TaskSubmitAction _action = TaskSubmitAction.add;
 
+  bool _isSaving = false;
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   DataLoadingStatus isLoadingSubmitItem = DataLoadingStatus.none;
 
@@ -69,13 +70,6 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     _initTaskSubmitItems();
   }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   // 重置动作
-  //   // taskInfoController.taskSubmitAction.value = null;
-  // }
-
   Future<void> handleTaskSubmitAction(
     TaskSubmitAction action, {
     CusYooWorkContent? content,
@@ -92,7 +86,6 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
       case TaskSubmitAction.save:
         await _saveTaskContent();
         _action = action;
-        setState(() {}); //通知有更新
         break;
       case TaskSubmitAction.modifyHistory:
       case TaskSubmitAction.detailHistory:
@@ -237,22 +230,26 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     );
   }
 
+  Widget _buildLoadingIndicator(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 100,
+        height: 100,
+        child: LoadingIndicator(
+          indicatorType: Indicator.ballScaleRippleMultiple,
+
+          /// Required, The loading type of the widget
+          colors: loadingColors,
+          strokeWidth: 3,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoadingSubmitItem != DataLoadingStatus.loaded) {
-      return Center(
-        child: SizedBox(
-          width: 100,
-          height: 100,
-          child: LoadingIndicator(
-            indicatorType: Indicator.ballScaleRippleMultiple,
-
-            /// Required, The loading type of the widget
-            colors: loadingColors,
-            strokeWidth: 3,
-          ),
-        ),
-      );
+      return _buildLoadingIndicator(context);
     }
     final cnt = taskSubmitItems?.length ?? 0;
 
@@ -291,7 +288,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                 onPressed: () {
                   handleTaskSubmitAction(TaskSubmitAction.modifyHistoryContent);
                 },
-                icon: Tooltip(message: '修改',child: Icon(Icons.edit),),
+                icon: Tooltip(message: '修改', child: Icon(Icons.edit)),
               ),
             if (_action == TaskSubmitAction.modifyHistoryContent)
               IconButton(
@@ -300,7 +297,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                     _action = TaskSubmitAction.detailHistory;
                   });
                 },
-                icon: Tooltip(message: '详情',child: Icon(Icons.info_outline_rounded),),
+                icon: Tooltip(
+                  message: '详情',
+                  child: Icon(Icons.info_outline_rounded),
+                ),
               ),
           ],
         ),
@@ -308,8 +308,19 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         Expanded(child: _buildTaskSubmitItems(context, cnt)),
       ]);
     }
+    final target = Column(children: children);
 
-    return Column(children: children);
+    return _isSaving
+        ? Stack(
+          children: [
+            target,
+            Positioned.fill(child: Container(
+              color: Colors.black.withAlpha(80),
+              child: _buildLoadingIndicator(context),
+            )),
+          ],
+        )
+        : target;
   }
 
   Widget _buildTaskSubmitItems(BuildContext context, int cnt) =>
@@ -342,6 +353,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   Future<void> _saveTaskContent() async {
     // 不能写时，禁止提交修改
     if (!canWrite) return;
+    if (_isSaving) return;
+    setState(() {
+      _isSaving = true;
+    });
     // 调用存储内容相关接口
     if (_content == null) {
       // 新增
@@ -385,6 +400,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         ),
       );
     }
+    await Future.delayed(Duration(milliseconds: 100));
+    setState(() {
+      _isSaving = false;
+    });
   }
 
   void saveModification() {
