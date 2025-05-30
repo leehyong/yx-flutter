@@ -112,7 +112,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
                     icon: Text(
                       '详情',
                       style: TextStyle(
-                        color: Colors.purple.withAlpha(180),
+                        color: Colors.purple.withAlpha(220),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -129,7 +129,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
                     icon: Text(
                       '修改',
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: Colors.blue.withAlpha(220),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
