@@ -16,6 +16,7 @@ import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
+import 'package:yx/utils/toast.dart';
 
 import '../controller.dart';
 import '../data.dart';
@@ -57,6 +58,8 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
 
   final _contentNameTextEditingController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   TaskInfoController get taskInfoController => Get.find<TaskInfoController>();
   CusYooWorkContent? _content;
 
@@ -85,7 +88,6 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         break;
       case TaskSubmitAction.save:
         await _saveTaskContent();
-        _action = action;
         break;
       case TaskSubmitAction.modifyHistory:
       case TaskSubmitAction.detailHistory:
@@ -308,7 +310,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         Expanded(child: _buildTaskSubmitItems(context, cnt)),
       ]);
     }
-    final target = Column(children: children);
+    final target = Form(key: _formKey, child: Column(children: children));
 
     return _isSaving
         ? Stack(
@@ -355,9 +357,18 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   Future<void> _saveTaskContent() async {
     // 不能写时，禁止提交修改
     if (!canWrite) return;
-    if (_isSaving) return;
+    if (_isSaving) {
+      warnToast("正在保存，请勿重复操作!");
+      return;
+    }
+    ;
+    if (!_formKey.currentState!.validate()) {
+      warnToast("请填写必填数据");
+      return;
+    }
     setState(() {
       _isSaving = true;
+      _action = TaskSubmitAction.save;
     });
     // 调用存储内容相关接口
     if (_content == null) {
@@ -367,7 +378,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
             taskInfoController.task.value!.id,
             NewCusYooWorkContentReq(
               content: NewWorkContent(
-                name: _contentNameTextEditingController.text,
+                name: _contentNameTextEditingController.text.trim(),
                 taskId: taskInfoController.task.value!.id,
               ),
               contentItems:
@@ -375,7 +386,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                       .map(
                         (entry) => NewWorkContentItem(
                           headerId: entry.key,
-                          content: entry.value.text,
+                          content: entry.value.text.trim(),
                         ),
                       )
                       .toList(),
@@ -391,7 +402,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         _content!.content.id,
         UpdateCusYooWorkContentReq(
           content: UpdateWorkContent(
-            name: _contentNameTextEditingController.text,
+            name: _contentNameTextEditingController.text.trim(),
             taskId: taskInfoController.task.value!.id,
           ),
           contentItems:
@@ -400,7 +411,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                     (entry) => UpdateWorkContentItem(
                       contentId: _content!.content.id,
                       headerId: entry.key,
-                      content: entry.value.text,
+                      content: entry.value.text.trim(),
                     ),
                   )
                   .toList(),
@@ -432,6 +443,34 @@ abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
 
   @override
   String get tag => rootHeader.id.toString();
+
+  Widget _buildTextInputField(
+    BuildContext context,
+    WorkHeader header,
+    TextEditingController ctrl,
+  ) {
+    final filedType = TaskTextType.values[header.contentType];
+    return TextFormField(
+      controller: ctrl,
+      keyboardType: filedType.txtKeyboardType,
+      textInputAction: TextInputAction.done,
+      maxLines: filedType.txtInputMaxLines,
+      textAlign: TextAlign.start,
+      textAlignVertical: TextAlignVertical.top,
+      autovalidateMode: AutovalidateMode.onUnfocus,
+      validator: (v) {
+        if (header.required && v!.trim().isEmpty) {
+          return "该项不能空";
+        }
+        final err = filedType.validateTxtInputValue(v?.trim());
+        if (err == null) {
+          // 保存变更，以便提示
+          submitTasksViewState.saveModification();
+        }
+        return err;
+      },
+    );
+  }
 }
 
 class _MobileSubmitWorkHeaderItemView
@@ -531,22 +570,7 @@ class _MobileSubmitWorkHeaderItemView
         child:
             submitTasksViewState.canWrite
                 // 文本内容为对应填报的内容
-                ? TextFormField(
-                  controller: ctrl,
-                  textInputAction: TextInputAction.done,
-                  maxLines: 5,
-                  textAlign: TextAlign.start,
-                  textAlignVertical: TextAlignVertical.top,
-                  autovalidateMode: AutovalidateMode.onUnfocus,
-                  validator: (v) {
-                    if (rootHeader.required && v!.trim().isEmpty) {
-                      return "该项不能空";
-                    }
-                    submitTasksViewState.saveModification();
-                    // 保存变更，以便提示
-                    return null;
-                  },
-                )
+                ? _buildTextInputField(context, node.head!, ctrl)
                 : Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [Text(ctrl.text)],
@@ -583,23 +607,7 @@ class _WebSubmitWorkHeaderItemView
         rootHeader.id,
       );
       return submitTasksViewState.canWrite
-          ? TextFormField(
-            controller: ctrl,
-            textInputAction: TextInputAction.done,
-            autofocus: true,
-            maxLines: 4,
-            textAlign: TextAlign.start,
-            textAlignVertical: TextAlignVertical.top,
-            autovalidateMode: AutovalidateMode.onUnfocus,
-            validator: (v) {
-              if (rootHeader.required && v!.trim().isEmpty) {
-                return "该项不能空";
-              }
-              // 保存变更，以便提示
-              submitTasksViewState.saveModification();
-              return null;
-            },
-          )
+          ? _buildTextInputField(context, rootHeader, ctrl)
           : Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [Text(ctrl.text)],
@@ -611,7 +619,7 @@ class _WebSubmitWorkHeaderItemView
               .asMap()
               .entries
               .map(
-                (e) => _buildHeaderTreeByDfs(context, e.key, 0, e.value, null),
+                (e) => _buildHeaderTreeByDfs(context, e.key, 1, e.value, null),
               )
               .toList(),
     );
@@ -658,23 +666,7 @@ class _WebSubmitWorkHeaderItemView
             ),
           ),
           submitTasksViewState.canWrite
-              ? TextFormField(
-                controller: ctrl,
-                textInputAction: TextInputAction.done,
-                autovalidateMode: AutovalidateMode.onUnfocus,
-                autofocus: true,
-                maxLines: 4,
-                textAlign: TextAlign.start,
-                textAlignVertical: TextAlignVertical.top,
-                validator: (v) {
-                  if (node.node.required && v!.trim().isEmpty) {
-                    return "该项不能空";
-                  }
-                  // 保存变更，以便提示
-                  submitTasksViewState.saveModification();
-                  return null;
-                },
-              )
+              ? _buildTextInputField(context, node.node, ctrl)
               : Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [Text(ctrl.text)],

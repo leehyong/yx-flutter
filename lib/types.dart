@@ -1,5 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 
 enum DataLoadingStatus { none, loading, loaded }
@@ -131,7 +132,13 @@ extension TaskAttributeCategoryExtension on TaskAttributeCategory {
   }
 }
 
-enum ReceiveTaskStrategy { freeSelection, forceDelegation, twoWaySelection, onlyForceDelegation, onlyTwoWaySelection }
+enum ReceiveTaskStrategy {
+  freeSelection,
+  forceDelegation,
+  twoWaySelection,
+  onlyForceDelegation,
+  onlyTwoWaySelection,
+}
 
 extension ReceiveTaskStrategyExtension on ReceiveTaskStrategy {
   String get i18name {
@@ -141,7 +148,7 @@ extension ReceiveTaskStrategyExtension on ReceiveTaskStrategy {
       case ReceiveTaskStrategy.forceDelegation:
         return '强制委派'; // 除了强制委派的人，其他人还可以领取
       case ReceiveTaskStrategy.twoWaySelection:
-        return '双向选择';// 除了双向选择的人，其他人还可以领取
+        return '双向选择'; // 除了双向选择的人，其他人还可以领取
       case ReceiveTaskStrategy.onlyForceDelegation:
         return '只允许强制委派的人';
       case ReceiveTaskStrategy.onlyTwoWaySelection:
@@ -253,6 +260,47 @@ extension TaskTextTypeExtension on TaskTextType {
     }
   }
 
+  int get txtInputMaxLines {
+    switch (this) {
+      case TaskTextType.text:
+        return 5;
+      default:
+        return 1;
+    }
+  }
+
+  TextInputType get txtKeyboardType {
+    switch (this) {
+      case TaskTextType.text:
+        return TextInputType.text;
+      case TaskTextType.int:
+      case TaskTextType.float:
+        return TextInputType.number;
+      case TaskTextType.phone:
+        return TextInputType.phone;
+      case TaskTextType.email:
+        return TextInputType.emailAddress;
+    }
+  }
+
+  String? validateTxtInputValue(String? txt) {
+    if (txt == null || txt.isEmpty) {
+      return null;
+    }
+    switch (this) {
+      case TaskTextType.text:
+        return null;
+      case TaskTextType.int:
+        return GetUtils.isNumericOnly(txt) ? null : '请输入整数';
+      case TaskTextType.float:
+        return GetUtils.isNum(txt) ? null : '请输入数字';
+      case TaskTextType.phone:
+        return GetUtils.isPhoneNumber(txt) ? null : '请输入手机号';
+      case TaskTextType.email:
+        return GetUtils.isEmail(txt) ? null : '请输入邮箱';
+    }
+  }
+
   static TaskTextType fromInt(int idx) {
     return TaskTextType.values.firstWhere(
       (v) => v.index == idx,
@@ -316,14 +364,14 @@ extension ExtensionModifyWarningCategory on ModifyWarningCategory {
 }
 
 enum UserTaskAction {
-  claim,     // 领取
-  accept,      // 接受
-  refuse,     // 拒绝
+  claim, // 领取
+  accept, // 接受
+  refuse, // 拒绝
   unconfirmed, // 待确认
 }
 
 // 提交任务项时，涉及到的各个操作
-enum TaskSubmitAction{
+enum TaskSubmitAction {
   add, // 新增操作
   save, // 保存操作
   modifyHistory, // 修改操作， 指的是修改历史记录中的数据

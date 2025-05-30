@@ -112,7 +112,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
                     icon: Text(
                       '详情',
                       style: TextStyle(
-                        color: Colors.blue.withAlpha(120),
+                        color: Colors.purple.withAlpha(180),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
