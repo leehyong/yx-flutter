@@ -104,7 +104,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
                   IconButton(
                     onPressed: () {
                       setTaskCurrentHistory(
-                        TaskSubmitAction.detail,
+                        TaskSubmitAction.detailHistory,
                         contents![index],
                         context,
                       );
@@ -121,7 +121,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
                   IconButton(
                     onPressed: () {
                       setTaskCurrentHistory(
-                        TaskSubmitAction.modify,
+                        TaskSubmitAction.modifyHistory,
                         contents![index],
                         context,
                       );

@@ -36,9 +36,9 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     switch (_action) {
       case TaskSubmitAction.add:
         return true;
-      case TaskSubmitAction.modify:
+      case TaskSubmitAction.modifyHistory:
         return true;
-      case TaskSubmitAction.detail:
+      case TaskSubmitAction.detailHistory:
         return false;
       default:
         return widget.readOnly;
@@ -83,6 +83,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     switch (action) {
       case TaskSubmitAction.add:
         _action = action;
+        _content = null;
         // 新增新的内容的时候，清空所有的填报项
         _clearAllTxtInput();
         setState(() {}); //通知有更新
@@ -93,8 +94,8 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         _action = action;
         setState(() {}); //通知有更新
         break;
-      case TaskSubmitAction.modify:
-      case TaskSubmitAction.detail:
+      case TaskSubmitAction.modifyHistory:
+      case TaskSubmitAction.detailHistory:
         assert(content != null);
         _action = action;
         _content = content!;
@@ -260,26 +261,48 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
       children.add(emptyWidget(context));
     } else {
       children.addAll([
-        TextFormField(
-          controller: _contentNameTextEditingController,
-          validator: (v) {
-            if (v!.isEmpty) {
-              return '名字不能为空';
-            }
-            saveModification();
-            return null;
-          },
-          decoration: InputDecoration(
-            labelText: '名字',
-            icon: Icon(Icons.text_snippet),
-            enabled: canWrite,
-            suffixIcon: IconButton(
-              onPressed: () {
-                _contentNameTextEditingController.clear();
-              },
-              icon: Icon(Icons.close, color: Colors.red),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _contentNameTextEditingController,
+                validator: (v) {
+                  if (v!.isEmpty) {
+                    return '名字不能为空';
+                  }
+                  saveModification();
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: '名字',
+                  icon: Icon(Icons.text_snippet),
+                  enabled: canWrite,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      _contentNameTextEditingController.clear();
+                    },
+                    icon: Icon(Icons.close, color: Colors.red),
+                  ),
+                ),
+              ),
             ),
-          ),
+            if (_action == TaskSubmitAction.detailHistory)
+              IconButton(
+                onPressed: () {
+                  handleTaskSubmitAction(TaskSubmitAction.modifyHistoryContent);
+                },
+                icon: Tooltip(message: '修改',child: Icon(Icons.edit),),
+              ),
+            if (_action == TaskSubmitAction.modifyHistoryContent)
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _action = TaskSubmitAction.detailHistory;
+                  });
+                },
+                icon: Tooltip(message: '详情',child: Icon(Icons.info_outline_rounded),),
+              ),
+          ],
         ),
         const SizedBox(height: 8),
         Expanded(child: _buildTaskSubmitItems(context, cnt)),
