@@ -314,10 +314,12 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         ? Stack(
           children: [
             target,
-            Positioned.fill(child: Container(
-              color: Colors.black.withAlpha(80),
-              child: _buildLoadingIndicator(context),
-            )),
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withAlpha(80),
+                child: _buildLoadingIndicator(context),
+              ),
+            ),
           ],
         )
         : target;
@@ -360,27 +362,29 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     // 调用存储内容相关接口
     if (_content == null) {
       // 新增
-      content_api.newWorkTaskContent(
-        taskInfoController.task.value!.id,
-        NewCusYooWorkContentReq(
-          content: NewWorkContent(
-            name: _contentNameTextEditingController.text,
-            taskId: taskInfoController.task.value!.id,
-          ),
-          contentItems:
-              _leafTaskSubmitItemsTextEditingControllers.entries
-                  .map(
-                    (entry) => NewWorkContentItem(
-                      headerId: entry.key,
-                      content: entry.value.text,
-                    ),
-                  )
-                  .toList(),
-        ),
-      ).then((_){
-        // 新增成功后，清空所有信息
-        _clearAllTxtInput();
-      });
+      content_api
+          .newWorkTaskContent(
+            taskInfoController.task.value!.id,
+            NewCusYooWorkContentReq(
+              content: NewWorkContent(
+                name: _contentNameTextEditingController.text,
+                taskId: taskInfoController.task.value!.id,
+              ),
+              contentItems:
+                  _leafTaskSubmitItemsTextEditingControllers.entries
+                      .map(
+                        (entry) => NewWorkContentItem(
+                          headerId: entry.key,
+                          content: entry.value.text,
+                        ),
+                      )
+                      .toList(),
+            ),
+          )
+          .then((_) {
+            // 新增成功后，清空所有信息
+            _clearAllTxtInput();
+          });
     } else {
       // 修改
       content_api.updateWorkTaskContent(
@@ -668,7 +672,10 @@ class _WebSubmitWorkHeaderItemView
                   return null;
                 },
               )
-              : IntrinsicWidth(child: Text(ctrl.text)),
+              : Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [Text(ctrl.text)],
+              ),
         ],
       );
     } else {
