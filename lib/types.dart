@@ -368,6 +368,9 @@ enum UserTaskAction {
   accept, // 接受
   refuse, // 拒绝
   unconfirmed, // 待确认
+  start,     // 启动
+  pause,     // 暂停
+  finish,  //结束
 }
 
 // 提交任务项时，涉及到的各个操作

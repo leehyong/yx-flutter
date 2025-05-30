@@ -64,7 +64,7 @@ class TaskListView extends GetView<TaskListController> {
         builder: (BuildContext context, LoadStatus? mode) {
           Widget body;
           if (mode == LoadStatus.idle) {
-            body = Text("上拉加载更多");
+            body = Text("加载更多");
           } else if (mode == LoadStatus.loading) {
             body = LoadingIndicator(
               indicatorType: Indicator.audioEqualizer,
@@ -265,7 +265,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final card = _buildCard(context);
-      if (controller.isDeleting.value) {
+      if (controller.isHandling.value) {
         return maskingOperation(context, card);
       }
       switch (taskCategory) {
@@ -386,7 +386,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         },
         child: Column(
           children: [
-            _buildTaskName(context),
+            _buildTaskNameAndAction(context),
             Expanded(
               child: Row(
                 children: [
@@ -406,71 +406,97 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     );
   }
 
-  Widget _buildTaskName(BuildContext context) {
-    const r = Radius.circular(16);
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.blue, // 设置背景色
-        borderRadius: BorderRadius.only(topLeft: r, topRight: r),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10, left: 4),
-                  child: Text(
-                    task.name,
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          color: Colors.white,
-                          // 阴影颜色
-                          offset: Offset(1, 0),
-                          // Y 轴偏移量
-                          blurRadius: 1, // 阴影模糊程度
-                        ),
-                      ],
-                    ),
+  Widget _buildTaskCredits(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          twoValidNumber.format(taskCredits),
+          style: TextStyle(fontSize: 16, color: Colors.yellow),
+        ),
+        const SizedBox(width: 2),
+        Icon(Icons.diamond_outlined, size: 20, color: Colors.yellow),
+      ],
+    );
+  }
 
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Positioned(
-                  top: 0, // top == bottom 时可以居中显示
-                  bottom: 0,
-                  right: 4,
-                  child: Row(
-                    children: [
-                      Text(
-                        twoValidNumber.format(taskCredits),
-                        style: TextStyle(fontSize: 16, color: Colors.yellow),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.diamond_outlined,
-                        size: 20,
-                        color: Colors.yellow,
-                      ),
-                      if (taskCategory == TaskListCategory.myManuscript) ...[
-                        const SizedBox(width: 4),
-                        InkWell(
-                          onTap: () async {
-                            await controller.deleteTask(task, context);
-                          },
-                          child: Icon(Icons.close, color: Colors.red),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildTaskName(BuildContext context) {
+    return Text(
+      task.name,
+      style: TextStyle(
+        fontSize: 22,
+        color: Colors.black,
+        shadows: [
+          Shadow(
+            color: Colors.white,
+            // 阴影颜色
+            offset: Offset(1, 0),
+            // Y 轴偏移量
+            blurRadius: 1, // 阴影模糊程度
           ),
         ],
+      ),
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildTaskNameAndActionByStack(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              _buildTaskName(context),
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 2,
+                child: _buildTaskCredits(context),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaskNameAndActionByColumn(
+    BuildContext context,
+    List<Widget> actions,
+  ) {
+    MainAxisAlignment alignment = MainAxisAlignment.end;
+    if (taskCategory == TaskListCategory.myPublished) {
+      alignment = MainAxisAlignment.spaceBetween;
+    }
+    return Column(
+      children: [
+        _buildTaskName(context),
+        Row(
+          children: [
+            _buildTaskCredits(context),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Row(mainAxisAlignment: alignment, children: actions),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaskNameAndAction(BuildContext context) {
+    const r = Radius.circular(16);
+    final actions = _buildAction(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue.withAlpha(40), // 设置背景色
+        borderRadius: BorderRadius.only(topLeft: r, topRight: r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+        child:
+            actions.isEmpty
+                ? _buildTaskNameAndActionByStack(context)
+                : _buildTaskNameAndActionByColumn(context, actions),
       ),
     );
   }
@@ -612,10 +638,10 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     if (countDownWidget != null) {
       children.add(countDownWidget);
     }
-    final actionsWidget = _buildAction(context);
-    if (actionsWidget != null) {
-      children.add(actionsWidget);
-    }
+    // final actionsWidget = _buildAction(context);
+    // if (actionsWidget != null) {
+    //   children.add(actionsWidget);
+    // }
     return Container(
       decoration: BoxDecoration(
         color: Colors.greenAccent.shade100,
@@ -679,15 +705,11 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     ];
   }
 
-  Widget? _buildAction(BuildContext context) {
+  List<Widget> _buildAction(BuildContext context) {
     List<Widget> children;
     switch (taskCategory) {
       case TaskListCategory.allPublished:
-        children = [
-          const Text("剩余名额"),
-          Text(left, style: defaultNumberStyle),
-          const SizedBox(width: 2),
-        ];
+        children = [const Text("剩余名额"), Text(left, style: defaultNumberStyle)];
         if (!controller.accepted &&
             hasLeft &&
             {
@@ -709,6 +731,15 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
 
       case TaskListCategory.myPublished:
         final left_ = left;
+        final actions = <Widget>[_buildAddSubTask(context)];
+        final status = SystemTaskStatus.values[task.status];
+        if (status != SystemTaskStatus.running) {
+          actions.add(_buildStartTask(context));
+        } else {
+          actions.add(_buildPauseTask(context));
+        }
+        // 任何状态都可以结束任务
+        actions.add(_buildFinishTask(context));
         children = [
           Tooltip(
             preferBelow: false,
@@ -730,8 +761,9 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           ),
           // const Spacer(),
           const SizedBox(width: 2),
-          _buildAddSubTask(context),
+          Row(children: actions),
         ];
+
         break;
       case TaskListCategory.myManuscript:
         children = [
@@ -754,7 +786,13 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
               ),
             ),
           ),
-          const SizedBox(width: 2),
+          const SizedBox(width: 4),
+          InkWell(
+            onTap: () async {
+              await controller.deleteTask(task, context);
+            },
+            child: Icon(Icons.close, color: Colors.red),
+          ),
         ];
         break;
       case TaskListCategory.myParticipant:
@@ -776,35 +814,23 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         break;
       case TaskListCategory.parentTaskInfo:
       case TaskListCategory.childrenTaskInfo:
-        return null;
+        return [];
     }
-    return children.isEmpty
-        ? null
-        : Container(
-          decoration: BoxDecoration(
-            color: Colors.blueGrey.shade50,
-            borderRadius: BorderRadius.only(bottomRight: Radius.circular(16)),
-          ),
-          padding: EdgeInsets.only(top: 2, bottom: 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: children,
-          ),
-        );
+    return children;
   }
 
   Widget _buildAddSubTask(BuildContext context) {
     return Tooltip(
       preferBelow: false,
       message: "创建子任务",
-      child: InkWell(
-        child: const Row(
+      child: IconButton(
+        icon: const Row(
           children: [
             Icon(Icons.add),
-            // Text("子任务", style: TextStyle(color: Colors.black, fontSize: 16)),
+            Text("子任务", style: TextStyle(color: Colors.black, fontSize: 16)),
           ],
         ),
-        onTap: () {
+        onPressed: () {
           // 跳转到新增子任务界面
           final routeId = Get.find<RootTabController>().curRouteId;
           final args = WorkTaskPageParams(
@@ -818,6 +844,57 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             WorkTaskRoutes.hallTaskDetail,
             arguments: args,
             id: routeId,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStartTask(BuildContext context) {
+    return Tooltip(
+      preferBelow: false,
+      message: '启动该任务',
+      child: IconButton(
+        icon: Icon(Icons.not_started_outlined),
+        onPressed: () {
+          controller.handleTaskStatusAction(
+            context,
+            task,
+            UserTaskAction.start,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPauseTask(BuildContext context) {
+    return Tooltip(
+      preferBelow: false,
+      message: '暂停该任务',
+      child: IconButton(
+        icon: Icon(Icons.pause_circle_outline),
+        onPressed: () {
+          controller.handleTaskStatusAction(
+            context,
+            task,
+            UserTaskAction.pause,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFinishTask(BuildContext context) {
+    return Tooltip(
+      preferBelow: false,
+      message: '结束该任务',
+      child: IconButton(
+        icon: const Text("结束"),
+        onPressed: () {
+          controller.handleTaskStatusAction(
+            context,
+            task,
+            UserTaskAction.finish,
           );
         },
       ),

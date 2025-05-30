@@ -57,7 +57,7 @@ class OneTaskCardController extends GetxController {
   late final int deadline;
   final RxInt left = 0.obs;
 
-  final isDeleting = false.obs;
+  final isHandling = false.obs;
 
   Future<void> handleTaskAction(Int64 taskId, UserTaskAction action) async {
     final success = await task_api.handleActionWorkTaskHeader(taskId, action);
@@ -103,9 +103,13 @@ class OneTaskCardController extends GetxController {
     return TimeLeftDetail(left: 0);
   }
 
-  Future<void> deleteTask(WorkTask task, BuildContext context) async {
-    isDeleting.value = true;
-    // 弹窗确认之后，再调用接口进行删除
+  Future<void> _commonDialog(
+    BuildContext context,
+    String title,
+    String content, {
+    required VoidFutureCallBack leftBtnAction,
+    required VoidFutureCallBack rightBtnAction,
+  }) async {
     showGeneralDialog(
       context: context,
       pageBuilder: (
@@ -114,30 +118,88 @@ class OneTaskCardController extends GetxController {
         Animation<double> secondaryAnimation,
       ) {
         return TDAlertDialog(
-          title: "确定删除吗？",
+          title: title,
           contentWidget: Text(
-            task.name,
+            content,
             style: TextStyle(
               fontSize: 16,
               color: warningColor,
               fontWeight: FontWeight.bold,
             ),
           ),
-          leftBtnAction: () async {
-            isDeleting.value = false;
-            Navigator.of(buildContext).pop();
-          },
-          rightBtnAction: () async {
-            await Get.find<TaskListController>().deleteOneTask(task.id);
-            // delayed 延迟以便体现效果
-            await Future.delayed(Duration(milliseconds: 300), () {
-              isDeleting.value = false;
-            });
-            if (buildContext.mounted) {
-              Navigator.of(buildContext).pop();
-            }
-          },
+          leftBtnAction: leftBtnAction,
+          rightBtnAction: rightBtnAction,
         );
+      },
+    );
+  }
+
+  Future<void> handleTaskStatusAction(
+    BuildContext context,
+    WorkTask task,
+    UserTaskAction action,
+  ) async {
+    String title;
+    switch (action) {
+      case UserTaskAction.start:
+        title = '启动';
+        break;
+      case UserTaskAction.pause:
+        title = '暂停';
+        break;
+      case UserTaskAction.finish:
+        title = '结束';
+        break;
+      default:
+        throw UnimplementedError();
+    }
+    isHandling.value = true;
+    _commonDialog(
+      context,
+      "确定$title}吗？",
+      task.name,
+      leftBtnAction: () async {
+        isHandling.value = false;
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      rightBtnAction: () async {
+        // 弹窗确认之后，再调用接口进行实际操作
+        await task_api.handleActionWorkTaskHeader(task.id, action);
+        // delayed 延迟以便体现效果
+        await Future.delayed(Duration(milliseconds: 200), () {
+          isHandling.value = false;
+        });
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+    );
+  }
+
+  Future<void> deleteTask(WorkTask task, BuildContext context) async {
+    isHandling.value = true;
+    _commonDialog(
+      context,
+      "确定删除吗？",
+      task.name,
+      leftBtnAction: () async {
+        isHandling.value = false;
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      rightBtnAction: () async {
+        // 弹窗确认之后，再调用接口进行删除
+        await Get.find<TaskListController>().deleteOneTask(task.id);
+        // delayed 延迟以便体现效果
+        await Future.delayed(Duration(milliseconds: 200), () {
+          isHandling.value = false;
+        });
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       },
     );
   }
