@@ -127,8 +127,20 @@ class OneTaskCardController extends GetxController {
               fontWeight: FontWeight.bold,
             ),
           ),
-          leftBtnAction: leftBtnAction,
-          rightBtnAction: rightBtnAction,
+          leftBtnAction: () async {
+            leftBtnAction().then((_) {
+              if (buildContext.mounted) {
+                Navigator.of(buildContext).pop();
+              }
+            });
+          },
+          rightBtnAction: () async {
+            rightBtnAction().then((_) {
+              if (buildContext.mounted) {
+                Navigator.of(buildContext).pop();
+              }
+            });
+          },
         );
       },
     );
@@ -160,9 +172,6 @@ class OneTaskCardController extends GetxController {
       task.name,
       leftBtnAction: () async {
         isHandling.value = false;
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
       },
       rightBtnAction: () async {
         // 弹窗确认之后，再调用接口进行实际操作
@@ -171,9 +180,6 @@ class OneTaskCardController extends GetxController {
         await Future.delayed(Duration(milliseconds: 200), () {
           isHandling.value = false;
         });
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
       },
     );
   }
@@ -186,9 +192,6 @@ class OneTaskCardController extends GetxController {
       task.name,
       leftBtnAction: () async {
         isHandling.value = false;
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
       },
       rightBtnAction: () async {
         // 弹窗确认之后，再调用接口进行删除
@@ -197,9 +200,6 @@ class OneTaskCardController extends GetxController {
         await Future.delayed(Duration(milliseconds: 200), () {
           isHandling.value = false;
         });
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
       },
     );
   }
