@@ -371,6 +371,7 @@ enum UserTaskAction {
   start,     // 启动
   pause,     // 暂停
   finish,  //结束
+  publish,     // 发布
 }
 
 // 提交任务项时，涉及到的各个操作

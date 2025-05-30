@@ -127,7 +127,8 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     Get.put(
       OneTaskCardController(
         deadline: task.receiveDeadline.toInt(),
-        action: taskOriginAction, status: userTaskHis.task.status,
+        action: taskOriginAction,
+        status: userTaskHis.task.status,
       ),
       tag: '${task.id}',
     );
@@ -337,7 +338,8 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
               op = TaskOperationCategory.submitDetailTask;
               break;
             case TaskListCategory.myParticipant:
-              if (controller.taskStatus.value != SystemTaskStatus.running.index) {
+              if (controller.taskStatus.value !=
+                  SystemTaskStatus.running.index) {
                 errToast("请先启动任务再进行内容填报");
                 return;
               }
@@ -778,17 +780,17 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           Tooltip(
             message: '把任务置为发布状态',
             preferBelow: false,
-            child: InkWell(
-              onTap: () {
-                debugPrint("发布${task.name}成功！");
+            child: IconButton(
+              onPressed: () {
+                controller.handleTaskStatusAction(
+                  context,
+                  task,
+                  UserTaskAction.publish,
+                );
               },
-              child: const Text(
-                "发布",
-                style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              icon: Tooltip(
+                message: '发布该任务',
+                child: Icon(Icons.send, color: Colors.blue),
               ),
             ),
           ),

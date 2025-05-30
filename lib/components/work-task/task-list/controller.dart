@@ -168,6 +168,10 @@ class OneTaskCardController extends GetxController {
         status = SystemTaskStatus.finished.index;
         title = '结束';
         break;
+        case UserTaskAction.publish:
+        status = SystemTaskStatus.published.index;
+        title = '结束';
+        break;
       default:
         throw UnimplementedError();
     }
