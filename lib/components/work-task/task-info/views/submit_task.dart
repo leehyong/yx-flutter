@@ -537,6 +537,7 @@ class _MobileSubmitWorkHeaderItemView
                   maxLines: 5,
                   textAlign: TextAlign.start,
                   textAlignVertical: TextAlignVertical.top,
+                  autovalidateMode: AutovalidateMode.onUnfocus,
                   validator: (v) {
                     if (rootHeader.required && v!.trim().isEmpty) {
                       return "该项不能空";
@@ -589,6 +590,7 @@ class _WebSubmitWorkHeaderItemView
             maxLines: 4,
             textAlign: TextAlign.start,
             textAlignVertical: TextAlignVertical.top,
+            autovalidateMode: AutovalidateMode.onUnfocus,
             validator: (v) {
               if (rootHeader.required && v!.trim().isEmpty) {
                 return "该项不能空";
@@ -659,6 +661,7 @@ class _WebSubmitWorkHeaderItemView
               ? TextFormField(
                 controller: ctrl,
                 textInputAction: TextInputAction.done,
+                autovalidateMode: AutovalidateMode.onUnfocus,
                 autofocus: true,
                 maxLines: 4,
                 textAlign: TextAlign.start,
