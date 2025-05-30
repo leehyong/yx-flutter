@@ -164,7 +164,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
     BuildContext context,
   ) {
     Get.find<TaskInfoController>().submitTasksViewState?.handleTaskSubmitAction(
-      TaskSubmitAction.modify,
+      action,
       content: content,
     );
     Navigator.of(context).maybePop();

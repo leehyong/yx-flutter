@@ -94,7 +94,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         setState(() {}); //通知有更新
         break;
       case TaskSubmitAction.modify:
-        // 查询待修改的原始数据
+      case TaskSubmitAction.detail:
         assert(content != null);
         _action = action;
         _content = content!;
@@ -245,6 +245,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
           height: 100,
           child: LoadingIndicator(
             indicatorType: Indicator.ballScaleRippleMultiple,
+
             /// Required, The loading type of the widget
             colors: loadingColors,
             strokeWidth: 3,
@@ -301,12 +302,10 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
                 ? _WebSubmitWorkHeaderItemView(
                   headerTree.node,
                   headerTree.children,
-                  !canWrite,
                 )
                 : _MobileSubmitWorkHeaderItemView(
                   headerTree.node,
                   headerTree.children,
-                  !canWrite,
                 ),
           );
           return commonCard(
@@ -376,16 +375,11 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
 abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
     extends GetView<T> {
   final WorkHeader rootHeader;
-  final bool readOnly;
 
   SubmitTasksViewState get submitTasksViewState =>
       Get.find<TaskInfoController>().submitTasksViewState!;
 
-  const _AbstractSubmitWorkHeaderItemView(
-    this.rootHeader,
-    this.readOnly, {
-    super.key,
-  });
+  const _AbstractSubmitWorkHeaderItemView(this.rootHeader, {super.key});
 
   @override
   String get tag => rootHeader.id.toString();
@@ -398,8 +392,7 @@ class _MobileSubmitWorkHeaderItemView
         > {
   _MobileSubmitWorkHeaderItemView(
     super.rootHeader,
-    List<CusYooHeader> children,
-    super.readOnly, {
+    List<CusYooHeader> children, {
     super.key,
   }) {
     Get.put(MobileSubmitOneTaskHeaderItemController(children), tag: tag);
@@ -480,20 +473,17 @@ class _MobileSubmitWorkHeaderItemView
     if (h != null) {
       children.add(Expanded(flex: 1, child: h));
     }
+    final ctrl = submitTasksViewState.getLeafTextEditingController(
+      node.head?.id ?? rootHeader.id,
+    );
     children.add(
       Expanded(
         flex: h != null ? 3 : 1,
         child:
-            readOnly
-                // todo 文本内容为对应填报的内容
-                ? Container(
-                  decoration: BoxDecoration(color: Colors.white),
-                  child: Text('iuiuuuu', softWrap: true),
-                )
-                : TextFormField(
-                  controller: submitTasksViewState.getLeafTextEditingController(
-                    node.head?.id ?? rootHeader.id,
-                  ),
+            submitTasksViewState.canWrite
+                // 文本内容为对应填报的内容
+                ? TextFormField(
+                  controller: ctrl,
                   textInputAction: TextInputAction.done,
                   maxLines: 5,
                   textAlign: TextAlign.start,
@@ -506,6 +496,10 @@ class _MobileSubmitWorkHeaderItemView
                     // 保存变更，以便提示
                     return null;
                   },
+                )
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [Text(ctrl.text)],
                 ),
       ),
     );
@@ -526,8 +520,7 @@ class _WebSubmitWorkHeaderItemView
         > {
   _WebSubmitWorkHeaderItemView(
     super.rootHeaderTreeId,
-    List<CusYooHeader> children,
-    super.readOnly, {
+    List<CusYooHeader> children, {
     super.key,
   }) {
     Get.put(WebSubmitOneTaskHeaderItemController(children), tag: tag);
@@ -556,7 +549,10 @@ class _WebSubmitWorkHeaderItemView
               return null;
             },
           )
-          : Text(ctrl.text);
+          : Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [Text(ctrl.text)],
+          );
     }
     return Column(
       children:
@@ -627,7 +623,7 @@ class _WebSubmitWorkHeaderItemView
                   return null;
                 },
               )
-              : Text(ctrl.text),
+              : IntrinsicWidth(child: Text(ctrl.text)),
         ],
       );
     } else {
