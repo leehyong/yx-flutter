@@ -406,17 +406,16 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     );
   }
 
-  Widget _buildTaskCredits(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          twoValidNumber.format(taskCredits),
-          style: TextStyle(fontSize: 16, color: Colors.yellow),
-        ),
-        const SizedBox(width: 2),
-        Icon(Icons.diamond_outlined, size: 20, color: Colors.yellow),
-      ],
-    );
+  Widget _buildTaskCredits(BuildContext context, [bool rightIcon = false]) {
+    final children = [
+      Icon(Icons.diamond_outlined, size: 20, color: Colors.purple),
+      const SizedBox(width: 2),
+      Text(
+        twoValidNumber.format(taskCredits),
+        style: TextStyle(fontSize: 16, color: Colors.purple),
+      ),
+    ];
+    return Row(children: rightIcon ? children.reversed.toList() : children);
   }
 
   Widget _buildTaskName(BuildContext context) {
@@ -450,7 +449,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
                 top: 0,
                 bottom: 0,
                 right: 2,
-                child: _buildTaskCredits(context),
+                child: _buildTaskCredits(context, true),
               ),
             ],
           ),
@@ -589,7 +588,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     return Container(
       padding: EdgeInsets.only(left: 4, right: 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16.0)),
         color: Colors.white,
       ),
       child: Column(
