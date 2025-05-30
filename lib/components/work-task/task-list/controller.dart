@@ -29,11 +29,12 @@ class TimeLeftDetail {
 const left30Minutes = 1800;
 
 class OneTaskCardController extends GetxController {
-  OneTaskCardController({required this.deadline, required int action}) {
+  OneTaskCardController({required this.deadline, required int action, required int status}) {
     final nowTs = DateTime.now().toLocal().millisecondsSinceEpoch ~/ 1000;
     final _deadline = deadline;
     final _left = (_deadline - nowTs);
     left.value = _left;
+    taskStatus.value = status;
     this.action.value = action;
     _startTimer();
   }
@@ -44,6 +45,7 @@ class OneTaskCardController extends GetxController {
     super.onClose();
   }
 
+  final taskStatus = (-1).obs;
   // 定时器
 
   final action = (-1).obs;
@@ -152,14 +154,18 @@ class OneTaskCardController extends GetxController {
     UserTaskAction action,
   ) async {
     String title;
+    int status;
     switch (action) {
       case UserTaskAction.start:
         title = '启动';
+        status = SystemTaskStatus.running.index;
         break;
       case UserTaskAction.pause:
+        status = SystemTaskStatus.suspended.index;
         title = '暂停';
         break;
       case UserTaskAction.finish:
+        status = SystemTaskStatus.finished.index;
         title = '结束';
         break;
       default:
@@ -175,7 +181,10 @@ class OneTaskCardController extends GetxController {
       },
       rightBtnAction: () async {
         // 弹窗确认之后，再调用接口进行实际操作
-        await task_api.handleActionWorkTaskHeader(task.id, action);
+        final success = await task_api.handleActionWorkTaskHeader(task.id, action);
+        if (success) {
+          taskStatus.value = status;
+        }
         // delayed 延迟以便体现效果
         await Future.delayed(Duration(milliseconds: 200), () {
           isHandling.value = false;

@@ -126,7 +126,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     Get.put(
       OneTaskCardController(
         deadline: task.receiveDeadline.toInt(),
-        action: taskOriginAction,
+        action: taskOriginAction, status: userTaskHis.task.status,
       ),
       tag: '${task.id}',
     );
@@ -731,7 +731,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       case TaskListCategory.myPublished:
         final left_ = left;
         final actions = <Widget>[_buildAddSubTask(context)];
-        final status = SystemTaskStatus.values[task.status];
+        final status = SystemTaskStatus.values[controller.taskStatus.value];
         if (status != SystemTaskStatus.running) {
           actions.add(_buildStartTask(context));
         } else {
