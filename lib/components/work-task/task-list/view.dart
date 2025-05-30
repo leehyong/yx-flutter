@@ -11,6 +11,7 @@ import 'package:yx/services/auth_service.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
+import 'package:yx/utils/toast.dart';
 
 import '../../common.dart';
 import '../task-info/controller.dart';
@@ -332,9 +333,14 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
               break;
             // 这些是在填报任务项的时候的
             case TaskListCategory.finished:
+              // 填报历史记录
               op = TaskOperationCategory.submitDetailTask;
               break;
             case TaskListCategory.myParticipant:
+              if (controller.taskStatus.value != SystemTaskStatus.running.index) {
+                errToast("请先启动任务再进行内容填报");
+                return;
+              }
               op = TaskOperationCategory.submitTask;
               break;
             //   我的草稿状态的任务
@@ -381,6 +387,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             default:
               throw UnsupportedError("不支持的操作:$routeId");
           }
+
           setCurTaskInfo(args);
           Get.toNamed(page, arguments: args, id: routeId);
         },
