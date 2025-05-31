@@ -1,9 +1,13 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/api/task_api.dart' as task_api;
+import 'package:yx/components/common.dart';
+import 'package:yx/components/work-task/task-info/controller.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
@@ -13,51 +17,118 @@ import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 import 'package:yx/utils/toast.dart';
 
-import '../../common.dart';
-import '../task-info/controller.dart';
 import 'controller.dart';
 
-class TaskListView extends GetView<TaskListController> {
-  TaskListView({super.key,  this.cats, this.showSegBtns = true}) {
-    if (cats?.isNotEmpty ?? false) {
-      controller.curLayer.curCat.value = {cats!.first};
-    }
-  }
+class TaskListView extends StatefulWidget {
+  TaskListView({this.cats, this.showSegBtns = true})
+    : super(key: Get.find<RootTabController>().taskListViewState);
 
   final List<TaskListCategory>? cats;
   final bool showSegBtns;
 
+  @override
+  TaskListViewState createState() => TaskListViewState();
+}
+
+class TaskListViewState extends State<TaskListView> {
+  final _layers = <TaskListLayer>[TaskListLayer()];
+
+  bool isSecondLayer(TaskListCategory cat) => {
+    TaskListCategory.parentTaskInfo,
+    TaskListCategory.childrenTaskInfo,
+  }.contains(cat);
+
+  // 不是第一层就是第二层
+  bool isFirstLayer(TaskListCategory cat) => !isSecondLayer(cat);
+
+  int layerIdx(TaskListCategory cat) => isFirstLayer(cat) ? 0 : 1;
+
+  TaskListLayer get curLayer => _layers.last;
+
+  bool get inSecondLayer => _layers.length == 2;
+
+  Future<void> reloadCurTaskListData([TaskListCategory? cat]) async {
+    setState(() {
+      curLayer.tabChanging = true;
+      curLayer.reset();
+      curLayer.curCat = {
+        cat ?? widget.cats?.first ?? TaskListCategory.allPublished,
+      };
+    });
+    curLayer
+        .loadTaskList()
+        .then((v) {
+          return Future.delayed(Duration(milliseconds: 100));
+        })
+        .whenComplete(() {
+          curLayer.tabChanging = false;
+          setState(() {});
+        });
+  }
+
+  void setSecondLayerTaskListInfo({
+    Int64 parentId = Int64.ZERO,
+    TaskListCategory defaultCat = TaskListCategory.allPublished,
+  }) {
+    if (!isSecondLayer(defaultCat)) {
+      return;
+    }
+    if (_layers.length == 1) {
+      _layers.add(TaskListLayer());
+    }
+    curLayer.curCat.clear();
+    curLayer.curCat.add(defaultCat);
+    curLayer.parentId = parentId;
+    setState(() {});
+  }
+
+  void removeSecondLayer() {
+    if (inSecondLayer) {
+      _layers.removeLast();
+    }
+  }
+
+  Future<void> deleteOneTask(Int64 id) async {
+    final err = await task_api.deleteWorkTask(id);
+    if (err == null) {
+      // 剔除对应id的任务，保留其余的任务
+      curLayer.tasks = curLayer.tasks.where((e) => e.task.id != id).toList();
+    }
+  }
+
   Widget _buildSegmentButtons(BuildContext context) {
     return SizedBox(
       width: 400,
-      child: Obx(
-        () => SegmentedButton(
-          expandedInsets: EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
-          segments:
-              cats!
-                  .map(
-                    (e) => ButtonSegment(
-                      value: e,
-                      label: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(e.i18name, softWrap: false, maxLines: 1),
-                      ),
+      child: SegmentedButton(
+        emptySelectionAllowed: true,
+        expandedInsets: EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
+        segments:
+            widget.cats!
+                .map(
+                  (e) => ButtonSegment(
+                    value: e,
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(e.i18name, softWrap: false, maxLines: 1),
                     ),
-                  )
-                  .toList(),
-          onSelectionChanged: (s) {
-            controller.curLayer.curCat.value = s;
-          },
-          selected: controller.curLayer.curCat.value,
-          multiSelectionEnabled: false,
-        ),
+                  ),
+                )
+                .toList(),
+        onSelectionChanged: (s) {
+          reloadCurTaskListData(s.first);
+        },
+        selected: curLayer.curCat,
+        multiSelectionEnabled: false,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return showSegBtns
+    if (widget.cats == null ||  widget.cats!.isEmpty) {
+      return emptyWidget(context);
+    }
+    return widget.showSegBtns
         ? Padding(
           padding: EdgeInsets.only(left: 3, right: 3),
           child: Column(
@@ -74,17 +145,14 @@ class TaskListView extends GetView<TaskListController> {
   }
 
   Widget _buildTasks(BuildContext context) {
-    return Obx(
-      () =>
-          controller.curLayer.tabChanging.value
-              ? _buildLoading(context)
-              : LayoutBuilder(
-                builder: (ctx, constraints) {
-                  final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
-                  return _buildRefresher(context, crossCount);
-                },
-              ),
-    );
+    return curLayer.tabChanging
+        ? _buildLoading(context)
+        : LayoutBuilder(
+          builder: (ctx, constraints) {
+            final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
+            return _buildRefresher(context, crossCount);
+          },
+        );
   }
 
   Widget _buildLoading(BuildContext context) {
@@ -104,14 +172,14 @@ class TaskListView extends GetView<TaskListController> {
 
   Widget _buildRefresher(BuildContext context, int crossCount) {
     return SmartRefresher(
-      key: controller.curLayer.smartRefreshKey,
+      key: curLayer.smartRefreshKey,
       enablePullDown: true,
       enablePullUp: true,
       header: WaterDropHeader(),
-      onLoading: controller.curLayer.loadTaskList,
+      onLoading: curLayer.loadTaskList,
       onRefresh: () async {
-        controller.curLayer.reset();
-        await controller.curLayer.loadTaskList();
+        curLayer.reset();
+        await curLayer.loadTaskList();
       },
       footer: CustomFooter(
         builder: (BuildContext context, LoadStatus? mode) {
@@ -143,30 +211,27 @@ class TaskListView extends GetView<TaskListController> {
   }
 
   Widget _buildTaskList(BuildContext context, int crossCount) {
-    return Obx(
-      () =>
-          controller.curLayer.tasks.isEmpty
-              ? Column(children: [emptyWidget(context)])
-              : GridView.builder(
-                primary: true,
-                shrinkWrap: true,
-                itemCount: controller.curLayer.tasks.value.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossCount,
-                  crossAxisSpacing: crossCount == 1 ? 0 : 6,
-                  mainAxisSpacing: 1,
-                  childAspectRatio: crossCount == 1 ? 2 : 1.6,
-                ),
-                itemBuilder: (BuildContext context, int index) {
-                  final userTaskHis = controller.curLayer.tasks.value[index];
-                  return OneTaskCardView(
-                    key: ValueKey(userTaskHis.task.id),
-                    userTaskHis: userTaskHis,
-                    taskCategory: controller.curLayer.curCat.value.first,
-                  );
-                },
-              ),
-    );
+    return curLayer.tasks.isEmpty
+        ? Column(children: [emptyWidget(context)])
+        : GridView.builder(
+          primary: true,
+          shrinkWrap: true,
+          itemCount: curLayer.tasks.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossCount,
+            crossAxisSpacing: crossCount == 1 ? 0 : 6,
+            mainAxisSpacing: 1,
+            childAspectRatio: crossCount == 1 ? 2 : 1.6,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            final userTaskHis = curLayer.tasks[index];
+            return OneTaskCardView(
+              key: ValueKey(userTaskHis.task.id),
+              userTaskHis: userTaskHis,
+              taskCategory: curLayer.curCat.first,
+            );
+          },
+        );
   }
 }
 
@@ -317,30 +382,28 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final card = _buildCard(context);
-      if (controller.isHandling.value) {
-        return maskingOperation(context, card);
-      }
-      switch (taskCategory) {
-        case TaskListCategory.allPublished:
-        case TaskListCategory.delegatedToMe:
-          final desc = userTaskActionDesc;
-          return desc.isEmpty
-              ? card
-              : _buildTaskActionIndicator(context, card, desc);
-        case TaskListCategory.myManuscript:
-          String desc =
-              controller.taskStatus.value == SystemTaskStatus.initial.index
-                  ? ''
-                  : '已发布';
-          return desc.isEmpty
-              ? card
-              : _buildTaskActionIndicator(context, card, desc);
-        default:
-          return card;
-      }
-    });
+    final card = _buildCard(context);
+    if (controller.isHandling.value) {
+      return maskingOperation(context, card);
+    }
+    switch (taskCategory) {
+      case TaskListCategory.allPublished:
+      case TaskListCategory.delegatedToMe:
+        final desc = userTaskActionDesc;
+        return desc.isEmpty
+            ? card
+            : _buildTaskActionIndicator(context, card, desc);
+      case TaskListCategory.myManuscript:
+        String desc =
+            controller.taskStatus.value == SystemTaskStatus.initial.index
+                ? ''
+                : '已发布';
+        return desc.isEmpty
+            ? card
+            : _buildTaskActionIndicator(context, card, desc);
+      default:
+        return card;
+    }
   }
 
   Widget _buildTaskActionIndicator(
@@ -422,7 +485,12 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           }
           final routeId = Get.find<RootTabController>().curRouteId;
           final args = WorkTaskPageParams(
-            Get.find<TaskListController>().curLayer.parentId.value,
+            Get.find<RootTabController>()
+                    .taskListViewState
+                    .currentState
+                    ?.curLayer
+                    .parentId ??
+                Int64.ZERO,
             task,
             taskCategory,
             opCat: op,
@@ -461,11 +529,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
                 children: [
                   Expanded(flex: 5, child: _buildTaskLeft(context)),
                   SizedBox(width: 2),
-                  Expanded(
-                    flex: 4,
-                    // child: Obx(() => _buildTaskRight(context)),
-                    child: _buildTaskRight(context),
-                  ),
+                  Expanded(flex: 4, child: _buildTaskRight(context)),
                 ],
               ),
             ),
@@ -613,7 +677,6 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           Text('${left.seconds}'.padLeft(2), style: countdownNumberStyle),
         ]);
       }
-      // return Obx(() => Row(children: children));
       return Row(children: children);
     }
   }

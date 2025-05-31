@@ -4,67 +4,67 @@ import 'package:get/get.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
+import 'package:yx/root/controller.dart';
 import 'package:yx/utils/toast.dart';
 
 import '../types.dart';
 
 class PageReq {
-  final page = 1.obs;
+  int page = 1;
 
   int limit;
 
-  final hasMore = true.obs;
+  bool hasMore = true;
 
   PageReq({this.limit = 10});
 }
 
 class TaskListLayer {
-  final curCat = <TaskListCategory>{}.obs;
-  final tasks = <UserTaskHistory>[].obs;
-  final isLoading = false.obs;
-  final tabChanging = false.obs;
-  final pageReq = PageReq();
-  final parentId = Int64.ZERO.obs;
+  Set<TaskListCategory> curCat = <TaskListCategory>{};
+  List<UserTaskHistory> tasks = <UserTaskHistory>[];
+  bool isLoading = false;
+  bool tabChanging = false;
+  PageReq pageReq = PageReq();
+  Int64 parentId = Int64.ZERO;
   final smartRefreshKey = GlobalKey<SmartRefresherState>();
 
   void reset() {
-    pageReq.hasMore.value = true;
-    pageReq.page.value = 1;
-    tasks.value = [];
+    pageReq.hasMore = true;
+    pageReq.page = 1;
+    tasks.clear();
   }
 
   Future<void> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
-    final cat =
-    parentId.value < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
+    final cat = parentId < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
     final refreshController = smartRefreshKey.currentState?.widget.controller;
-    if (!pageReq.hasMore.value) {
+    if (!pageReq.hasMore) {
       warnToast("没有更多数据了");
       refreshController?.loadNoData();
     } else {
-      isLoading.value = true;
+      isLoading = true;
       final data = await task_api.queryWorkTasks(
         cat,
-        pageReq.page.value,
+        pageReq.page,
         pageReq.limit,
-        parentId.value,
+        parentId,
       );
       if (data.error == null) {
-        tasks.value.addAll(data.data as List<UserTaskHistory>);
-        isLoading.value = false;
+        tasks.addAll(data.data as List<UserTaskHistory>);
+        isLoading = false;
         assert(pageReq.limit == data.limit);
-        pageReq.hasMore.value = pageReq.page < data.totalPages;
-        if (pageReq.page.value == 1) {
+        pageReq.hasMore = pageReq.page < data.totalPages;
+        if (pageReq.page == 1) {
           refreshController?.refreshCompleted(resetFooterState: true);
         }
-        if (tasks.value.isEmpty) {
+        if (tasks.isEmpty) {
           refreshController?.loadNoData();
         } else {
           refreshController?.loadComplete();
         }
-        pageReq.page.value++;
+        pageReq.page++;
       } else {
-        if (pageReq.page.value == 1) {
+        if (pageReq.page == 1) {
           refreshController?.refreshFailed();
         } else {
           refreshController?.loadFailed();
@@ -74,76 +74,10 @@ class TaskListLayer {
   }
 }
 
-class TaskListController extends GetxController {
-  final _layers = <TaskListLayer>[TaskListLayer()].obs;
-
-  bool isSecondLayer(TaskListCategory cat) => {
-    TaskListCategory.parentTaskInfo,
-    TaskListCategory.childrenTaskInfo,
-  }.contains(cat);
-
-  // 不是第一层就是第二层
-  bool isFirstLayer(TaskListCategory cat) => !isSecondLayer(cat);
-
-  int layerIdx(TaskListCategory cat) => isFirstLayer(cat) ? 0 : 1;
-
-  TaskListLayer get curLayer => _layers.last;
-
-  bool get inSecondLayer => _layers.length == 2;
-
-  @override
-  void onInit() {
-    super.onInit();
-    ever(curLayer.curCat, (v) {
-      if (v.isNotEmpty) {
-        curLayer.tabChanging.value = true;
-        curLayer.reset();
-        curLayer.loadTaskList().then((v) {
-          Future.delayed(Duration(milliseconds: 100), () {
-            curLayer.tabChanging.value = false;
-          });
-        });
-      }
-    });
-  }
-
-
-  void setSecondLayerTaskListInfo({
-    Int64 parentId = Int64.ZERO,
-    TaskListCategory defaultCat = TaskListCategory.allPublished,
-  }) {
-    if (!isSecondLayer(defaultCat)) {
-      return;
-    }
-    if (_layers.length == 1) {
-      _layers.add(TaskListLayer());
-    }
-    curLayer.curCat.value = {defaultCat};
-    curLayer.parentId.value = parentId;
-  }
-
-  void removeSecondLayer(){
-    if (inSecondLayer) {
-      _layers.removeLast();
-    }
-  }
-
-  Future<void> deleteOneTask(Int64 id) async {
-    final err = await task_api.deleteWorkTask(id);
-    if (err == null) {
-      // 剔除对应id的任务，保留其余的任务
-      curLayer.tasks.value = curLayer.tasks.value.where((e) => e.task.id != id).toList();
-    }
-  }
-}
-
-
 void commonSetTaskListInfo({
   Int64 parentId = Int64.ZERO,
   TaskListCategory defaultCat = TaskListCategory.allPublished,
 }) {
-  Get.find<TaskListController>().setSecondLayerTaskListInfo(
-    parentId: parentId,
-    defaultCat: defaultCat,
-  );
+  Get.find<RootTabController>().taskListViewState.currentState
+      ?.setSecondLayerTaskListInfo(parentId: parentId, defaultCat: defaultCat);
 }

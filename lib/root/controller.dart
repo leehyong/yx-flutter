@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:toastification/toastification.dart';
+import 'package:yx/components/work-task/task-list/view.dart';
 import 'package:yx/types.dart';
 
 import '../components/work-header/view.dart';
@@ -18,15 +19,18 @@ import 'views/profile_view.dart';
 class RootTabController extends GetxController {
   // GlobalKey， 使用GlobalKey， 可以让showGeneralDialog不需要每次都传递BuildContext对象
   final rootTabKey = GlobalKey<ScaffoldState>();
-  final publishItemsViewSimpleCrudState = GlobalKey<PublishItemsViewSimpleCrudState>();
+  final publishItemsViewSimpleCrudState =
+      GlobalKey<PublishItemsViewSimpleCrudState>();
   final selectSubmitItemViewState = GlobalKey<SelectSubmitItemViewState>();
-  final publishSubmitItemsCrudViewState = GlobalKey<PublishSubmitItemsCrudViewState>();
+  final publishSubmitItemsCrudViewState =
+      GlobalKey<PublishSubmitItemsCrudViewState>();
+  final taskListViewState = GlobalKey<TaskListViewState>();
   final curTab = 0.obs;
   final menuOpen = false.obs;
+
   // LinkedHashMap 保证插入顺序，以便函数按照正确的顺序执行
   final _modifyCategories =
-      (LinkedHashMap<VoidFutureCallBack, HashSet<ModifyWarningCategory>>())
-          .obs;
+      (LinkedHashMap<VoidFutureCallBack, HashSet<ModifyWarningCategory>>()).obs;
 
   static RootTabController get to => Get.find();
   static List menus = [
@@ -82,6 +86,11 @@ class RootTabController extends GetxController {
       finalCb: () async {
         curTab.value = idx;
         clearModifications();
+        if (idx == 0 || idx == 1) {
+          WidgetsBinding.instance.addPostFrameCallback((v) {
+            taskListViewState.currentState?.reloadCurTaskListData();
+          });
+        }
       },
     );
   }

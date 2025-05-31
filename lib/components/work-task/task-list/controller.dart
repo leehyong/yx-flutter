@@ -8,6 +8,7 @@ import 'package:toastification/toastification.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/components/common.dart';
+import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 
 class TimeLeftDetail {
@@ -29,7 +30,11 @@ class TimeLeftDetail {
 const left30Minutes = 1800;
 
 class OneTaskCardController extends GetxController {
-  OneTaskCardController({required this.deadline, required int action, required int status}) {
+  OneTaskCardController({
+    required this.deadline,
+    required int action,
+    required int status,
+  }) {
     final nowTs = DateTime.now().toLocal().millisecondsSinceEpoch ~/ 1000;
     final _deadline = deadline;
     final _left = (_deadline - nowTs);
@@ -46,6 +51,7 @@ class OneTaskCardController extends GetxController {
   }
 
   final taskStatus = (-1).obs;
+
   // 定时器
 
   final action = (-1).obs;
@@ -168,7 +174,7 @@ class OneTaskCardController extends GetxController {
         status = SystemTaskStatus.finished.index;
         title = '结束';
         break;
-        case UserTaskAction.publish:
+      case UserTaskAction.publish:
         status = SystemTaskStatus.published.index;
         title = '结束';
         break;
@@ -185,7 +191,10 @@ class OneTaskCardController extends GetxController {
       },
       rightBtnAction: () async {
         // 弹窗确认之后，再调用接口进行实际操作
-        final success = await task_api.handleActionWorkTaskHeader(task.id, action);
+        final success = await task_api.handleActionWorkTaskHeader(
+          task.id,
+          action,
+        );
         if (success) {
           taskStatus.value = status;
         }
@@ -208,7 +217,8 @@ class OneTaskCardController extends GetxController {
       },
       rightBtnAction: () async {
         // 弹窗确认之后，再调用接口进行删除
-        await Get.find<TaskListController>().deleteOneTask(task.id);
+        await Get.find<RootTabController>().taskListViewState.currentState
+            ?.deleteOneTask(task.id);
         // delayed 延迟以便体现效果
         await Future.delayed(Duration(milliseconds: 200), () {
           isHandling.value = false;

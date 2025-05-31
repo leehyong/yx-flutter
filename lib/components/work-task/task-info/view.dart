@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
+import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -117,7 +118,6 @@ class TaskInfoView extends GetView<TaskInfoController> {
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            final taskListController = Get.find<TaskListController>();
             // 返回时， 重设上次选择的任务类型
             controller.rootTabController.warnConfirmModifying(
               finalCb: () async {
@@ -1140,7 +1140,8 @@ class _DisposeSecondLayerHelperState extends State<_DisposeSecondLayerHelper> {
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.addPostFrameCallback((v) {
-      Get.find<TaskListController>().removeSecondLayer();
+      Get.find<RootTabController>().taskListViewState.currentState
+          ?.removeSecondLayer();
     });
   }
 
