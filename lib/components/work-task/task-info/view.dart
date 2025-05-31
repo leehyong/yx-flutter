@@ -577,6 +577,7 @@ class TaskInfoView extends GetView<TaskInfoController> {
             ? emptyWidget(context)
             : Expanded(
               child: TaskListView(
+                showSegBtns: false,
                 // parentId: parentId,
                 // defaultCat: TaskListCategory.childrenTaskInfo,
               ),

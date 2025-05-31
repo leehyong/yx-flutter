@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
-import 'package:yx/components/work-task/task-list/view.dart';
 import 'package:yx/utils/toast.dart';
 
 import '../types.dart';
@@ -138,61 +137,6 @@ class TaskListController extends GetxController {
   }
 }
 
-class CommonTaskListView extends GetView<TaskListController> {
-  CommonTaskListView({super.key, required this.cats}) {
-    assert(cats.isNotEmpty);
-    controller.curLayer.curCat.value = {cats.first};
-  }
-
-  final List<TaskListCategory> cats;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 3, right: 3),
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Obx(
-              () => SizedBox(
-                width: 400,
-                child: SegmentedButton(
-                  expandedInsets: EdgeInsets.symmetric(
-                    horizontal: 4.0,
-                    vertical: 6.0,
-                  ),
-                  segments:
-                      cats
-                          .map(
-                            (e) => ButtonSegment(
-                              value: e,
-                              label: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  e.i18name,
-                                  softWrap: false,
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                  onSelectionChanged: (s) {
-                    controller.curLayer.curCat.value = s;
-                  },
-                  selected: controller.curLayer.curCat.value,
-                  multiSelectionEnabled: false,
-                ),
-              ),
-            ),
-          ),
-          Expanded(child: TaskListView()),
-        ],
-      ),
-    );
-  }
-}
 
 void commonSetTaskListInfo({
   Int64 parentId = Int64.ZERO,

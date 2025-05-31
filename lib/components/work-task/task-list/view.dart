@@ -18,10 +18,62 @@ import '../task-info/controller.dart';
 import 'controller.dart';
 
 class TaskListView extends GetView<TaskListController> {
-  const TaskListView({super.key});
+  TaskListView({super.key,  this.cats, this.showSegBtns = true}) {
+    if (cats?.isNotEmpty ?? false) {
+      controller.curLayer.curCat.value = {cats!.first};
+    }
+  }
+
+  final List<TaskListCategory>? cats;
+  final bool showSegBtns;
+
+  Widget _buildSegmentButtons(BuildContext context) {
+    return SizedBox(
+      width: 400,
+      child: Obx(
+        () => SegmentedButton(
+          expandedInsets: EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
+          segments:
+              cats!
+                  .map(
+                    (e) => ButtonSegment(
+                      value: e,
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(e.i18name, softWrap: false, maxLines: 1),
+                      ),
+                    ),
+                  )
+                  .toList(),
+          onSelectionChanged: (s) {
+            controller.curLayer.curCat.value = s;
+          },
+          selected: controller.curLayer.curCat.value,
+          multiSelectionEnabled: false,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    return showSegBtns
+        ? Padding(
+          padding: EdgeInsets.only(left: 3, right: 3),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: _buildSegmentButtons(context),
+              ),
+              Expanded(child: _buildTasks(context)),
+            ],
+          ),
+        )
+        : _buildTasks(context);
+  }
+
+  Widget _buildTasks(BuildContext context) {
     return Obx(
       () =>
           controller.curLayer.tabChanging.value

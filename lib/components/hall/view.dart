@@ -2,11 +2,11 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/components/work-task/task-info/controller.dart';
+import 'package:yx/components/work-task/task-list/view.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
 
-import '../common.dart';
 
 class TaskHallView extends StatelessWidget {
   const TaskHallView({super.key});
@@ -37,7 +37,7 @@ class TaskHallView extends StatelessWidget {
           ),
         ],
       ),
-      body: CommonTaskListView(cats: TaskListCategoryExtension.hallTaskList),
+      body: TaskListView(cats: TaskListCategoryExtension.hallTaskList),
     );
   }
 }
