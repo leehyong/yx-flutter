@@ -277,7 +277,7 @@ class TaskInfoController extends GetxController {
   }
 }
 
-void setCurTaskInfo(WorkTaskPageParams param) {
+Future<void> setCurTaskInfo(WorkTaskPageParams param) async{
   final controller = Get.find<TaskInfoController>();
   controller.task.value = param.task;
   controller.parentId.value = param.parentId;

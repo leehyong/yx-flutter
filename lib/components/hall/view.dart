@@ -26,12 +26,12 @@ class TaskHallView extends StatelessWidget {
                 null,
                 TaskListCategory.allPublished,
               );
-              setCurTaskInfo(args);
+              // setCurTaskInfo(args);
               Get.toNamed(
                 WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
                 arguments: args,
-              );
+              )?.then((_)=> setCurTaskInfo(args));
             },
             child: Row(children: [const Text('新建'), Icon(Icons.add)]),
           ),

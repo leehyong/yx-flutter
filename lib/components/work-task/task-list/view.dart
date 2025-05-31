@@ -125,7 +125,7 @@ class TaskListViewState extends State<TaskListView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.cats == null ||  widget.cats!.isEmpty) {
+    if (widget.cats == null || widget.cats!.isEmpty) {
       return emptyWidget(context);
     }
     return widget.showSegBtns
@@ -517,9 +517,11 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             default:
               throw UnsupportedError("不支持的操作:$routeId");
           }
-
-          setCurTaskInfo(args);
-          Get.toNamed(page, arguments: args, id: routeId);
+          Get.toNamed(
+            page,
+            arguments: args,
+            id: routeId,
+          )?.then((_) => setCurTaskInfo(args));
         },
         child: Column(
           children: [
@@ -970,12 +972,11 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             taskCategory,
             opCat: TaskOperationCategory.publishTask,
           );
-          setCurTaskInfo(args);
           Get.toNamed(
             WorkTaskRoutes.hallTaskDetail,
             arguments: args,
             id: routeId,
-          );
+          )?.then((_) => setCurTaskInfo(args));
         },
       ),
     );
