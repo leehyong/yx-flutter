@@ -80,17 +80,26 @@ class RootTabController extends GetxController {
   @override
   void onClose() {}
 
+  @override
+  void onInit() {
+    super.onInit();
+    _loadTasks();
+  }
+
+  void _loadTasks() {
+    if (curTab.value != 0 && curTab.value != 1) return;
+    WidgetsBinding.instance.addPostFrameCallback((v) {
+      taskListViewState.currentState?.reloadCurTaskListData();
+    });
+  }
+
   void setTabIdx(int idx) {
     // bugfix： 确认和取消时， 不知道 具体业务逻辑是什么。
     warnConfirmModifying(
       finalCb: () async {
         curTab.value = idx;
         clearModifications();
-        if (idx == 0 || idx == 1) {
-          WidgetsBinding.instance.addPostFrameCallback((v) {
-            taskListViewState.currentState?.reloadCurTaskListData();
-          });
-        }
+        _loadTasks();
       },
     );
   }
