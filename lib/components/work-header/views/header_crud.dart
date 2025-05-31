@@ -9,7 +9,7 @@ import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
 import 'package:yx/api/header_api.dart' as header_api;
-import 'package:yx/components/work-task/task-info/controller.dart';
+import 'package:yx/components/work-task/task-info/view.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -19,10 +19,19 @@ import 'package:yx/utils/toast.dart';
 import '../controller.dart';
 
 class PublishItemsViewSimpleCrud extends StatefulWidget {
-  PublishItemsViewSimpleCrud(this.rootSubmitItemAnimatedTreeData, this.readOnly)
-    : super(key: Get.find<RootTabController>().publishItemsViewSimpleCrudState);
+  PublishItemsViewSimpleCrud(this.rootSubmitItemAnimatedTreeData)
+    : super(
+        key:
+            Get.find<RootTabController>()
+                .taskInfoViewState
+                .currentState!
+                .publishItemsViewSimpleCrudState,
+      );
 
-  final bool readOnly;
+  TaskInfoViewState get taskInfoViewState =>
+      Get.find<RootTabController>().taskInfoViewState.currentState!;
+
+  bool get readOnly => taskInfoViewState.readOnly;
   final TreeNode<WorkHeader> rootSubmitItemAnimatedTreeData;
 
   @override
@@ -34,6 +43,7 @@ class PublishItemsViewSimpleCrudState
     extends State<PublishItemsViewSimpleCrud> {
   // late final TreeNode<WorkHeader>  widget.rootSubmitItemAnimatedTreeData ;
   TreeViewController? treeViewController;
+  bool _isLoadingSubmitItem = false;
 
   TreeNode<WorkHeader>? _isEditingNode;
   WorkHeader? _isEditingNodeData;
@@ -132,7 +142,7 @@ class PublishItemsViewSimpleCrudState
   WorkHeader _deepCopyNodeData(WorkHeader data) =>
       WorkHeader.fromJson(data.writeToJson());
 
-  Int64 get curTaskId => Get.find<TaskInfoController>().taskId.value;
+  Int64 get curTaskId => widget.taskInfoViewState.taskId;
 
   void _confirmEditing(TreeNode<WorkHeader> node) {
     if (widget.readOnly) {
@@ -154,9 +164,7 @@ class PublishItemsViewSimpleCrudState
       );
       // 新增时保存变更，以后弹窗提醒
       if (curTaskId <= Int64.ZERO) {
-        Get.find<TaskInfoController>().saveModification(
-          ModifyWarningCategory.header,
-        );
+        widget.taskInfoViewState.saveModification(ModifyWarningCategory.header);
       }
       // 调用新增接口， 把数据存下来, 删除新当前节点，并重新在父节点上增加一个新节点
       centerLoadingModal(context, () async {
@@ -222,51 +230,54 @@ class PublishItemsViewSimpleCrudState
 
   @override
   Widget build(BuildContext context) {
-    return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
-      showRootNode: false,
-      // focusToNewNode: true,
-      tree: widget.rootSubmitItemAnimatedTreeData,
-      expansionBehavior: ExpansionBehavior.collapseOthers,
-      expansionIndicatorBuilder:
-          (ctx, node) =>
-              _isEditingNode == node
-                  ? NoExpansionIndicator(tree: node)
-                  : ChevronIndicator.rightDown(
-                    tree: node,
-                    alignment: Alignment.centerLeft,
-                    color: Colors.red,
-                  ),
-      shrinkWrap: true,
-      indentation: const Indentation(style: IndentStyle.roundJoint),
-      builder: (context, node) {
-        // 不显示根节点
-        if (node.key == INode.ROOT_KEY) {
-          return SizedBox.shrink();
-        }
-        final colorIdx =
-            Random(node.data!.id.toInt()).nextInt(10000) % loadingColors.length;
-        // 把颜色做成随机透明的
-        // 区分编辑和只读
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 2),
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          decoration: BoxDecoration(
-            color: loadingColors[colorIdx].withAlpha(40),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child:
-              _isEditingNode == node
-                  ? _buildWritingItemHeader(context, node)
-                  : _buildItemHeaderMaybeWithAction(context, node),
+    return _isLoadingSubmitItem
+        ? buildLoading(context)
+        : TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
+          showRootNode: false,
+          // focusToNewNode: true,
+          tree: widget.rootSubmitItemAnimatedTreeData,
+          expansionBehavior: ExpansionBehavior.collapseOthers,
+          expansionIndicatorBuilder:
+              (ctx, node) =>
+                  _isEditingNode == node
+                      ? NoExpansionIndicator(tree: node)
+                      : ChevronIndicator.rightDown(
+                        tree: node,
+                        alignment: Alignment.centerLeft,
+                        color: Colors.red,
+                      ),
+          shrinkWrap: true,
+          indentation: const Indentation(style: IndentStyle.roundJoint),
+          builder: (context, node) {
+            // 不显示根节点
+            if (node.key == INode.ROOT_KEY) {
+              return SizedBox.shrink();
+            }
+            final colorIdx =
+                Random(node.data!.id.toInt()).nextInt(10000) %
+                loadingColors.length;
+            // 把颜色做成随机透明的
+            // 区分编辑和只读
+            return Container(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              decoration: BoxDecoration(
+                color: loadingColors[colorIdx].withAlpha(40),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child:
+                  _isEditingNode == node
+                      ? _buildWritingItemHeader(context, node)
+                      : _buildItemHeaderMaybeWithAction(context, node),
+            );
+          },
+          onItemTap: (node) {
+            debugPrint("${node.level}");
+          },
+          onTreeReady: (treeController) {
+            treeViewController = treeController;
+          },
         );
-      },
-      onItemTap: (node) {
-        debugPrint("${node.level}");
-      },
-      onTreeReady: (treeController) {
-        treeViewController = treeController;
-      },
-    );
   }
 
   Widget _buildItemHeaderMaybeWithAction(
@@ -509,16 +520,25 @@ class PublishItemsViewSimpleCrudState
   void initState() {
     super.initState();
     debugPrint("PublishItemsViewSimpleCrudState initState");
-    final taskInfoController = Get.find<TaskInfoController>();
     widget.rootSubmitItemAnimatedTreeData.clear();
-    if (taskInfoController.taskId.value > Int64.ZERO) {
-      header_api.queryWorkHeaders(taskInfoController.taskId.value).then((v) {
-        if (v?.isNotEmpty ?? false) {
-          // WidgetsBinding.instance.addPostFrameCallback((_){
-          _initAnimatedTreeViewData(v!);
-          // });
-        }
+    if (widget.taskInfoViewState.taskId > Int64.ZERO) {
+      setState(() {
+        _isLoadingSubmitItem = true;
       });
+      header_api
+          .queryWorkHeaders(widget.taskInfoViewState.taskId)
+          .then((v) {
+            if (v?.isNotEmpty ?? false) {
+              // WidgetsBinding.instance.addPostFrameCallback((_){
+              _initAnimatedTreeViewData(v!);
+              // });
+            }
+          })
+          .whenComplete(() {
+            setState(() {
+              _isLoadingSubmitItem = false;
+            });
+          });
     }
   }
 

@@ -7,7 +7,7 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_content.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/content_api.dart' as content_api;
-import 'package:yx/components/work-task/task-info/controller.dart';
+import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -163,10 +163,11 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
     CusYooWorkContent content,
     BuildContext context,
   ) {
-    Get.find<TaskInfoController>().submitTasksViewState?.handleTaskSubmitAction(
-      action,
-      content: content,
-    );
+    Get.find<RootTabController>()
+        .taskInfoViewState
+        .currentState!
+        .submitTasksViewState
+        ?.handleTaskSubmitAction(action, content: content);
     Navigator.of(context).maybePop();
   }
 

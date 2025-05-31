@@ -3,6 +3,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 
 Widget emptyWidget(
   BuildContext context, {
@@ -184,5 +185,24 @@ Widget maskingOperation(
         ],
       );
     },
+  );
+}
+
+Widget buildLoading(
+  BuildContext context, {
+  Indicator indicatorType = Indicator.lineSpinFadeLoader,
+  double? strokeWidth,
+}) {
+  final s = isBigScreen(context) ? 80.0 : 200.0;
+  return Center(
+    child: SizedBox(
+      height: s,
+      width: s,
+      child: LoadingIndicator(
+        indicatorType: indicatorType,
+        colors: loadingColors,
+        strokeWidth: strokeWidth ?? 2.0,
+      ),
+    ),
   );
 }

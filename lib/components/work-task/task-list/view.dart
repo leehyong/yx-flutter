@@ -7,7 +7,6 @@ import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/components/common.dart';
-import 'package:yx/components/work-task/task-info/controller.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
@@ -146,28 +145,13 @@ class TaskListViewState extends State<TaskListView> {
 
   Widget _buildTasks(BuildContext context) {
     return curLayer.tabChanging
-        ? _buildLoading(context)
+        ? buildLoading(context)
         : LayoutBuilder(
           builder: (ctx, constraints) {
             final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
             return _buildRefresher(context, crossCount);
           },
         );
-  }
-
-  Widget _buildLoading(BuildContext context) {
-    final s = GetPlatform.isMobile ? 80.0 : 200.0;
-    return Center(
-      child: SizedBox(
-        height: s,
-        width: s,
-        child: LoadingIndicator(
-          indicatorType: Indicator.lineSpinFadeLoader,
-          colors: loadingColors,
-          strokeWidth: 2,
-        ),
-      ),
-    );
   }
 
   Widget _buildRefresher(BuildContext context, int crossCount) {
@@ -382,28 +366,30 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
 
   @override
   Widget build(BuildContext context) {
-    final card = _buildCard(context);
-    if (controller.isHandling.value) {
-      return maskingOperation(context, card);
-    }
-    switch (taskCategory) {
-      case TaskListCategory.allPublished:
-      case TaskListCategory.delegatedToMe:
-        final desc = userTaskActionDesc;
-        return desc.isEmpty
-            ? card
-            : _buildTaskActionIndicator(context, card, desc);
-      case TaskListCategory.myManuscript:
-        String desc =
-            controller.taskStatus.value == SystemTaskStatus.initial.index
-                ? ''
-                : '已发布';
-        return desc.isEmpty
-            ? card
-            : _buildTaskActionIndicator(context, card, desc);
-      default:
-        return card;
-    }
+    return Obx(() {
+      final card = _buildCard(context);
+      if (controller.isHandling.value) {
+        return maskingOperation(context, card);
+      }
+      switch (taskCategory) {
+        case TaskListCategory.allPublished:
+        case TaskListCategory.delegatedToMe:
+          final desc = userTaskActionDesc;
+          return desc.isEmpty
+              ? card
+              : _buildTaskActionIndicator(context, card, desc);
+        case TaskListCategory.myManuscript:
+          String desc =
+              controller.taskStatus.value == SystemTaskStatus.initial.index
+                  ? ''
+                  : '已发布';
+          return desc.isEmpty
+              ? card
+              : _buildTaskActionIndicator(context, card, desc);
+        default:
+          return card;
+      }
+    });
   }
 
   Widget _buildTaskActionIndicator(
@@ -517,11 +503,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             default:
               throw UnsupportedError("不支持的操作:$routeId");
           }
-          Get.toNamed(
-            page,
-            arguments: args,
-            id: routeId,
-          )?.then((_) => setCurTaskInfo(args));
+          Get.toNamed(page, arguments: args, id: routeId);
         },
         child: Column(
           children: [
@@ -976,7 +958,7 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
             WorkTaskRoutes.hallTaskDetail,
             arguments: args,
             id: routeId,
-          )?.then((_) => setCurTaskInfo(args));
+          );
         },
       ),
     );

@@ -6,17 +6,24 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
+import 'package:yx/components/work-task/task-info/view.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../work-task/task-info/controller.dart';
 import 'views/header_crud.dart';
 import 'views/select_submit_item.dart';
 
 class PublishSubmitItemsCrudView extends StatefulWidget {
-  PublishSubmitItemsCrudView():super(key: Get.find<RootTabController>().publishItemsViewSimpleCrudState);
+  PublishSubmitItemsCrudView()
+    : super(
+        key:
+            Get.find<RootTabController>()
+                .taskInfoViewState
+                .currentState!
+                .publishSubmitItemsCrudViewState,
+      );
 
   @override
   PublishSubmitItemsCrudViewState createState() =>
@@ -25,14 +32,14 @@ class PublishSubmitItemsCrudView extends StatefulWidget {
 
 class PublishSubmitItemsCrudViewState
     extends State<PublishSubmitItemsCrudView> {
-  bool isLoadingSubmitItem = false;
   bool expandAll = false;
   final rootSubmitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
   bool isSaving = false;
 
-  TaskInfoController get taskInfoController => Get.find<TaskInfoController>();
+  TaskInfoViewState get taskInfoState =>
+      Get.find<RootTabController>().taskInfoViewState.currentState!;
 
-  bool get readOnly => taskInfoController.readOnly;
+  bool get readOnly => taskInfoState.readOnly;
 
   List<Int64> get taskHeaderIds {
     final headerIds = <Int64>[];
@@ -56,12 +63,11 @@ class PublishSubmitItemsCrudViewState
     // final cnt = min(3, controller.submitItems.length);
     return Column(
       children: [
-         _buildHeaderActions(context),
+        _buildHeaderActions(context),
         Expanded(
           child: RepaintBoundary(
             child: PublishItemsViewSimpleCrud(
               rootSubmitItemAnimatedTreeData,
-              readOnly,
             ),
           ),
         ),
@@ -70,10 +76,18 @@ class PublishSubmitItemsCrudViewState
   }
 
   PublishItemsViewSimpleCrudState? get publishItemsViewSimpleCrudState =>
-      Get.find<RootTabController>().publishItemsViewSimpleCrudState.currentState;
+      Get.find<RootTabController>()
+          .taskInfoViewState
+          .currentState!
+          .publishItemsViewSimpleCrudState
+          .currentState;
 
   SelectSubmitItemViewState? get selectSubmitItemViewState =>
-      Get.find<RootTabController>().selectSubmitItemViewState.currentState;
+      Get.find<RootTabController>()
+          .taskInfoViewState
+          .currentState!
+          .selectSubmitItemViewState
+          .currentState;
 
   Widget _buildHeaderActions(BuildContext context) {
     return Row(
@@ -150,7 +164,7 @@ class PublishSubmitItemsCrudViewState
                           ),
                           // icon: Text("确定"),
                           onPressed: () {
-                            final taskId = taskInfoController.taskId.value;
+                            final taskId = taskInfoState.taskId;
                             // 先清空旧的
                             publishItemsViewSimpleCrudState?.clearAllNodes();
                             // 再设置现在选择的
@@ -177,7 +191,7 @@ class PublishSubmitItemsCrudViewState
                               // 此时，就是新建的任务还没有保存，
                               // 需要在保存的时候，跟它进行绑定
                               // 保存变更，以后弹窗提醒
-                              taskInfoController.saveModification(
+                              taskInfoState.saveModification(
                                 ModifyWarningCategory.header,
                               );
                               Navigator.of(modalSheetContext).maybePop();
@@ -192,11 +206,11 @@ class PublishSubmitItemsCrudViewState
                               isSaving
                                   ? maskingOperation(
                                     context,
-                                    _buildSelectSubmitItemView(context),
+                                    SelectSubmitItemView(taskInfoState.taskId),
                                     indicatorType:
                                         Indicator.ballClipRotatePulse,
                                   )
-                                  : _buildSelectSubmitItemView(context),
+                                  : SelectSubmitItemView(taskInfoState.taskId),
                         ),
                       ),
                       // child: ,
@@ -213,7 +227,6 @@ class PublishSubmitItemsCrudViewState
               // 文字颜色
             ),
             onPressed: () {
-              // todo:
               publishItemsViewSimpleCrudState?.addChildToNode();
             },
             child: const Text("新增"),
@@ -222,9 +235,4 @@ class PublishSubmitItemsCrudViewState
       ],
     );
   }
-
-  Widget _buildSelectSubmitItemView(BuildContext context) => GetBuilder(
-    builder:
-        (TaskInfoController ctor) => SelectSubmitItemView(ctor.taskId.value),
-  );
 }

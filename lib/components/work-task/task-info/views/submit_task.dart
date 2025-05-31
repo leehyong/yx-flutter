@@ -12,6 +12,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
 import 'package:yx/api/content_api.dart' as content_api;
 import 'package:yx/api/header_api.dart' as header_api;
+import 'package:yx/components/work-task/task-info/view.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -26,7 +27,13 @@ class SubmitTasksView extends StatefulWidget {
   final bool readOnly;
 
   SubmitTasksView({required this.readOnly})
-    : super(key: Get.find<TaskInfoController>().submitTasksViewStateKey);
+    : super(
+        key:
+            Get.find<RootTabController>()
+                .taskInfoViewState
+                .currentState!
+                .submitTasksViewStateKey,
+      );
 
   @override
   SubmitTasksViewState createState() => SubmitTasksViewState();
@@ -60,7 +67,8 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
 
   final _formKey = GlobalKey<FormState>();
 
-  TaskInfoController get taskInfoController => Get.find<TaskInfoController>();
+  TaskInfoViewState? get taskInfoViewState =>
+      Get.find<RootTabController>().taskInfoViewState.currentState;
   CusYooWorkContent? _content;
 
   TextEditingController getLeafTextEditingController(Int64 headerId) =>
@@ -72,6 +80,8 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     _contentNameTextEditingController.text = _defaultContentName;
     _initTaskSubmitItems();
   }
+
+  Int64 get taskId => taskInfoViewState!.taskId;
 
   Future<void> handleTaskSubmitAction(
     TaskSubmitAction action, {
@@ -109,7 +119,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   }
 
   String get _defaultContentName {
-    final task = taskInfoController.task.value!;
+    final task = taskInfoViewState!.widget.publishTaskParams.task!;
     final cycle = TaskSubmitCycleStrategy.values[task.submitCycle];
     final now = DateTime.now();
     switch (cycle) {
@@ -161,9 +171,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     setState(() {
       isLoadingSubmitItem = DataLoadingStatus.loading;
     });
-    header_api.queryWorkHeaders(taskInfoController.taskId.value).then((
-      headers,
-    ) {
+    header_api.queryWorkHeaders(taskId).then((headers) {
       taskSubmitItems = headers ?? [];
       isLoadingSubmitItem = DataLoadingStatus.loaded;
       _buildLeafSubmitItemTextEditingController(headers ?? []);
@@ -375,11 +383,11 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
       // 新增
       content_api
           .newWorkTaskContent(
-            taskInfoController.task.value!.id,
+            taskId,
             NewCusYooWorkContentReq(
               content: NewWorkContent(
                 name: _contentNameTextEditingController.text.trim(),
-                taskId: taskInfoController.task.value!.id,
+                taskId: taskId,
               ),
               contentItems:
                   _leafTaskSubmitItemsTextEditingControllers.entries
@@ -403,7 +411,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
         UpdateCusYooWorkContentReq(
           content: UpdateWorkContent(
             name: _contentNameTextEditingController.text.trim(),
-            taskId: taskInfoController.task.value!.id,
+            taskId: taskId,
           ),
           contentItems:
               _leafTaskSubmitItemsTextEditingControllers.entries
@@ -437,7 +445,11 @@ abstract class _AbstractSubmitWorkHeaderItemView<T extends GetxController>
   final WorkHeader rootHeader;
 
   SubmitTasksViewState get submitTasksViewState =>
-      Get.find<TaskInfoController>().submitTasksViewState!;
+      Get.find<RootTabController>()
+          .taskInfoViewState
+          .currentState!
+          .submitTasksViewStateKey
+          .currentState!;
 
   const _AbstractSubmitWorkHeaderItemView(this.rootHeader, {super.key});
 

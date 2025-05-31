@@ -1,7 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yx/components/work-task/task-info/controller.dart';
 import 'package:yx/components/work-task/task-list/view.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
@@ -26,12 +25,11 @@ class TaskHallView extends StatelessWidget {
                 null,
                 TaskListCategory.allPublished,
               );
-              // setCurTaskInfo(args);
               Get.toNamed(
                 WorkTaskRoutes.hallTaskPublish,
                 id: NestedNavigatorKeyId.hallId,
                 arguments: args,
-              )?.then((_)=> setCurTaskInfo(args));
+              );
             },
             child: Row(children: [const Text('新建'), Icon(Icons.add)]),
           ),

@@ -9,7 +9,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yt_dart/cus_user_organization.pbserver.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/user_api.dart' as user_api;
-import 'package:yx/components/work-task/task-info/controller.dart';
+import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 
@@ -59,9 +59,12 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
   void initState() {
     super.initState();
     _taskSelectedUsers = LinkedHashMap.fromEntries(
-      (Get.find<TaskInfoController>().checkedTaskUsers.value ?? []).map(
-        (u) => MapEntry(u.id, u),
-      ),
+      (Get.find<RootTabController>()
+                  .taskInfoViewState
+                  .currentState
+                  ?.checkedTaskUsers ??
+              [])
+          .map((u) => MapEntry(u.id, u)),
     );
     setState(() {
       _loading = true;
@@ -287,7 +290,9 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
             message: node.data!.name,
             child: Row(
               children: [
-                Icon(node.data!.data is User ? Icons.person : Icons.table_chart),
+                Icon(
+                  node.data!.data is User ? Icons.person : Icons.table_chart,
+                ),
                 Text(
                   node.data!.name,
                   style: TextStyle(

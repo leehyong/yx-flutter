@@ -19,7 +19,7 @@ import '../data.dart';
 
 class SelectSubmitItemView extends StatefulWidget {
   SelectSubmitItemView(this.taskId)
-    : super(key: Get.find<RootTabController>().selectSubmitItemViewState);
+    : super(key: Get.find<RootTabController>().taskInfoViewState.currentState!.selectSubmitItemViewState);
 
   final Int64 taskId;
 
@@ -82,6 +82,7 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
     });
     final taskHeaders =
         Get.find<RootTabController>()
+        .taskInfoViewState.currentState!
             .publishSubmitItemsCrudViewState
             .currentState
             ?.taskHeaderIds

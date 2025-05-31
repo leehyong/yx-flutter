@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:toastification/toastification.dart';
+import 'package:yx/components/work-task/task-info/view.dart';
 import 'package:yx/components/work-task/task-list/view.dart';
 import 'package:yx/types.dart';
 
-import '../components/work-header/view.dart';
-import '../components/work-header/views/header_crud.dart';
-import '../components/work-header/views/select_submit_item.dart';
 import 'nest_nav_key.dart' show NestedNavigatorKeyId;
 import 'views/dashboard_view.dart';
 import 'views/hall_view.dart';
@@ -19,12 +17,8 @@ import 'views/profile_view.dart';
 class RootTabController extends GetxController {
   // GlobalKey， 使用GlobalKey， 可以让showGeneralDialog不需要每次都传递BuildContext对象
   final rootTabKey = GlobalKey<ScaffoldState>();
-  final publishItemsViewSimpleCrudState =
-      GlobalKey<PublishItemsViewSimpleCrudState>();
-  final selectSubmitItemViewState = GlobalKey<SelectSubmitItemViewState>();
-  final publishSubmitItemsCrudViewState =
-      GlobalKey<PublishSubmitItemsCrudViewState>();
   final taskListViewState = GlobalKey<TaskListViewState>();
+  final taskInfoViewState = GlobalKey<TaskInfoViewState>();
   final curTab = 0.obs;
   final menuOpen = false.obs;
 
