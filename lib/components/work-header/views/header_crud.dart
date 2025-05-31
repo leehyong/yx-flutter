@@ -20,7 +20,7 @@ import '../controller.dart';
 
 class PublishItemsViewSimpleCrud extends StatefulWidget {
   PublishItemsViewSimpleCrud(this.rootSubmitItemAnimatedTreeData, this.readOnly)
-    : super(key: Get.find<RootTabController>().itemsSimpleCrudKey);
+    : super(key: Get.find<RootTabController>().publishItemsViewSimpleCrudState);
 
   final bool readOnly;
   final TreeNode<WorkHeader> rootSubmitItemAnimatedTreeData;

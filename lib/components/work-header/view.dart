@@ -1,8 +1,10 @@
+import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
@@ -10,24 +12,56 @@ import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import '../work-task/task-info/controller.dart';
-import 'controller.dart';
 import 'views/header_crud.dart';
 import 'views/select_submit_item.dart';
 
-class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
-  const PublishSubmitItemsCrudView({super.key});
+class PublishSubmitItemsCrudView extends StatefulWidget {
+  PublishSubmitItemsCrudView():super(key: Get.find<RootTabController>().publishItemsViewSimpleCrudState);
+
+  @override
+  PublishSubmitItemsCrudViewState createState() =>
+      PublishSubmitItemsCrudViewState();
+}
+
+class PublishSubmitItemsCrudViewState
+    extends State<PublishSubmitItemsCrudView> {
+  bool isLoadingSubmitItem = false;
+  bool expandAll = false;
+  final rootSubmitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
+  bool isSaving = false;
+
+  TaskInfoController get taskInfoController => Get.find<TaskInfoController>();
+
+  bool get readOnly => taskInfoController.readOnly;
+
+  List<Int64> get taskHeaderIds {
+    final headerIds = <Int64>[];
+    void headerId(ITreeNode<WorkHeader> node) {
+      if (node.key != INode.ROOT_KEY) {
+        headerIds.add(node.data!.id);
+        return;
+      }
+      // 把节点id加入结果集中
+      for (var child in node.childrenAsList) {
+        headerId(child as ITreeNode<WorkHeader>);
+      }
+    }
+
+    headerId(rootSubmitItemAnimatedTreeData);
+    return headerIds;
+  }
 
   @override
   Widget build(BuildContext context) {
     // final cnt = min(3, controller.submitItems.length);
     return Column(
       children: [
-        Obx(() => _buildHeaderActions(context)),
+         _buildHeaderActions(context),
         Expanded(
           child: RepaintBoundary(
             child: PublishItemsViewSimpleCrud(
-              controller.rootSubmitItemAnimatedTreeData,
-              controller.readOnly,
+              rootSubmitItemAnimatedTreeData,
+              readOnly,
             ),
           ),
         ),
@@ -36,10 +70,10 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
   }
 
   PublishItemsViewSimpleCrudState? get publishItemsViewSimpleCrudState =>
-      Get.find<RootTabController>().itemsSimpleCrudKey.currentState;
+      Get.find<RootTabController>().publishItemsViewSimpleCrudState.currentState;
 
   SelectSubmitItemViewState? get selectSubmitItemViewState =>
-      Get.find<RootTabController>().selectHeaderItemsKey.currentState;
+      Get.find<RootTabController>().selectSubmitItemViewState.currentState;
 
   Widget _buildHeaderActions(BuildContext context) {
     return Row(
@@ -48,8 +82,10 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
       children: [
         ElevatedButton(
           onPressed: () {
-            controller.expandAll.value = !controller.expandAll.value;
-            if (controller.expandAll.value) {
+            setState(() {
+              expandAll = !expandAll;
+            });
+            if (expandAll) {
               publishItemsViewSimpleCrudState?.expandAllChildren();
             } else {
               publishItemsViewSimpleCrudState?.collapseAllChildren();
@@ -58,16 +94,16 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
           child: Row(
             children: [
               Icon(
-                controller.expandAll.value
+                expandAll
                     ? Icons.arrow_right_alt_rounded
                     : Icons.arrow_downward,
               ),
-              Text(controller.expandAll.value ? "全部折叠" : "全部展开"),
+              Text(expandAll ? "全部折叠" : "全部展开"),
             ],
           ),
         ),
         const Spacer(),
-        if (!controller.readOnly) ...[
+        if (!readOnly) ...[
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue.shade50, // 背景色
@@ -114,8 +150,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                           ),
                           // icon: Text("确定"),
                           onPressed: () {
-                            final taskId =
-                                controller.taskInfoController.taskId.value;
+                            final taskId = taskInfoController.taskId.value;
                             // 先清空旧的
                             publishItemsViewSimpleCrudState?.clearAllNodes();
                             // 再设置现在选择的
@@ -125,13 +160,11 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                             // 如果存在任务id， 则直接在确定的时候跟它进行绑定
                             if (taskId > Int64.ZERO) {
                               task_api
-                                  .bindWorkTaskHeader(
-                                    taskId,
-                                    Get.find<PublishItemsCrudController>()
-                                        .taskHeaderIds,
-                                  )
+                                  .bindWorkTaskHeader(taskId, taskHeaderIds)
                                   .then((err) {
-                                    controller.isSaving.value = false;
+                                    setState(() {
+                                      isSaving = false;
+                                    });
                                     if (err == null &&
                                         modalSheetContext.mounted) {
                                       // 如果任务出错，则需要手动关闭咯
@@ -144,7 +177,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                               // 此时，就是新建的任务还没有保存，
                               // 需要在保存的时候，跟它进行绑定
                               // 保存变更，以后弹窗提醒
-                              controller.taskInfoController.saveModification(
+                              taskInfoController.saveModification(
                                 ModifyWarningCategory.header,
                               );
                               Navigator.of(modalSheetContext).maybePop();
@@ -155,17 +188,15 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                           constraints: BoxConstraints(
                             maxHeight: GetPlatform.isMobile ? 500 : 800,
                           ),
-                          child: Obx(
-                            () =>
-                                controller.isSaving.value
-                                    ? maskingOperation(
-                                      context,
-                                      _buildSelectSubmitItemView(context),
-                                      indicatorType:
-                                          Indicator.ballClipRotatePulse,
-                                    )
-                                    : _buildSelectSubmitItemView(context),
-                          ),
+                          child:
+                              isSaving
+                                  ? maskingOperation(
+                                    context,
+                                    _buildSelectSubmitItemView(context),
+                                    indicatorType:
+                                        Indicator.ballClipRotatePulse,
+                                  )
+                                  : _buildSelectSubmitItemView(context),
                         ),
                       ),
                       // child: ,

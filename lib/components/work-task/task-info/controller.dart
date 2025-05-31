@@ -8,7 +8,6 @@ import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
-import 'package:yx/components/work-header/controller.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
@@ -238,7 +237,7 @@ class TaskInfoController extends GetxController {
       ),
       common: CommonYooWorkTask(
         parentTaskId: parentId.value,
-        headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+        headerIds: Get.find<RootTabController>().publishSubmitItemsCrudViewState.currentState!.taskHeaderIds,
         userIds: checkedTaskUsers.value?.map((user) => user.id).toList(),
       ),
     );
@@ -271,7 +270,7 @@ class TaskInfoController extends GetxController {
 
       common: CommonYooWorkTask(
         parentTaskId: parentId.value,
-        headerIds: Get.find<PublishItemsCrudController>().taskHeaderIds,
+        headerIds: Get.find<RootTabController>().publishSubmitItemsCrudViewState.currentState!.taskHeaderIds,
         userIds: checkedTaskUsers.value?.map((user) => user.id).toList(),
       ),
     );

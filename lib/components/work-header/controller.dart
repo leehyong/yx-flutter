@@ -2,41 +2,9 @@ import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
-import '../work-task/task-info/controller.dart';
-
-class PublishItemsCrudController extends GetxController {
-  final isLoadingSubmitItem = false.obs;
-  final expandAll = false.obs;
-
-  final rootSubmitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
-  final isSaving = false.obs;
-
-  TaskInfoController get taskInfoController =>
-      Get.find<TaskInfoController>();
-
-  bool get readOnly => taskInfoController.readOnly;
-
-  List<Int64> get taskHeaderIds {
-    final headerIds = <Int64>[];
-    void headerId(ITreeNode<WorkHeader> node) {
-      if (node.key != INode.ROOT_KEY) {
-        headerIds.add(node.data!.id);
-        return;
-      }
-      // 把节点id加入结果集中
-      for (var child in node.childrenAsList) {
-        headerId(child as ITreeNode<WorkHeader>);
-      }
-    }
-
-    headerId(rootSubmitItemAnimatedTreeData);
-    return headerIds;
-  }
-}
 
 WorkHeader newEmptyWorkHeader({String? name}) {
   final id = Int64(DateTime.now().microsecondsSinceEpoch);

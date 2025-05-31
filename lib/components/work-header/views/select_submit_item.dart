@@ -15,12 +15,11 @@ import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
-import '../controller.dart';
 import '../data.dart';
 
 class SelectSubmitItemView extends StatefulWidget {
   SelectSubmitItemView(this.taskId)
-    : super(key: Get.find<RootTabController>().selectHeaderItemsKey);
+    : super(key: Get.find<RootTabController>().selectSubmitItemViewState);
 
   final Int64 taskId;
 
@@ -82,7 +81,12 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
       _loading = true;
     });
     final taskHeaders =
-        Get.find<PublishItemsCrudController>().taskHeaderIds.toSet();
+        Get.find<RootTabController>()
+            .publishSubmitItemsCrudViewState
+            .currentState
+            ?.taskHeaderIds
+            .toSet() ??
+        {};
     // 递归构建树节点
     header_api.queryWorkHeaders().then((headers) {
       for (var header in (headers ?? <CusYooHeader>[])) {
