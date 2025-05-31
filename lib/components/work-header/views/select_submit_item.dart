@@ -10,6 +10,7 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:yt_dart/cus_header.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/header_api.dart' as header_api;
+import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -18,7 +19,8 @@ import '../controller.dart';
 import '../data.dart';
 
 class SelectSubmitItemView extends StatefulWidget {
-  const SelectSubmitItemView(this.taskId, {super.key});
+  SelectSubmitItemView(this.taskId)
+    : super(key: Get.find<RootTabController>().selectHeaderItemsKey);
 
   final Int64 taskId;
 
@@ -122,6 +124,7 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
             height: 100,
             child: LoadingIndicator(
               indicatorType: Indicator.ballSpinFadeLoader,
+
               /// Required, The loading type of the widget
               colors: loadingColors,
               strokeWidth: 2,

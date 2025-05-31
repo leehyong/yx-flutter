@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yx/api/task_api.dart' as task_api;
+import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -14,11 +15,7 @@ import 'views/header_crud.dart';
 import 'views/select_submit_item.dart';
 
 class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
-  const PublishSubmitItemsCrudView({super.key}); //{
-  // Get.put(PublishItemsCrudController());
-  // }
-
-  // final bool readOnly;
+  const PublishSubmitItemsCrudView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +28,18 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
             child: PublishItemsViewSimpleCrud(
               controller.rootSubmitItemAnimatedTreeData,
               controller.readOnly,
-              key: controller.itemsSimpleCrudKey,
             ),
           ),
         ),
       ],
     );
   }
+
+  PublishItemsViewSimpleCrudState? get publishItemsViewSimpleCrudState =>
+      Get.find<RootTabController>().itemsSimpleCrudKey.currentState;
+
+  SelectSubmitItemViewState? get selectSubmitItemViewState =>
+      Get.find<RootTabController>().selectHeaderItemsKey.currentState;
 
   Widget _buildHeaderActions(BuildContext context) {
     return Row(
@@ -48,9 +50,9 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
           onPressed: () {
             controller.expandAll.value = !controller.expandAll.value;
             if (controller.expandAll.value) {
-              controller.itemsSimpleCrudKey.currentState?.expandAllChildren();
+              publishItemsViewSimpleCrudState?.expandAllChildren();
             } else {
-              controller.itemsSimpleCrudKey.currentState?.collapseAllChildren();
+              publishItemsViewSimpleCrudState?.collapseAllChildren();
             }
           },
           child: Row(
@@ -115,16 +117,11 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
                             final taskId =
                                 controller.taskInfoController.taskId.value;
                             // 先清空旧的
-                            controller.itemsSimpleCrudKey.currentState
-                                ?.clearAllNodes();
+                            publishItemsViewSimpleCrudState?.clearAllNodes();
                             // 再设置现在选择的
-                            controller.itemsSimpleCrudKey.currentState
-                                ?.addNodesToRoot(
-                                  controller
-                                      .selectHeaderItemsKey
-                                      .currentState!
-                                      .allCheckedNode,
-                                );
+                            publishItemsViewSimpleCrudState?.addNodesToRoot(
+                              selectSubmitItemViewState!.allCheckedNode,
+                            );
                             // 如果存在任务id， 则直接在确定的时候跟它进行绑定
                             if (taskId > Int64.ZERO) {
                               task_api
@@ -186,7 +183,7 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
             ),
             onPressed: () {
               // todo:
-              controller.itemsSimpleCrudKey.currentState?.addChildToNode();
+              publishItemsViewSimpleCrudState?.addChildToNode();
             },
             child: const Text("新增"),
           ),
@@ -197,9 +194,6 @@ class PublishSubmitItemsCrudView extends GetView<PublishItemsCrudController> {
 
   Widget _buildSelectSubmitItemView(BuildContext context) => GetBuilder(
     builder:
-        (TaskInfoController ctor) => SelectSubmitItemView(
-          ctor.taskId.value,
-          key: controller.selectHeaderItemsKey,
-        ),
+        (TaskInfoController ctor) => SelectSubmitItemView(ctor.taskId.value),
   );
 }

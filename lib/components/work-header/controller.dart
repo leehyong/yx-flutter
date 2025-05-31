@@ -2,20 +2,16 @@ import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 
 import '../work-task/task-info/controller.dart';
-import 'views/header_crud.dart';
-import 'views/select_submit_item.dart';
 
 class PublishItemsCrudController extends GetxController {
   final isLoadingSubmitItem = false.obs;
   final expandAll = false.obs;
-  final itemsSimpleCrudKey = GlobalKey<PublishItemsViewSimpleCrudState>();
-  final selectHeaderItemsKey = GlobalKey<SelectSubmitItemViewState>();
+
   final rootSubmitItemAnimatedTreeData = TreeNode<WorkHeader>.root();
   final isSaving = false.obs;
 
