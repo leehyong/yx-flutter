@@ -75,7 +75,6 @@ class TaskInfoViewState extends State<TaskInfoView> {
   Int64 parentId = Int64.ZERO;
   WorkTask? parentTask;
 
-  WorkTask? checkedParentTask;
   List<User>? checkedTaskUsers;
 
   TaskInfoAction get action {
@@ -813,10 +812,11 @@ class TaskInfoViewState extends State<TaskInfoView> {
                             // icon: Text("确定"),
                             onPressed: () {
                               setState(() {
-                                checkedParentTask =
+                                parentTask =
                                     selectParentTaskKey
                                         .currentState
                                         ?.curCheckedTask;
+                                parentId = parentTask?.id ?? Int64.ZERO;
                               });
                               Navigator.of(modalSheetContext).maybePop();
                             },
