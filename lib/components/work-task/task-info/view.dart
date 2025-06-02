@@ -187,7 +187,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
         });
       });
       return;
-    } else if ((widget.publishTaskParams.task?.id ?? Int64.ZERO) > Int64.ZERO) {
+    } else if (parentTask == null && (widget.publishTaskParams.task?.id ?? Int64.ZERO) > Int64.ZERO) {
       final curTask = widget.publishTaskParams.task!;
       if (curTask.level > 1) {
         // 如果当前任务不是叶节点，那么就需要查询他的父节点
