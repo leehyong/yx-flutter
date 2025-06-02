@@ -186,9 +186,21 @@ class TaskInfoViewState extends State<TaskInfoView> {
           parentTask = v;
         });
       });
-    } else {
-      parentTask = null;
+      return;
+    } else if ((widget.publishTaskParams.task?.id ?? Int64.ZERO) > Int64.ZERO) {
+      final curTask = widget.publishTaskParams.task!;
+      if (curTask.level > 1) {
+        // 如果当前任务不是叶节点，那么就需要查询他的父节点
+        task_api.queryWorkTaskInfoById(curTask.id, isParent: true).then((v) {
+          setState(() {
+            parentTask = v;
+          });
+        });
+        return;
+      }
     }
+    // 设置默认的 父任务为null
+    parentTask = null;
   }
 
   void handleOperationCategoryChange(TaskOperationCategory v) {
