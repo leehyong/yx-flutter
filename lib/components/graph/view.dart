@@ -1,9 +1,3 @@
-import 'package:yx/config.dart';
-import 'package:yx/types.dart';
-import 'package:yx/utils/common_widget.dart';
-import 'package:yx/utils/toast.dart';
-import 'package:yx/vo/graph_vo.dart' as graph_vo;
-import 'package:yx/vo/room_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Node;
 import 'package:graphview/GraphView.dart';
@@ -11,8 +5,13 @@ import 'package:group_button/group_button.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:single_child_two_dimensional_scroll_view/single_child_two_dimensional_scroll_view.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yx/config.dart';
+import 'package:yx/types.dart';
+import 'package:yx/utils/common_widget.dart';
+import 'package:yx/utils/toast.dart';
+import 'package:yx/vo/graph_vo.dart' as graph_vo;
+import 'package:yx/vo/room_vo.dart';
 
-import '../checkable-treeview/treeview.dart';
 import 'controller.dart';
 import 'graph-comment/controller.dart';
 import 'graph-comment/view.dart';
@@ -423,9 +422,6 @@ class GraphTaskView extends GetView<GraphTaskController> {
                     padding: const EdgeInsets.all(4),
                     icon: Text("重置"),
                     onPressed: () {
-                      controller.treeViewTaskKey.currentState?.setSelectAll(
-                        false,
-                      );
                       controller.selectedTasks.value = {};
                       // 点击重置按钮会清空已选择的数据
                       controller.selectedTaskOneValue.value = '';
@@ -469,59 +465,7 @@ class GraphTaskView extends GetView<GraphTaskController> {
   }
 
   Widget _taskSelectTree(BuildContext cxt) {
-    return TreeView<String>(
-      initialExpandedLevels: controller.maxTaskDepth.value,
-      key: controller.treeViewTaskKey,
-      selectedValues: controller.selectedTasks.value,
-      nodes: [
-        TreeNode(
-          label: const Text('Root'),
-          value: 'root',
-          icon: Icon(Icons.folder),
-          children: [
-            TreeNode(
-              label: const Text('Child 1'),
-              value: 'child1',
-              children: [
-                TreeNode(
-                  label: const Text('Child 11'),
-                  value: 'child11',
-                  children: [
-                    TreeNode(label: const Text('Child 111'), value: 'child111'),
-                    TreeNode(label: const Text('Child 222'), value: 'child222'),
-                  ],
-                ),
-                TreeNode(
-                  label: const Text('Child 22'),
-                  value: 'child21',
-                  children: [
-                    TreeNode(
-                      label: const Text('Child -111'),
-                      value: '-child111',
-                    ),
-                    TreeNode(
-                      label: const Text('Child -222'),
-                      value: '-child22',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            TreeNode(label: const Text('Child 2'), value: 'child2'),
-          ],
-        ),
-      ],
-      onSelectionChanged: (selectedValues) {
-        controller.setSelectedTaskOneValue();
-        controller.selectedTasks.value = Set.from(
-          selectedValues.where((e) => e != null).map((e) => e as String),
-        );
-        controller.maxTaskDepth.value = controller.treeViewTaskKey.currentState!
-            .getSelectedNodes()
-            .map((n) => n.nodeDepth)
-            .fold(1, (cur, next) => cur > next ? cur : next);
-      },
-    );
+    return SizedBox.shrink();
   }
 
   Widget _multiRoomSelectSelectBox(BuildContext cxt) {

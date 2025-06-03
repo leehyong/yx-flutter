@@ -12,14 +12,12 @@ import 'package:yx/vo/graph_vo.dart' as graph_vo;
 import '../../api/graph_api.dart';
 import '../../vo/common_vo.dart';
 import '../../vo/room_vo.dart';
-import '../checkable-treeview/treeview.dart';
 
 class GraphTaskController extends GetxController {
   static const initSource =
       '{"nodes":{"1":{"label":"内部数字化统筹室","children":["2","3"]},"2":{"label":"宽带室","children":["4","5"]}},"edges":[{"from":"1","to":"2"},{"from":"2","to":"3"},{"from":"2","to":"4"},{"from":"2","to":"5"},{"from":"5","to":"6"},{"from":"5","to":"7"},{"from":"6","to":"8"}]}';
 
   static GraphTaskController get instance => Get.find();
-  final treeViewTaskKey = GlobalKey<TreeViewState<String>>();
   final selectedTasks = <String>{}.obs;
   final roomVoController = GroupButtonController();
   final graphVoData = (null as graph_vo.GraphVo?).obs;
@@ -73,16 +71,16 @@ class GraphTaskController extends GetxController {
   }
 
   void setSelectedTaskOneValue() {
-    var st = treeViewTaskKey.currentState?.getSelectedNodes();
-    if (st == null || st.isEmpty) {
-      selectedTaskOneValue.value = '';
-    } else {
-      var firstVal = st.first.value!;
-      if (firstVal.length > maxSelectedCharCnt) {
-        firstVal = firstVal.substring(0, maxSelectedCharCnt);
-      }
-      selectedTaskOneValue.value = st.length > 1 ? '$firstVal...' : firstVal;
-    }
+    // var st = treeViewTaskKey.currentState?.getSelectedNodes();
+    // if (st == null || st.isEmpty) {
+    //   selectedTaskOneValue.value = '';
+    // } else {
+    //   var firstVal = st.first.value!;
+    //   if (firstVal.length > maxSelectedCharCnt) {
+    //     firstVal = firstVal.substring(0, maxSelectedCharCnt);
+    //   }
+    //   selectedTaskOneValue.value = st.length > 1 ? '$firstVal...' : firstVal;
+    // }
   }
 
   void setSelectedRoomsData() {
