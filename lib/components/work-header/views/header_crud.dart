@@ -4,7 +4,7 @@ import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yt_dart/cus_header.pbserver.dart';
+import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
@@ -49,9 +49,9 @@ class PublishItemsViewSimpleCrudState
   WorkHeader? _isEditingNodeData;
   TreeNode<WorkHeader>? _isNewNode;
 
-  void _initAnimatedTreeViewData(List<CusYooHeader> headers) {
+  void _initAnimatedTreeViewData(List<CusYooHeaderTree> headers) {
     // dfs 遍历获取所有的 TreeNode
-    TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(CusYooHeader tree) {
+    TreeNode<WorkHeader> innerBuildAnimatedTreeViewData(CusYooHeaderTree tree) {
       final node = TreeNode(key: treeNodeKey(tree.node.id), data: tree.node);
       node.addAll(
         tree.children.map((child) => innerBuildAnimatedTreeViewData(child)),

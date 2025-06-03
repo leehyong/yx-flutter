@@ -1,6 +1,7 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/cus_task.pb.dart';
+import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/services/http_service.dart';
 import 'package:yx/utils/common_util.dart';
@@ -141,5 +142,40 @@ Future<List<User>> taskRelSelectedUsers(Int64 id) async {
   } catch (e) {
     debugPrint(e.toString());
     return <User>[];
+  }
+}
+
+Future<List<CusYooWorkTaskTreeRelateOrganization>>
+taskTreeRelateOrganization() async {
+  try {
+    final resp = await HttpDioService.instance.dio.get<String>(
+      "$apiContextPath/work-task/tree/task",
+    );
+    final data =
+        handleProtoPageInstanceVo<CusYooWorkTaskTreeRelateOrganization>(
+          resp,
+          CusYooWorkTaskTreeRelateOrganization.fromBuffer,
+        );
+    return data.data ?? <CusYooWorkTaskTreeRelateOrganization>[];
+  } catch (e) {
+    debugPrint(e.toString());
+    return <CusYooWorkTaskTreeRelateOrganization>[];
+  }
+}
+
+Future<List<CusYooOrganizationTreeRelateTask>>
+organizationTreeRelateTask() async {
+  try {
+    final resp = await HttpDioService.instance.dio.get<String>(
+      "$apiContextPath/work-task/tree/organization",
+    );
+    final data = handleProtoPageInstanceVo<CusYooOrganizationTreeRelateTask>(
+      resp,
+      CusYooOrganizationTreeRelateTask.fromBuffer,
+    );
+    return data.data ?? <CusYooOrganizationTreeRelateTask>[];
+  } catch (e) {
+    debugPrint(e.toString());
+    return <CusYooOrganizationTreeRelateTask>[];
   }
 }

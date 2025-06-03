@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:yt_dart/cus_header.pb.dart';
+import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 
 import 'data.dart';
@@ -9,7 +9,7 @@ class MobileSubmitOneTaskHeaderItemController extends GetxController {
   late final List<SubmitOneWorkTaskHeader> children;
 
   // late final LinkedHashMap<int, SubmitOneWorkTaskHeader> children;
-  MobileSubmitOneTaskHeaderItemController(List<CusYooHeader> children) {
+  MobileSubmitOneTaskHeaderItemController(List<CusYooHeaderTree> children) {
     // this.children = LinkedHashMap<int, SubmitOneWorkTaskHeader>();
     if (children.isEmpty) {
       this.children = [SubmitOneWorkTaskHeader()];
@@ -20,7 +20,7 @@ class MobileSubmitOneTaskHeaderItemController extends GetxController {
   }
 
   void _buildSubmitWorkHeaders(
-    List<CusYooHeader> headers, {
+    List<CusYooHeaderTree> headers, {
     List<WorkHeader>? parents,
   }) {
     for (var entry in headers) {
@@ -36,7 +36,7 @@ class MobileSubmitOneTaskHeaderItemController extends GetxController {
 }
 
 class WebSubmitOneTaskHeaderItemController extends GetxController {
-  final List<CusYooHeader> children;
+  final List<CusYooHeaderTree> children;
 
   WebSubmitOneTaskHeaderItemController(this.children);
 }

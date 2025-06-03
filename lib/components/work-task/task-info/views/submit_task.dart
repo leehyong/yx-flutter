@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yt_dart/cus_content.pb.dart';
-import 'package:yt_dart/cus_header.pb.dart';
+import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yt_dart/generate_sea_orm_new.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yt_dart/generate_sea_orm_update.pb.dart';
@@ -59,7 +59,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   ScrollController scrollController = ScrollController(initialScrollOffset: 0);
   DataLoadingStatus isLoadingSubmitItem = DataLoadingStatus.none;
 
-  List<CusYooHeader>? taskSubmitItems = (null as List<CusYooHeader>?);
+  List<CusYooHeaderTree>? taskSubmitItems = (null as List<CusYooHeaderTree>?);
   final _leafTaskSubmitItemsTextEditingControllers =
       HashMap<Int64, TextEditingController>();
 
@@ -180,7 +180,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
   }
 
   void _buildLeafSubmitItemTextEditingController(
-    List<CusYooHeader> headers, {
+    List<CusYooHeaderTree> headers, {
     Map<Int64, WorkContentItem>? oldContents,
   }) {
     for (var entry in headers) {
@@ -197,7 +197,7 @@ class SubmitTasksViewState extends State<SubmitTasksView> {
     }
   }
 
-  Widget _buildRootHeaderNameTable(BuildContext context, CusYooHeader root) {
+  Widget _buildRootHeaderNameTable(BuildContext context, CusYooHeaderTree root) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.blue.withAlpha(150), // 设置背景色
@@ -492,7 +492,7 @@ class _MobileSubmitWorkHeaderItemView
         > {
   _MobileSubmitWorkHeaderItemView(
     super.rootHeader,
-    List<CusYooHeader> children, {
+    List<CusYooHeaderTree> children, {
     super.key,
   }) {
     Get.put(MobileSubmitOneTaskHeaderItemController(children), tag: tag);
@@ -606,7 +606,7 @@ class _WebSubmitWorkHeaderItemView
         > {
   _WebSubmitWorkHeaderItemView(
     super.rootHeaderTreeId,
-    List<CusYooHeader> children, {
+    List<CusYooHeaderTree> children, {
     super.key,
   }) {
     Get.put(WebSubmitOneTaskHeaderItemController(children), tag: tag);
@@ -641,7 +641,7 @@ class _WebSubmitWorkHeaderItemView
     BuildContext context,
     int idx,
     int depth,
-    CusYooHeader node,
+    CusYooHeaderTree node,
     Color? parentColor,
   ) {
     if (node.children.isEmpty) {

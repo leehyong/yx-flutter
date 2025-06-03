@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:yt_dart/cus_header.pb.dart';
+import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/header_api.dart' as header_api;
 import 'package:yx/root/controller.dart';
@@ -90,7 +90,7 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
         {};
     // 递归构建树节点
     header_api.queryWorkHeaders().then((headers) {
-      for (var header in (headers ?? <CusYooHeader>[])) {
+      for (var header in (headers ?? <CusYooHeaderTree>[])) {
         _buildTree(_checkableTree, header, taskHeaders);
       }
       setState(() {
@@ -101,7 +101,7 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
 
   void _buildTree(
     TreeNode<CheckableWorkHeader> parent,
-    CusYooHeader header,
+    CusYooHeaderTree header,
     Set<Int64> taskHeaders,
   ) {
     final headerId = header.node.id;
