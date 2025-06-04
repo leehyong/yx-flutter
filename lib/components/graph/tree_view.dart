@@ -6,7 +6,6 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
-import 'package:yx/components/graph/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_widget.dart';
 import 'package:yx/utils/toast.dart';
@@ -52,8 +51,6 @@ mixin _GraphTreeViewMixin {
         ..levelSeparation = (20)
         ..subtreeSeparation = (60)
         ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
-
-  GraphTaskController get _controller => Get.find<GraphTaskController>();
 
   void _setGraphEdges(List<Edge> edges) {
     _graph = Graph()..isTree = true;
@@ -209,7 +206,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
 
   @override
   Widget _buildNodeContent(BuildContext context, Node graphNode) {
-    final taskId = graphNode.key!.value as Int64;
+    final taskId = Int64(graphNode.key!.value);
     final node = _graphData!.nodes[taskId]!;
     return Text(node.name);
   }
@@ -217,7 +214,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
   @override
   void nodeDoubleTapAction(BuildContext context, Node graphNode) {
     // 双击任务时才会展示任务评价
-    final taskId = graphNode.key!.value as Int64;
+    final taskId = Int64(graphNode.key!.value);
     final node = _graphData!.nodes[taskId]!;
     // 打开任务评价页面 并且设置当前任务节点
     // controller.curTaskNode.value = graph_vo.Node(label: "lhytets", children: [],);
@@ -378,7 +375,7 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
     if (!widget.hasMoreLayer) {
       return;
     }
-    final orgId = graphNode.key!.value as Int64;
+    final orgId = Int64(graphNode.key!.value);
     final node = _graphData!.nodes[orgId]!;
     // 单击展示任务涉及到的组织树
     _commonPopupView(context, orgId, GraphViewType.task);
@@ -386,7 +383,7 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
 
   @override
   Widget _buildNodeContent(BuildContext context, Node graphNode) {
-    final id = graphNode.key!.value as Int64;
+    final id = Int64(graphNode.key!.value);
     final node = _graphData!.nodes[id]!;
     return Text(node.name);
   }
