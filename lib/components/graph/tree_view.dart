@@ -206,7 +206,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
 
   @override
   Widget _buildNodeContent(BuildContext context, Node graphNode) {
-    final taskId = Int64(graphNode.key!.value);
+    final taskId = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[taskId]!;
     return Text(node.name);
   }
@@ -214,7 +214,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
   @override
   void nodeDoubleTapAction(BuildContext context, Node graphNode) {
     // 双击任务时才会展示任务评价
-    final taskId = Int64(graphNode.key!.value);
+    final taskId = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[taskId]!;
     // 打开任务评价页面 并且设置当前任务节点
     // controller.curTaskNode.value = graph_vo.Node(label: "lhytets", children: [],);
@@ -375,7 +375,7 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
     if (!widget.hasMoreLayer) {
       return;
     }
-    final orgId = Int64(graphNode.key!.value);
+    final orgId = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[orgId]!;
     // 单击展示任务涉及到的组织树
     _commonPopupView(context, orgId, GraphViewType.task);
@@ -383,7 +383,7 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
 
   @override
   Widget _buildNodeContent(BuildContext context, Node graphNode) {
-    final id = Int64(graphNode.key!.value);
+    final id = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[id]!;
     return Text(node.name);
   }
