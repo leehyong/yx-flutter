@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Node;
 import 'package:group_button/group_button.dart';
-import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
+import 'package:yx/vo/room_vo.dart';
 
-import '../../vo/room_vo.dart';
 
 class GraphTaskController extends GetxController {
 
@@ -15,7 +14,6 @@ class GraphTaskController extends GetxController {
   final selectedTaskOneValue = ''.obs;
   static const maxSelectedCharCnt = 4;
   final maxTaskDepth = 1.obs;
-  final curTask = (null as WorkTask?).obs;
   GraphViewType get nextViewType => graphViewType.value.nextViewType;
 
   final allRooms =

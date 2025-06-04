@@ -18,17 +18,22 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => ConstrainedBox(
+    return Obx(() {
+      Widget w;
+      if (controller.loading.value) {
+        w = buildLoadingComp(context);
+      } else if (controller.isReplyPopupLayer) {
+        w = buildCommentReplyComp(context);
+      } else {
+        w = buildHeadTabBarComp(context);
+      }
+      return ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: GetPlatform.isMobile ? 500 : 720,
         ),
-        child:
-            controller.isReplyPopupLayer
-                ? buildCommentReplyComp(context)
-                : buildHeadTabBarComp(context),
-      ),
-    );
+        child: w,
+      );
+    });
   }
 
   Widget _buildHeadCommentReplyComp(BuildContext context) {
@@ -127,6 +132,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         height: 40,
         child: LoadingIndicator(
           indicatorType: Indicator.ballGridPulse,
+
           /// Required, The loading type of the widget
           colors: loadingColors,
           strokeWidth: 3,

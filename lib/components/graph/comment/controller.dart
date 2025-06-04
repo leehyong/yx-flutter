@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:toastification/toastification.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/comment_api.dart';
 import 'package:yx/utils/toast.dart';
 import 'package:yx/vo/comment_vo.dart';
-import 'package:yx/vo/graph_vo.dart' as graph_vo;
 
 import 'popup.dart';
 
 class GraphTaskCommentController extends GetxController {
   final popupCommentsOfLeader = PopupLayerModel().obs;
   final popupCommentsOfRoom = PopupLayerModel().obs;
-  final curTaskNode = (null as graph_vo.Node?).obs;
-  final curTaskId = ''.obs;
   final curCommentVo = (null as CommentVoData?).obs;
   static const limit = 4;
   final loading = false.obs;
@@ -22,6 +20,9 @@ class GraphTaskCommentController extends GetxController {
   final curDeletingCommentId = (null as String?).obs;
   final curEditingCommentOldContent = ''.obs;
 
+  GraphTaskCommentController(this.curTask);
+
+  final WorkTask curTask;
 
   @override
   void onInit() {
@@ -33,6 +34,11 @@ class GraphTaskCommentController extends GetxController {
         curInputCommentController.clear();
       }
     });
+  }
+  @override
+  void onReady() {
+    super.onReady();
+    fetchInitData();
   }
 
   PopupLayerModel get curPopupModel {
@@ -57,6 +63,8 @@ class GraphTaskCommentController extends GetxController {
       curPopupModel.curLayerData?.value ?? [];
 
   bool get curPopupLayerDataIsEmpty => curPopupModel.isEmpty ?? true;
+
+  String get curTaskId => curTask.id.toString();
 
   static GraphTaskCommentController get instance => Get.find();
 
@@ -87,12 +95,11 @@ class GraphTaskCommentController extends GetxController {
     var id = '';
     switch (action) {
       case FetchDataAction.popupNew:
-        id = isReply ? curCommentVo.value!.id! : curTaskId.value;
+        id = isReply ? curCommentVo.value!.id! : curTaskId;
         break;
       case FetchDataAction.curLayerMore:
       case FetchDataAction.refresh:
-        id =
-            isReply ? popupModel.value.curCommentVodData!.id! : curTaskId.value;
+        id = isReply ? popupModel.value.curCommentVodData!.id! : curTaskId;
         break;
     }
     // 加载评价数据
@@ -145,9 +152,7 @@ class GraphTaskCommentController extends GetxController {
     // 清空
     popupCommentsOfLeader.value.clear();
     popupCommentsOfRoom.value.clear();
-    curTaskNode.value = null;
     curCommentVo.value = null;
-    curTaskId.value = '';
     curEditingCommentOldContent.value = '';
     curDeletingCommentId.value = null;
   }
@@ -210,7 +215,7 @@ class GraphTaskCommentController extends GetxController {
       // 调用新增接口来修新增评论
       success = await addGraphComment(
         curCommentCat,
-        curTaskId.value,
+        curTaskId,
         comment,
         replyId: curCommentVo.value?.id,
       );

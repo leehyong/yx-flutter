@@ -32,14 +32,12 @@ class GraphTreeView extends StatelessWidget {
       case GraphViewType.task:
         return _TaskGraphTreeView(id: id);
       case GraphViewType.organization:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return _OrganizationGraphTreeView(id: id);
     }
   }
 }
 
-// abstract class _GraphTreeViewInterface {
-mixin _GraphTreeViewInterface {
+mixin _GraphTreeViewMixin {
   bool _isLoading = false;
   Graph? _graph;
   Color _boxShadowColor = Colors.blueGrey[100]!;
@@ -165,7 +163,7 @@ class _TaskGraphTreeView extends StatefulWidget {
 }
 
 class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
-    with SingleTickerProviderStateMixin, _GraphTreeViewInterface {
+    with SingleTickerProviderStateMixin, _GraphTreeViewMixin {
   CusYooWorkTaskGraphViewData? _graphData;
 
   @override
@@ -222,11 +220,8 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
     final taskId = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[taskId]!;
     // 打开任务评价页面 并且设置当前任务节点
-    _controller.curTask.value = node;
     // controller.curTaskNode.value = graph_vo.Node(label: "lhytets", children: [],);
-    GraphTaskCommentController.instance.curCommentVo.value = null;
-    // 等待获取数据完成
-    // await GraphTaskCommentController.instance.fetchInitData();
+    Get.put(GraphTaskCommentController(node));
     WoltModalSheet.show(
       useSafeArea: true,
       context: context,
@@ -347,7 +342,7 @@ class _OrganizationGraphTreeView extends StatefulWidget {
 }
 
 class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
-    with SingleTickerProviderStateMixin, _GraphTreeViewInterface {
+    with SingleTickerProviderStateMixin, _GraphTreeViewMixin {
   CusYooOrganizationGraphViewData? _graphData;
 
   @override
