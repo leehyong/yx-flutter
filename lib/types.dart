@@ -368,10 +368,10 @@ enum UserTaskAction {
   accept, // 接受
   refuse, // 拒绝
   unconfirmed, // 待确认
-  start,     // 启动
-  pause,     // 暂停
-  finish,  //结束
-  publish,     // 发布
+  start, // 启动
+  pause, // 暂停
+  finish, //结束
+  publish, // 发布
 }
 
 // 提交任务项时，涉及到的各个操作
@@ -382,4 +382,22 @@ enum TaskSubmitAction {
   modifyHistoryContent, // 修改操作， 指的是修改历史记录中的数据
   detailHistory, // 查看详情
   history, // 历史记录操作
+}
+
+enum GraphViewType { task, organization }
+
+extension GraphViewActionExtension on GraphViewType {
+  String get i18name {
+    switch (this) {
+      case GraphViewType.task:
+        return '任务';
+      case GraphViewType.organization:
+        return '组织';
+    }
+  }
+
+  String get viewName => '$i18name视图';
+
+  GraphViewType get nextViewType =>
+      GraphViewType.values[(index + 1) % GraphViewType.values.length];
 }

@@ -1,5 +1,5 @@
-import 'package:yx/vo/comment_vo.dart';
 import 'package:get/get.dart';
+import 'package:yx/vo/comment_vo.dart';
 
 enum FetchDataAction {
   // 加载新一层数据

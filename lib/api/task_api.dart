@@ -6,6 +6,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/services/http_service.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/proto.dart';
+import 'package:yx/utils/toast.dart';
 
 import '../types.dart';
 import 'codes.dart';
@@ -177,5 +178,47 @@ organizationTreeRelateTask() async {
   } catch (e) {
     debugPrint(e.toString());
     return <CusYooOrganizationTreeRelateTask>[];
+  }
+}
+
+Future<CusYooWorkTaskGraphViewData?> taskGraphViewData(Int64 organizationId) async {
+  try {
+    final resp = await HttpDioService.instance.dio.get<String>(
+      "$apiContextPath/work-task/graph-view/task",
+      queryParameters: {"org_id": organizationId},
+    );
+    final data = handleProtoInstanceVo<CusYooWorkTaskGraphViewData>(
+      resp,
+      CusYooWorkTaskGraphViewData.fromBuffer,
+    );
+    if (data.$1 == null) {
+      return data.$2;
+    }
+    errToast(data.$1!);
+    return null;
+  } catch (e) {
+    debugPrint(e.toString());
+    return null;
+  }
+}
+
+Future<CusYooOrganizationGraphViewData?> organizationGraphViewData(Int64 taskId) async {
+  try {
+    final resp = await HttpDioService.instance.dio.get<String>(
+      "$apiContextPath/work-task/graph-view/organization",
+      queryParameters: {"task_id": taskId},
+    );
+    final data = handleProtoInstanceVo<CusYooOrganizationGraphViewData>(
+      resp,
+      CusYooOrganizationGraphViewData.fromBuffer,
+    );
+    if (data.$1 == null) {
+      return data.$2;
+    }
+    errToast(data.$1!);
+    return null;
+  } catch (e) {
+    debugPrint(e.toString());
+    return null;
   }
 }

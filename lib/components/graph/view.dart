@@ -1,20 +1,13 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Node;
-import 'package:graphview/GraphView.dart';
 import 'package:group_button/group_button.dart';
-import 'package:loading_indicator/loading_indicator.dart';
-import 'package:single_child_two_dimensional_scroll_view/single_child_two_dimensional_scroll_view.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
-import 'package:yx/config.dart';
 import 'package:yx/types.dart';
-import 'package:yx/utils/common_widget.dart';
-import 'package:yx/utils/toast.dart';
-import 'package:yx/vo/graph_vo.dart' as graph_vo;
 import 'package:yx/vo/room_vo.dart';
 
 import 'controller.dart';
-import 'graph-comment/controller.dart';
-import 'graph-comment/view.dart';
+import 'tree_view.dart';
 
 class GraphTaskView extends GetView<GraphTaskController> {
   const GraphTaskView({super.key});
@@ -23,7 +16,10 @@ class GraphTaskView extends GetView<GraphTaskController> {
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(
-        appBar: AppBar(title: Text("任务视图")),
+        appBar: AppBar(
+          title: Text(controller.graphViewType.value.viewName),
+          actions: [_buildChangeViewActionBtn(context)],
+        ),
         body: Container(
           padding: EdgeInsets.fromLTRB(16, 6, 16, 16),
           child:
@@ -31,6 +27,22 @@ class GraphTaskView extends GetView<GraphTaskController> {
         ),
         // floatingActionButton: GraphTaskCommentView(),
         // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      ),
+    );
+  }
+
+  Widget _buildChangeViewActionBtn(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        controller.graphViewType.value = controller.nextViewType;
+      },
+      child: Row(
+        children: [
+          Obx(() {
+            return Text(controller.nextViewType.viewName);
+          }),
+          Icon(Icons.swap_horiz),
+        ],
       ),
     );
   }
@@ -48,8 +60,7 @@ class GraphTaskView extends GetView<GraphTaskController> {
               onPressed: () async {
                 // printInfo(info: controller.selectedTasks.value.join(","));
                 // printInfo(info: controller.selectRoomIds.value.join(","));
-                //  调用查询接口
-                await controller.setGraphViewData();
+                //  todo 调用查询接口
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,7 +76,7 @@ class GraphTaskView extends GetView<GraphTaskController> {
           ],
         ),
         // 绘制任务视图
-        Expanded(flex: 1, child: Center(child: buildGraphViewWidget(context))),
+        Expanded(flex: 1, child: _buildGraphViewWidget(context)),
       ],
     );
   }
@@ -82,8 +93,7 @@ class GraphTaskView extends GetView<GraphTaskController> {
               onPressed: () async {
                 // printInfo(info: controller.selectedTasks.value.join(","));
                 // printInfo(info: controller.selectRoomIds.value.join(","));
-                //  调用查询接口
-                await controller.setGraphViewData();
+                //  todo 调用查询接口
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,207 +104,19 @@ class GraphTaskView extends GetView<GraphTaskController> {
         ),
         SizedBox(height: 20),
         // 绘制任务视图
-        Expanded(flex: 1, child: Center(child: buildGraphViewWidget(context))),
+        Expanded(flex: 1, child: _buildGraphViewWidget(context)),
       ],
     );
     // );
   }
 
-  Widget buildGraphViewWidget(BuildContext context) {
-    var nodes = controller.graphVoData.value?.nodes;
-    if (nodes == null || nodes.isEmpty) {
-      switch (controller.loadingData.value) {
-        case DataLoadingStatus.loading:
-          return SizedBox(
-            width: 200,
-            height: 200,
-            child: LoadingIndicator(
-              indicatorType: Indicator.ballClipRotatePulse,
-
-              /// Required, The loading type of the widget
-              colors: loadingColors,
-
-              strokeWidth: 3,
-            ),
-          );
-        case DataLoadingStatus.loaded:
-          return emptyWidget(context);
-        default:
-          return SizedBox.shrink();
-      }
-    }
-
-    return InteractiveViewer(
-      minScale: 0.1,
-      maxScale: 3.0,
-      child: Scrollbar(
-        controller: controller.verticalScrollController,
-        child: Scrollbar(
-          controller: controller.horintalScrollController,
-          child: SingleChildTwoDimensionalScrollView(
-            verticalController: controller.verticalScrollController,
-            horizontalController: controller.horintalScrollController,
-            child: Center(
-              child: GraphView(
-                graph: controller.graph.value!,
-                algorithm: BuchheimWalkerAlgorithm(
-                  controller.graphBuilder,
-                  TreeEdgeRenderer(controller.graphBuilder),
-                ),
-                paint:
-                    Paint()
-                      ..color = Colors.green
-                      ..strokeWidth = 1
-                      ..style = PaintingStyle.stroke,
-                builder: (Node node) {
-                  // I can decide what widget should be shown here based on the id
-                  var k = node.key!.value as String;
-                  var nodes = controller.graphVoData.value!.nodes!;
-                  var nodeValue = nodes[k];
-                  return rectangleWidget(context, k, nodeValue);
-                },
-              ),
-            ),
-          ),
+  Widget _buildGraphViewWidget(BuildContext context) {
+    return Center(
+      child: Obx(
+        () => GraphTreeView(
+          id: Int64.ZERO,
+          graphViewType: controller.graphViewType.value,
         ),
-      ),
-    );
-  }
-
-  Widget rectangleWidget(BuildContext cxt, String k, graph_vo.Node? node) {
-    var a = node?.label ?? "default";
-    a = '$a-$k';
-    return InkWell(
-      onTap: () async {
-        // 点击任务时才会展示任务评价
-        if (node != null && node.type == 'duty') {
-          // 打开任务评价页面 并且设置当前任务节点
-          controller.curTaskNode.value = node;
-          controller.curTaskId.value = k;
-          // controller.curTaskNode.value = graph_vo.Node(label: "lhytets", children: [],);
-          GraphTaskCommentController.instance.curTaskNode.value =
-              controller.curTaskNode.value;
-          GraphTaskCommentController.instance.curTaskId.value = k;
-          GraphTaskCommentController.instance.curCommentVo.value = null;
-          // 等待获取数据完成
-          await GraphTaskCommentController.instance.fetchInitData();
-          if (cxt.mounted) {
-            await WoltModalSheet.show(
-              useSafeArea: true,
-              context: cxt,
-              showDragHandle: GetPlatform.isMobile,
-              enableDrag: GetPlatform.isMobile,
-              onModalDismissedWithBarrierTap: () async {
-                // 避免快速点击
-                if (GraphTaskCommentController.instance.loading.value) {
-                  errIsLoadingData();
-                } else {
-                  await GraphTaskCommentController.instance
-                      .closeOrRemoveOnePopupLayer(cxt);
-                }
-              },
-              onModalDismissedWithDrag: ()async{
-                if (GraphTaskCommentController.instance.loading.value) {
-                  errIsLoadingData();
-                } else {
-                  await GraphTaskCommentController.instance
-                      .closeOrRemoveOnePopupLayer(cxt);
-                }
-              },
-              modalTypeBuilder: (BuildContext context) {
-                final width = MediaQuery.sizeOf(context).width;
-                if (width < 600) {
-                  return WoltModalType.bottomSheet();
-                } else if (width < 800) {
-                  return WoltModalType.dialog();
-                } else {
-                  return WoltModalType.sideSheet();
-                }
-              },
-              pageListBuilder:
-                  (modalSheetContext) => [
-                    WoltModalSheetPage(
-                      topBarTitle: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text("任务："),
-                            Text(
-                              node.label.length > 5
-                                  ? node.label.substring(0, 5)
-                                  : node.label,
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 26,
-                                decoration: TextDecoration.underline,
-                                decorationColor: Colors.red, // 下划线颜色（可选）
-                              ),
-                            ),
-                            Text("的评价"),
-                          ],
-                        ),
-                      ),
-                      hasTopBarLayer: true,
-                      // hasSabGradient: false,
-                      isTopBarLayerAlwaysVisible: true,
-                      child: GraphTaskCommentView(),
-                    ),
-
-                    WoltModalSheetPage(
-                      topBarTitle: Center(
-                        child: Obx(
-                          () => Text(
-                            GraphTaskCommentController
-                                .instance
-                                .editCompSheetPageTitle,
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                      hasTopBarLayer: true,
-                      // hasSabGradient: false,
-                      isTopBarLayerAlwaysVisible: true,
-                      leadingNavBarWidget: IconButton(
-                        padding: const EdgeInsets.all(4),
-                        icon: const Text("返回"),
-                        // icon: Text("取消"),
-                        onPressed: () {
-                          WoltModalSheet.of(modalSheetContext).showAtIndex(0);
-                          // Navigator.pop(modalSheetContext);
-                          // controller.closeOrRemoveOnePopupLayer(modalSheetContext);
-                        },
-                      ),
-                      trailingNavBarWidget: IconButton(
-                        padding: const EdgeInsets.all(4),
-                        icon: const Text(
-                          "关闭",
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                        // icon: Text("确定"),
-                        onPressed:
-                            () => GraphTaskCommentController.instance
-                                .closeTheEntirePopupLayer(modalSheetContext),
-                      ),
-                      child: GraphEditTaskCommentView(),
-                    ),
-                  ],
-            );
-          }
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: getNodeBgColor(node?.type),
-        ),
-        child: Text(a),
       ),
     );
   }
