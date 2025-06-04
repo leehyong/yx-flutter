@@ -182,8 +182,8 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
     task_api
         .taskGraphViewData(widget.id)
         .then((data) {
-          _graphData = data;
-          if (_graphData != null) {
+          if (data != null && data.edges.isNotEmpty) {
+            _graphData = data;
             _setGraphEdges(_graphData!.edges);
           }
         })
@@ -359,8 +359,8 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
     task_api
         .organizationGraphViewData(widget.id)
         .then((data) {
-          _graphData = data;
-          if (_graphData != null) {
+          if (data != null && data.edges.isNotEmpty) {
+            _graphData = data;
             _setGraphEdges(_graphData!.edges);
           }
         })
