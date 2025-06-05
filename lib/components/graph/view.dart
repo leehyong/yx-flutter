@@ -4,6 +4,7 @@ import 'package:get/get.dart' hide Node;
 import 'package:group_button/group_button.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/vo/room_vo.dart';
 
 import 'controller.dart';
@@ -22,8 +23,7 @@ class GraphTaskView extends GetView<GraphTaskController> {
         ),
         body: Container(
           padding: EdgeInsets.fromLTRB(16, 6, 16, 16),
-          child:
-              GetPlatform.isMobile ? buildMobile(context) : buildWeb(context),
+          child: _buildTheGraph(context),
         ),
         // floatingActionButton: GraphTaskCommentView(),
         // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -47,45 +47,15 @@ class GraphTaskView extends GetView<GraphTaskController> {
     );
   }
 
-  Widget buildWeb(BuildContext context) {
+  Widget _buildTheGraph(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 10,
-          children: [
-            buildMultiSelectRoomComp(context),
-            buildMultiTreeSelectTaskComp(context),
-            ElevatedButton(
-              onPressed: () async {
-                // printInfo(info: controller.selectedTasks.value.join(","));
-                // printInfo(info: controller.selectRoomIds.value.join(","));
-                //  todo 调用查询接口
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "查询",
-                    style: TextStyle(color: controller.selectedObjColor),
-                  ),
-                  Icon(Icons.search, color: controller.selectedObjColor),
-                ],
-              ),
-            ),
-          ],
-        ),
-        // 绘制任务视图
-        Expanded(flex: 1, child: _buildGraphViewWidget(context)),
-      ],
-    );
-  }
-
-  Widget buildMobile(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment:
+              isBigScreen(context)
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.spaceBetween,
           children: [
             buildMultiSelectRoomComp(context),
             buildMultiTreeSelectTaskComp(context),
