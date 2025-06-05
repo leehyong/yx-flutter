@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Node;
@@ -277,7 +279,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
                     Tooltip(
                       message: node.name,
                       child: Text(
-                        node.name.substring(0, 5),
+                        node.name.substring(0, min(5, node.name.length)),
                         style: TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
