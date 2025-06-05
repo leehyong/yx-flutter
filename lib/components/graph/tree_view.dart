@@ -150,7 +150,25 @@ mixin _GraphTreeViewMixin<T extends State> {
             ),
             width: size.width * 0.8,
             height: size.height * 0.8,
-            child: GraphTreeView(id: id, graphViewType: graphViewType),
+            child: Stack(
+              children: [
+                GraphTreeView(id: id, graphViewType: graphViewType),
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).maybePop();
+                    },
+                    icon: Tooltip(
+                      message: '关闭',
+                      preferBelow: false,
+                      child: Icon(Icons.close, color: Colors.red, size: 24),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -265,7 +283,7 @@ mixin _GraphTreeViewMixin<T extends State> {
           // Center(child: _buildGraphView(context)),
         ),
         Positioned(
-          top:0,
+          top: 0,
           right: 10,
           bottom: 0,
           child: SizedBox(
