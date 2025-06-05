@@ -39,7 +39,7 @@ class GraphTreeView extends StatelessWidget {
 mixin _GraphTreeViewMixin {
   bool _isLoading = false;
   Graph? _graph;
-  Color _boxShadowColor = Colors.blueGrey[100]!;
+  Color _boxShadowColor = Colors.blue.shade300;
 
   bool get hasGraphData => false;
 
@@ -89,18 +89,27 @@ mixin _GraphTreeViewMixin {
     );
   }
 
+
+  Widget _buildGraphNodeContainer(Widget child, {Color? color}) {
+    return Container(
+      padding: EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: [BoxShadow(color: color ?? _boxShadowColor)],
+      ),
+      child: child,
+    );
+  }
   Widget _buildGraphNode(BuildContext context, Node node) {
+    final id = node.key!.value as Int64;
+    final child = _buildNodeContent(context, node);
+    if(id  < 1) {
+      return  _buildGraphNodeContainer(child, color: Colors.purple.shade50);
+    }
     return InkWell(
       onTap: () => nodeTapAction(context, node),
       onDoubleTap: () => nodeDoubleTapAction(context, node),
-      child: Container(
-        padding: EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: [BoxShadow(color: _boxShadowColor)],
-        ),
-        child: _buildNodeContent(context, node),
-      ),
+      child: _buildGraphNodeContainer(child),
     );
   }
 
@@ -199,6 +208,9 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
       return;
     }
     final taskId = graphNode.key!.value as Int64;
+    if (taskId < 1) {
+      return;
+    }
     final node = _graphData!.nodes[taskId]!;
     // 单击展示任务涉及到的组织树
     _commonPopupView(context, taskId, GraphViewType.organization);
@@ -376,6 +388,10 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
       return;
     }
     final orgId = graphNode.key!.value as Int64;
+    if (orgId < 1) {
+      // 此节点不能点击
+      return;
+    }
     final node = _graphData!.nodes[orgId]!;
     // 单击展示任务涉及到的组织树
     _commonPopupView(context, orgId, GraphViewType.task);
