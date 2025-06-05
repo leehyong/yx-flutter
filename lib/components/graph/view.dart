@@ -52,13 +52,16 @@ class GraphTaskView extends GetView<GraphTaskController> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
+          spacing: isBigScreen(context) ? 20.0 : 0.0,
           mainAxisAlignment:
               isBigScreen(context)
                   ? MainAxisAlignment.start
                   : MainAxisAlignment.spaceBetween,
           children: [
-            buildMultiSelectRoomComp(context),
-            buildMultiTreeSelectTaskComp(context),
+            if (controller.graphViewType.value == GraphViewType.organization)
+              buildMultiSelectRoomComp(context),
+            if (controller.graphViewType.value == GraphViewType.task)
+              buildMultiTreeSelectTaskComp(context),
             ElevatedButton(
               onPressed: () async {
                 // printInfo(info: controller.selectedTasks.value.join(","));
