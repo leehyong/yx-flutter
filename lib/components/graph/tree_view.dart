@@ -47,6 +47,9 @@ mixin _GraphTreeViewMixin<T extends State> {
 
   final _minScale = 0.8;
   final _maxScale = 4.0;
+  final double _nodeWidth = 60.0;
+  final double _nodeHeight = 40.0;
+  final double _nodePadding = 4.0;
   double _scale = 1.0;
   final TransformationController _transformationController =
       TransformationController();
@@ -56,17 +59,17 @@ mixin _GraphTreeViewMixin<T extends State> {
   // 处理双击放大/缩小
   void _handleDoubleTap() {
     _state.setState(() {
-      _scale = _scale == _minScale ? _maxScale : _minScale;
+      _scale = _scale <= _minScale ? _maxScale * 0.4 : _minScale;
       _transformationController.value =
           Matrix4.identity()..scale(_scale, _scale);
     });
   }
 
   // 通过按钮放大
-  void _zoomIn() => _zoomByButton(_scale + 0.5);
+  void _zoomIn() => _zoomByButton(_scale + 0.3);
 
   // 通过按钮缩小
-  void _zoomOut() => _zoomByButton(_scale - 0.5);
+  void _zoomOut() => _zoomByButton(_scale - 0.3);
 
   void _zoomRestore() {
     _state.setState(() {
@@ -86,12 +89,22 @@ mixin _GraphTreeViewMixin<T extends State> {
 
   // late AnimationController _animationController;
   // late Animation<double> _animation;
-  final _graphBuilder =
+  static final BuchheimWalkerConfiguration _graphBuilder =
       BuchheimWalkerConfiguration()
-        ..siblingSeparation = (100)
-        ..levelSeparation = (20)
+        ..siblingSeparation = (80)
+        ..levelSeparation = (40)
         ..subtreeSeparation = (60)
         ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
+
+  static final _algorithm = BuchheimWalkerAlgorithm(
+    _graphBuilder,
+    TreeEdgeRenderer(_graphBuilder),
+  );
+  static final _paint =
+      Paint()
+        ..color = Colors.green
+        ..strokeWidth = 1
+        ..style = PaintingStyle.stroke;
 
   void _setGraphEdges(List<Edge> edges) {
     _graph = Graph()..isTree = true;
@@ -103,6 +116,16 @@ mixin _GraphTreeViewMixin<T extends State> {
   void nodeTapAction(BuildContext context, Node node) {}
 
   void nodeDoubleTapAction(BuildContext context, Node node) {}
+
+  Widget _toolTipContent(String content) => Tooltip(
+    message: content,
+    preferBelow: false,
+    child: Text(
+      content,
+      overflow: TextOverflow.clip,
+      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    ),
+  );
 
   Widget _buildNodeContent(BuildContext context, Node node) {
     throw UnimplementedError();
@@ -136,12 +159,14 @@ mixin _GraphTreeViewMixin<T extends State> {
 
   Widget _buildGraphNodeContainer(Widget child, {Color? color}) {
     return Container(
-      padding: EdgeInsets.all(4),
+      padding: EdgeInsets.all(_nodePadding),
+      width: _nodeWidth,
+      height: _nodeHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         boxShadow: [BoxShadow(color: color ?? _boxShadowColor)],
       ),
-      child: child,
+      child: Center(child: child),
     );
   }
 
@@ -149,7 +174,7 @@ mixin _GraphTreeViewMixin<T extends State> {
     final id = node.key!.value as Int64;
     final child = _buildNodeContent(context, node);
     if (id < 1) {
-      return _buildGraphNodeContainer(child, color: Colors.purple.shade50);
+      return _buildGraphNodeContainer(child, color: Colors.purple.shade200);
     }
     return InkWell(
       onTap: () => nodeTapAction(context, node),
@@ -161,36 +186,88 @@ mixin _GraphTreeViewMixin<T extends State> {
   Widget _buildGraphView(BuildContext context) {
     return GraphView(
       graph: _graph!,
-      algorithm: BuchheimWalkerAlgorithm(
-        _graphBuilder,
-        TreeEdgeRenderer(_graphBuilder),
-      ),
-      paint:
-          Paint()
-            ..color = Colors.green
-            ..strokeWidth = 1
-            ..style = PaintingStyle.stroke,
+      algorithm: _algorithm,
+      paint: _paint,
       builder: (node) => _buildGraphNode(context, node),
+    );
+  }
+
+  // 计算整个图形的边界
+  static Rect _calculateGraphBounds(
+    Graph graph,
+    double nodeWidth,
+    double nodeHeight,
+  ) {
+    double minX = double.infinity;
+    double minY = double.infinity;
+    double maxX = double.negativeInfinity;
+    double maxY = double.negativeInfinity;
+
+    // 遍历所有节点找到边界
+    graph.nodes.forEach((node) {
+      minX = min(minX, node.position.dx);
+      minY = min(minY, node.position.dy);
+      maxX = max(maxX, node.position.dx);
+      maxY = max(maxY, node.position.dy);
+    });
+
+    // 如果没有节点，返回一个默认矩形
+    if (minX == double.infinity) {
+      return Rect.fromLTWH(0, 0, 100, 100);
+    }
+
+    // 添加一些边距
+    return Rect.fromLTRB(
+      minX - nodeWidth / 2,
+      minY - nodeHeight / 2,
+      maxX + nodeWidth / 2,
+      maxY + nodeHeight / 2,
     );
   }
 
   Widget _buildInteractiveViewer(BuildContext context) {
     return Stack(
       children: [
-        GestureDetector(
-          onDoubleTap: _handleDoubleTap,
-          child: InteractiveViewer(
-            transformationController: _transformationController,
-            minScale: _minScale,
-            maxScale: _maxScale,
-            boundaryMargin: const EdgeInsets.all(double.infinity),
-            constrained: false,
-            child: Center(child: _buildGraphView(context)),
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // 计算图形布局
+            _algorithm.run(_graph!, 10, 10);
+            // 获取图形的边界
+            Rect graphBounds = _calculateGraphBounds(
+              _graph!,
+              _nodeWidth,
+              _nodeHeight,
+            );
+            // 计算居中偏移量
+            double dx =
+                (constraints.maxWidth - graphBounds.width) / 3 + 10; // -
+            // graphBounds.left;
+            double dy =
+                (constraints.maxHeight - graphBounds.height) / 3 - 30; // -
+            // graphBounds.top;
+            return GestureDetector(
+              onDoubleTap: _handleDoubleTap,
+              child: InteractiveViewer(
+                transformationController: _transformationController,
+                minScale: _minScale,
+                maxScale: _maxScale,
+                boundaryMargin: const EdgeInsets.all(double.infinity),
+                constrained: false,
+                child:
+                // 应用变换使图形居中
+                Transform.translate(
+                  offset: Offset(dx, dy),
+                  child: _buildGraphView(context),
+                ),
+              ),
+            );
+          },
+          // Center(child: _buildGraphView(context)),
         ),
         Positioned(
+          top:0,
           right: 10,
-          bottom: 40,
+          bottom: 0,
           child: SizedBox(
             width: 40,
             child: Column(
@@ -298,7 +375,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
   Widget _buildNodeContent(BuildContext context, Node graphNode) {
     final taskId = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[taskId]!;
-    return Text(node.name);
+    return _toolTipContent(node.name);
   }
 
   @override
@@ -444,7 +521,7 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
   void initState() {
     super.initState();
     _loadGraphData();
-    _boxShadowColor = Colors.yellow.shade50;
+    _boxShadowColor = Colors.orange.shade400;
   }
 
   Future<void> _loadGraphData() async {
@@ -484,7 +561,7 @@ class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
   Widget _buildNodeContent(BuildContext context, Node graphNode) {
     final id = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[id]!;
-    return Text(node.name);
+    return _toolTipContent(node.name);
   }
 
   @override
