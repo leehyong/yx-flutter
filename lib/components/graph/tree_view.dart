@@ -38,12 +38,53 @@ class GraphTreeView extends StatelessWidget {
   }
 }
 
-mixin _GraphTreeViewMixin {
+mixin _GraphTreeViewMixin<T extends State> {
   bool _isLoading = false;
   Graph? _graph;
   Color _boxShadowColor = Colors.blue.shade300;
 
+  T get _state;
+
+  final _minScale = 0.8;
+  final _maxScale = 4.0;
+  double _scale = 1.0;
+  final TransformationController _transformationController =
+      TransformationController();
+
   bool get hasGraphData => false;
+
+  // 处理双击放大/缩小
+  void _handleDoubleTap() {
+    _state.setState(() {
+      _scale = _scale == _minScale ? _maxScale : _minScale;
+      _transformationController.value =
+          Matrix4.identity()..scale(_scale, _scale);
+    });
+  }
+
+  // 通过按钮放大
+  void _zoomIn() => _zoomByButton(_scale + 0.5);
+
+  // 通过按钮缩小
+  void _zoomOut() => _zoomByButton(_scale - 0.5);
+
+  void _zoomRestore() {
+    debugPrint('_zoomRestore');
+    _state.setState(() {
+      _scale = 1.0;
+      _transformationController.value =
+          Matrix4.identity()..scale(_scale, _scale);
+    });
+  }
+
+  void _zoomByButton(double newScale) {
+    debugPrint('_zoomByButton:$newScale');
+    _state.setState(() {
+      _scale = newScale.clamp(_minScale, _maxScale);
+      _transformationController.value =
+          Matrix4.identity()..scale(_scale, _scale);
+    });
+  }
 
   // late AnimationController _animationController;
   // late Animation<double> _animation;
@@ -91,7 +132,6 @@ mixin _GraphTreeViewMixin {
     );
   }
 
-
   Widget _buildGraphNodeContainer(Widget child, {Color? color}) {
     return Container(
       padding: EdgeInsets.all(4),
@@ -102,11 +142,12 @@ mixin _GraphTreeViewMixin {
       child: child,
     );
   }
+
   Widget _buildGraphNode(BuildContext context, Node node) {
     final id = node.key!.value as Int64;
     final child = _buildNodeContent(context, node);
-    if(id  < 1) {
-      return  _buildGraphNodeContainer(child, color: Colors.purple.shade50);
+    if (id < 1) {
+      return _buildGraphNodeContainer(child, color: Colors.purple.shade50);
     }
     return InkWell(
       onTap: () => nodeTapAction(context, node),
@@ -132,20 +173,48 @@ mixin _GraphTreeViewMixin {
   }
 
   Widget _buildInteractiveViewer(BuildContext context) {
-    return InteractiveViewer(
-      minScale: 0.1,
-      maxScale: 3.0,
-      constrained: false,
-      child:
-      // Scrollbar(
-      //   controller: controller.verticalScrollController,
-      //   child: Scrollbar(
-      //     controller: controller.horintalScrollController,
-      //     child: SingleChildTwoDimensionalScrollView(
-      //       verticalController: controller.verticalScrollController,
-      //       horizontalController: controller.horintalScrollController,
-      //       child:
-      Center(child: _buildGraphView(context)),
+    return Stack(
+      children: [
+        GestureDetector(
+          onDoubleTap: _handleDoubleTap,
+          child: InteractiveViewer(
+            transformationController: _transformationController,
+            minScale: _minScale,
+            maxScale: _maxScale,
+            boundaryMargin: const EdgeInsets.all(double.infinity),
+            constrained: false,
+            child: Center(child: _buildGraphView(context)),
+          ),
+        ),
+        Positioned(
+          right: 10,
+          bottom: 40,
+          child: SizedBox(
+            width: 40,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 14,
+              children: [
+                IconButton(
+                  onPressed: _zoomIn,
+                  icon: Tooltip(message: '放大', child: Icon(Icons.zoom_in)),
+                ),
+                IconButton(
+                  onPressed: _zoomOut,
+                  icon: Tooltip(message: '缩小', child: Icon(Icons.zoom_out)),
+                ),
+                IconButton(
+                  onPressed: _zoomRestore,
+                  icon: Tooltip(
+                    message: '还原',
+                    child: Icon(Icons.looks_one_outlined),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -171,8 +240,13 @@ class _TaskGraphTreeView extends StatefulWidget {
 }
 
 class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
-    with SingleTickerProviderStateMixin, _GraphTreeViewMixin {
+    with
+        SingleTickerProviderStateMixin,
+        _GraphTreeViewMixin<_TaskGraphTreeViewState> {
   CusYooWorkTaskGraphViewData? _graphData;
+
+  @override
+  _TaskGraphTreeViewState get _state => this;
 
   @override
   Widget build(BuildContext context) => _buildGraph(context);
@@ -353,11 +427,16 @@ class _OrganizationGraphTreeView extends StatefulWidget {
 }
 
 class _OrganizationGraphTreeViewState extends State<_OrganizationGraphTreeView>
-    with SingleTickerProviderStateMixin, _GraphTreeViewMixin {
+    with
+        SingleTickerProviderStateMixin,
+        _GraphTreeViewMixin<_OrganizationGraphTreeViewState> {
   CusYooOrganizationGraphViewData? _graphData;
 
   @override
   bool get hasGraphData => _graphData != null;
+
+  @override
+  _OrganizationGraphTreeViewState get _state => this;
 
   @override
   void initState() {
