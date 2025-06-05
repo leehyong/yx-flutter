@@ -69,7 +69,6 @@ mixin _GraphTreeViewMixin<T extends State> {
   void _zoomOut() => _zoomByButton(_scale - 0.5);
 
   void _zoomRestore() {
-    debugPrint('_zoomRestore');
     _state.setState(() {
       _scale = 1.0;
       _transformationController.value =
@@ -78,7 +77,6 @@ mixin _GraphTreeViewMixin<T extends State> {
   }
 
   void _zoomByButton(double newScale) {
-    debugPrint('_zoomByButton:$newScale');
     _state.setState(() {
       _scale = newScale.clamp(_minScale, _maxScale);
       _transformationController.value =
@@ -122,7 +120,11 @@ mixin _GraphTreeViewMixin<T extends State> {
         builder: (context) {
           final size = MediaQuery.sizeOf(context);
           return Container(
-            color: Colors.lightGreen.shade100,
+            decoration: BoxDecoration(
+              color: Colors.lightGreen.shade100,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [BoxShadow(color: _boxShadowColor)],
+            ),
             width: size.width * 0.8,
             height: size.height * 0.8,
             child: GraphTreeView(id: id, graphViewType: graphViewType),
