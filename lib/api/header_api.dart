@@ -20,7 +20,7 @@ Future<List<CusYooHeaderTree>?> queryWorkHeaders([Int64? taskId]) async {
       CusYooHeaderTree.fromBuffer,
     ).data;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 queryWorkHeaders 调用失败：$e');
     return null;
   }
 }
@@ -42,7 +42,7 @@ Future<Int64> newWorkHeader(
         ) ??
         Int64.ZERO;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 newWorkHeader 调用失败：$e');
     return Int64.ZERO;
   }
 }
@@ -55,7 +55,7 @@ Future<String?> updateWorkHeader(Int64 id, UpdateWorkHeader data) async {
     );
     return handleProtoCommonInstanceVo(resp);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 updateWorkHeader 调用失败：$e');
     return e.toString();
   }
 }
@@ -68,7 +68,7 @@ Future<String?> deleteWorkHeader(Int64 taskId, Int64 id) async {
     );
     return handleProtoCommonInstanceVo(resp);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 deleteWorkHeader 调用失败：$e');
     return e.toString();
   }
 }

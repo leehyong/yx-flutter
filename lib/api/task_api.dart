@@ -32,7 +32,7 @@ Future<ProtoPageVo<UserTaskHistory>> queryWorkTasks(
       UserTaskHistory.fromBuffer,
     );
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 queryWorkTasks 调用失败：$e');
     return ProtoPageVo.fail(e.toString());
   }
 }
@@ -48,7 +48,7 @@ Future<WorkTask?> queryWorkTaskInfoById(
     );
     return handleProtoInstanceVo<WorkTask>(resp, WorkTask.fromBuffer).$2;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 queryWorkTaskInfoById 调用失败：$e');
     return null;
   }
 }
@@ -65,7 +65,7 @@ Future<Int64> newWorkTask(NewYooWorkTask data) async {
         ) ??
         Int64.ZERO;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 newWorkTask 调用失败：$e');
     return Int64.ZERO;
   }
 }
@@ -81,7 +81,7 @@ Future<String?> updateWorkTask(Int64 taskId, UpdateYooWorkTask data) async {
       toastSuccess: data.task.status != SystemTaskStatus.published.index,
     );
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 updateWorkTask 调用失败：$e');
     return e.toString();
   }
 }
@@ -96,7 +96,7 @@ Future<String?> bindWorkTaskHeader(Int64 taskId, List<Int64> headerIds) async {
     );
     return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 bindWorkTaskHeader 调用失败：$e');
     return e.toString();
   }
 }
@@ -113,7 +113,7 @@ Future<bool> handleActionWorkTaskHeader(
     final err = handleProtoCommonInstanceVo(resp, toastSuccess: true);
     return err == null || err.isEmpty;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 handleActionWorkTaskHeader 调用失败：$e');
     return false;
   }
 }
@@ -125,7 +125,7 @@ Future<String?> deleteWorkTask(Int64 id) async {
     );
     return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 deleteWorkTask 调用失败：$e');
     return e.toString();
   }
 }
@@ -141,7 +141,7 @@ Future<List<User>> taskRelSelectedUsers(Int64 id) async {
     final data = handleProtoPageInstanceVo<User>(resp, User.fromBuffer);
     return data.data ?? <User>[];
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 taskRelSelectedUsers 调用失败：$e');
     return <User>[];
   }
 }
@@ -159,7 +159,7 @@ taskTreeRelateOrganization() async {
         );
     return data.data ?? <CusYooWorkTaskTreeRelateOrganization>[];
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 taskTreeRelateOrganization 调用失败：$e');
     return <CusYooWorkTaskTreeRelateOrganization>[];
   }
 }
@@ -176,7 +176,7 @@ organizationTreeRelateTask() async {
     );
     return data.data ?? <CusYooOrganizationTreeRelateTask>[];
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 organizationTreeRelateTask 调用失败：$e');
     return <CusYooOrganizationTreeRelateTask>[];
   }
 }
@@ -197,7 +197,7 @@ Future<CusYooWorkTaskGraphViewData?> taskGraphViewData(Int64 organizationId) asy
     errToast(data.$1!);
     return null;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 taskGraphViewData 调用失败：$e');
     return null;
   }
 }
@@ -218,7 +218,7 @@ Future<CusYooOrganizationGraphViewData?> organizationGraphViewData(Int64 taskId)
     errToast(data.$1!);
     return null;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 organizationGraphViewData 调用失败：$e');
     return null;
   }
 }

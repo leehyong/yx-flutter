@@ -22,7 +22,7 @@ Future<ProtoPageVo<CusYooWorkContent>?> queryWorkTaskContents(
       CusYooWorkContent.fromBuffer,
     );
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 queryWorkTaskContents 调用失败：$e');
     return ProtoPageVo.fail(e.toString());
   }
 }
@@ -35,7 +35,7 @@ Future<String?> newWorkTaskContent(Int64 taskId, NewCusYooWorkContentReq data) a
     );
     return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 queryWorkTaskContents 调用失败：$e');
     return e.toString();
   }
 }
@@ -51,7 +51,7 @@ Future<String?> updateWorkTaskContent(
     );
     return handleProtoCommonInstanceVo(resp, toastSuccess: true);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 updateWorkTaskContent 调用失败：$e');
     return e.toString();
   }
 }
@@ -63,7 +63,7 @@ Future<String?> deleteWorkTaskContent(Int64 id) async {
     );
     return handleProtoCommonInstanceVo(resp);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 deleteWorkTaskContent 调用失败：$e');
     return e.toString();
   }
 }

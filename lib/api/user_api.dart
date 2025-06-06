@@ -15,7 +15,7 @@ Future<String> getCaptchaCode(String key, int typ) async {
     handleUserLoginTokenToast(() => !res.$1 ? res.$2 : '');
     return res.$1 ? res.$2 : '';
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 getCaptchaCode 调用失败：$e');
     return e.toString();
   }
 }
@@ -57,7 +57,7 @@ Future<String> login(String user, String pwd, String captcha) async {
     final res = await loginApi(user, pwd, captcha);
     return handleUserLoginTokenToast(() => handleTokenResponse(res));
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 login 调用失败：$e');
     return e.toString();
   }
 }
@@ -90,7 +90,7 @@ Future<CusUserOrganization?> getOrganizationUsers([bool all=true]) async {
       CusUserOrganization.fromBuffer,
     ).$2;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 getOrganizationUsers 调用失败：$e');
     return null;
   }
 }
@@ -122,7 +122,7 @@ Future<bool> refreshAccessToken(String token) async {
     final res = await refreshTokenApi(token);
     return handleUserLoginTokenToast(() => handleTokenResponse(res)).isNotEmpty;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('接口 refreshAccessToken 调用失败：$e');
   }
   return false;
 }
