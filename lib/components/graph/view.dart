@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Node;
 import 'package:group_button/group_button.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
-import 'package:yx/vo/room_vo.dart';
 
 import 'controller.dart';
 import 'tree_view.dart';
@@ -264,11 +264,11 @@ class GraphTaskView extends GetView<GraphTaskController> {
   }
 
   Widget _multiRoomSelectSelectBox(BuildContext cxt) {
-    return GroupButton<RoomVo>(
+    return GroupButton<Organization>(
       isRadio: false,
       controller: controller.roomVoController,
       buttons: controller.allRooms.value,
-      buttonTextBuilder: (selected, room, context) => room.dutyDepartmentName!,
+      buttonTextBuilder: (selected, room, context) => room.name!,
       onSelected: (data, idx, checked) {
         controller.setSelectedRoomsData();
       },

@@ -5,7 +5,6 @@ import 'package:yt_dart/login.pb.dart';
 import 'package:yx/services/http_service.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/proto.dart';
-import 'package:yx/vo/user_info_vo.dart';
 
 import 'codes.dart';
 
@@ -95,27 +94,6 @@ Future<CusUserOrganization?> getOrganizationUsers([bool all=true]) async {
   }
 }
 
-Future<List<UserInfoVo>> getUserByOrgId(String orgId) async {
-  return [];
-  // try {
-  //   var res = await get<CommonUserVo>(
-  //     "/flyBook/other/get-user-by-org-id",
-  //     query: {"organizeId": orgId},
-  //     decoder:
-  //         (data) => CommonUserVo.fromJson(
-  //           data as Map<String, dynamic>,
-  //           fromJsonT:
-  //               deserializeUserFromList
-  //                   as FromJsonFn<List<UserInfoVo>?, List<dynamic>?>,
-  //         ),
-  //   );
-  //   handleCommonToastResponseErr(res, '获取用户信息失败');
-  //   return res.body?.data ?? [];
-  // } catch (e) {
-  //   e.printError(info: e.toString());
-  //   return [];
-  // }
-}
 
 Future<bool> refreshAccessToken(String token) async {
   try {
