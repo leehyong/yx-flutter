@@ -10,6 +10,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/cus_tree.pb.dart';
+import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/components/graph/comment/popup.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -17,8 +18,34 @@ import 'package:yx/utils/common_widget.dart';
 
 import 'controller.dart';
 
-class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
-  const GraphTaskCommentView({super.key});
+class GraphTaskCommentView extends StatefulWidget {
+  const GraphTaskCommentView(this.task, {super.key});
+
+  final WorkTask task;
+
+  @override
+  GraphTaskCommentViewState createState() => GraphTaskCommentViewState();
+}
+
+class GraphTaskCommentViewState extends State<GraphTaskCommentView> {
+  @override
+  void initState() {
+    super.initState();
+    Get.put(GraphTaskCommentController(widget.task));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Get.delete<GraphTaskCommentController>();
+  }
+
+  @override
+  Widget build(BuildContext context) => _GraphTaskCommentView();
+}
+
+class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
+  const _GraphTaskCommentView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -578,8 +605,16 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   List<Widget> buildAllCommentsVoComp(BuildContext context) {
     var ret = <Widget>[];
-    final hasRootMore =  controller.hasMoreCommentsData;
-    final totalPages =  controller.popupComments.value.curLayerData?.pages.firstOrNull?.totalPages??0;
+    final hasRootMore = controller.hasMoreCommentsData;
+    final totalPages =
+        controller
+            .popupComments
+            .value
+            .curLayerData
+            ?.pages
+            .firstOrNull
+            ?.totalPages ??
+        0;
     for (var commentVo in controller.popupComments.value.curLayerData!.pages) {
       commentVo.data?.forEach((voData) {
         var replies = voData.children ?? [];
@@ -595,16 +630,16 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
           avatarChild: (context, data) => avatarBuilder(context, data, false),
           contentChild:
               // 回复节点不需要点击更多按钮
-              (context, data) =>
-                  commentBuilder(context, data, false, false, totalChildrenPages),
-          contentRoot:
               (context, data) => commentBuilder(
                 context,
                 data,
-                true,
-                hasRootMore,
-                totalPages,
+                false,
+                false,
+                totalChildrenPages,
               ),
+          contentRoot:
+              (context, data) =>
+                  commentBuilder(context, data, true, hasRootMore, totalPages),
         );
         ret.add(ctw);
       });
@@ -632,7 +667,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
   }
 }
 
-class GraphEditTaskCommentView extends GraphTaskCommentView {
+class GraphEditTaskCommentView extends _GraphTaskCommentView {
   const GraphEditTaskCommentView({super.key});
 
   @override
