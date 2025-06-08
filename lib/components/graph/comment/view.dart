@@ -7,9 +7,11 @@ import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:yt_dart/cus_tree.pb.dart';
+import 'package:yx/components/graph/comment/popup.dart';
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
-import 'package:yx/vo/comment_vo.dart';
 
 import 'controller.dart';
 
@@ -42,7 +44,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
       children: [
         const Text("@"),
         Text(
-          controller.curCommentVo.value!.evaluationAuthor!,
+          controller.curTaskComment.value!.user.name,
           style: TextStyle(
             color: Colors.red,
             fontSize: 20,
@@ -62,7 +64,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         _buildHeadCommentReplyComp(context),
         _buildCommentReplyTextWidget(
           context,
-          controller.curCommentVo.value!.evaluationDes!,
+          controller.curTaskComment.value!.data.content,
           reply: true,
         ),
         const TDDivider(
@@ -82,24 +84,24 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     return ContainedTabBarView(
       initialIndex: controller.tabBarIdx.value,
       tabs: [
-        buildTabBarHeadComp(context, "领导评价", Icons.person),
-        buildTabBarHeadComp(context, "科室互评", Icons.home_work),
+        buildTabBarHeadComp(context, "评价列表", Icons.person),
+        // buildTabBarHeadComp(context, "科室互评", Icons.home_work),
       ],
       // 渲染的内容都是一样的
       views: [
         buildCommonTabBarChildContentComp(context),
-        buildCommonTabBarChildContentComp(context),
+        // buildCommonTabBarChildContentComp(context),
         // buildRoomTabBarChildComp(context),
       ],
-      onChange: (idx) async {
-        controller.tabBarIdx.value = idx;
-        controller.curCommentVo.value = null;
-        // 切换tabbar时, 如有必要则需加载初始化数据
-        if (!controller.curPopupModel.loaded &&
-            controller.curPopupModel.isEmpty) {
-          await controller.fetchInitData();
-        }
-      },
+      // onChange: (idx) async {
+      //   controller.tabBarIdx.value = idx;
+      //   controller.curTaskComment.value = null;
+      //   // 切换tabbar时, 如有必要则需加载初始化数据
+      //   if (!controller.curPopupModel.loaded &&
+      //       controller.curPopupModel.isEmpty) {
+      //     await controller.fetchInitData();
+      //   }
+      // },
     );
   }
 
@@ -162,9 +164,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     return Stack(
       children: [
         RefreshIndicator(
-          onRefresh: () async {
-            await controller.fetchInitData(both: false);
-          },
+          onRefresh: controller.refreshCommentsData,
           child: SingleChildScrollView(
             padding: EdgeInsets.only(bottom: 60),
             child: Column(children: buildAllCommentsVoComp(context)),
@@ -182,7 +182,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   PreferredSize avatarBuilder(
     BuildContext context,
-    CommentVoData data,
+    CusYooTaskComment data,
     bool isRoot,
   ) {
     var s = isRoot ? 18.0 : 12.0;
@@ -212,9 +212,9 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
           Expanded(
             child: TextField(
               onTap: () async {
-                if (!controller.curPopupModel.atLeast2Layers) {
+                if (!controller.popupComments.value.atLeast2Layers) {
                   // 避免创建不正确的回复或者评价
-                  controller.curCommentVo.value = null;
+                  controller.curTaskComment.value = null;
                 }
                 controller.curEditingCommentOldContent.value = '';
                 await buildPopupLayerCommentComp(context);
@@ -255,11 +255,11 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
             spacing: 4,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (controller.curCommentVo.value != null &&
+              if (controller.curTaskComment.value != null &&
                   controller.curEditingCommentOldContent.value.isEmpty)
                 _buildCommentReplyTextWidget(
                   context,
-                  controller.curCommentVo.value!.evaluationDes!,
+                  controller.curTaskComment.value!.data.content,
                 ),
               Expanded(
                 child: TextField(
@@ -343,10 +343,10 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     );
   }
 
-  Widget _buildDeleteCommentComp(BuildContext context, CommentVoData data) {
+  Widget _buildDeleteCommentComp(BuildContext context, CusYooTaskComment data) {
     return IconButton(
       onPressed: () {
-        controller.curDeletingCommentId.value = data.id;
+        controller.curDeletingCommentId.value = data.data.id;
         showGeneralDialog(
           context: context,
           pageBuilder: (
@@ -377,7 +377,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   Widget _buildCommentOperations(
     BuildContext context,
-    CommentVoData data,
+    CusYooTaskComment data,
     bool isRoot,
     bool hasMore,
     int totalReplies,
@@ -405,14 +405,14 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
               },
               icon: Icon(Icons.thumb_down, size: 16),
             ),
-            if (data.delete == 1) _buildDeleteCommentComp(context, data),
-            if (data.edit == 1)
+            if (data.isMyself) _buildDeleteCommentComp(context, data),
+            if (data.isMyself)
               IconButton(
                 onPressed: () async {
                   // 修改
-                  controller.curCommentVo.value = data;
+                  controller.curTaskComment.value = data;
                   controller.curEditingCommentOldContent.value =
-                      data.evaluationDes!;
+                      data.data.content;
                   await buildPopupLayerCommentComp(context);
                 },
                 icon: Icon(Icons.edit, size: 16),
@@ -420,7 +420,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
             // SizedBox(width: 24),
             // InkWell(
             //   onTap: () async {
-            //     controller.curCommentVo.value = data;
+            //     controller.curTaskComment.value = data;
             //     await buildPopupLayerCommentComp(context);
             //   },
             //   child: Text('回复'),
@@ -428,7 +428,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
             if (hasMore && isRoot)
               InkWell(
                 onTap: () async {
-                  controller.curCommentVo.value = data;
+                  controller.curTaskComment.value = data;
                   await controller.addNewPopupCommentLayer();
                   // await buildPopupLayerCommentReply(context);
                 },
@@ -448,14 +448,14 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   Widget commentBuilder(
     BuildContext context,
-    CommentVoData data,
+    CusYooTaskComment data,
     bool isRoot,
     bool hasMore,
     int totalReplies,
   ) {
     return Obx(
       () =>
-          controller.curDeletingCommentId.value == data.id
+          controller.curDeletingCommentId.value == data.data.id
               ? Flash(
                 preferences: const AnimationPreferences(
                   autoPlay: AnimationPlayStates.Loop,
@@ -478,21 +478,22 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   Widget _commentBuilder(
     BuildContext context,
-    CommentVoData data,
+    CusYooTaskComment data,
     bool isRoot,
     bool hasMore,
     int totalReplies,
   ) {
-    final createDt = data.createDate ?? [];
     final now = DateTime.timestamp();
-    createDt.remove(now.year);
+    final createDt = localFromSeconds(
+      data.data.createdAt.toInt(),
+    ).replaceFirst(RegExp('^${now.year}-'), '');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
           onTap: () async {
-            controller.curCommentVo.value = data;
+            controller.curTaskComment.value = data;
             controller.curEditingCommentOldContent.value = '';
             await buildPopupLayerCommentComp(context);
           },
@@ -511,7 +512,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
                       child: Stack(
                         children: [
                           Text(
-                            data.evaluationAuthor ?? 'defaultU',
+                            data.user.name,
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall!.copyWith(
@@ -525,7 +526,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
                             right: 4,
                             child: TDBadge(
                               TDBadgeType.message,
-                              message: createDt.join('-'),
+                              message: createDt,
                               color: Colors.lightBlueAccent,
                             ),
                           ),
@@ -534,10 +535,9 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
                     ),
                   ],
                 ),
-                // todo: 显示评论时间
                 const SizedBox(height: 12),
                 Text(
-                  data.evaluationDes ?? 'defaultDes',
+                  data.data.content,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.w300,
                     color: Colors.black,
@@ -576,12 +576,13 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   List<Widget> buildAllCommentsVoComp(BuildContext context) {
     var ret = <Widget>[];
-
-    for (var commentVo in controller.curPopupLayerData) {
+    final hasRootMore =  controller.hasMoreCommentsData;
+    final totalPages =  controller.popupComments.value.curLayerData?.pages.firstOrNull?.totalPages??0;
+    for (var commentVo in controller.popupComments.value.curLayerData!.pages) {
       commentVo.data?.forEach((voData) {
-        var replies = voData.evaluationReply?.data ?? [];
-        var totalReplies = voData.evaluationReply?.count ?? 0;
-        var ctw = CommentTreeWidget<CommentVoData, CommentVoData>(
+        var replies = voData.children;
+        var totalChildrenPages = voData.childrenCount;
+        var ctw = CommentTreeWidget<CusYooTaskComment, CusYooTaskComment>(
           voData,
           replies,
           treeThemeData: TreeThemeData(
@@ -593,14 +594,14 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
           contentChild:
               // 回复节点不需要点击更多按钮
               (context, data) =>
-                  commentBuilder(context, data, false, false, totalReplies),
+                  commentBuilder(context, data, false, false, totalChildrenPages),
           contentRoot:
               (context, data) => commentBuilder(
                 context,
                 data,
                 true,
-                totalReplies > replies.length,
-                totalReplies,
+                hasRootMore,
+                totalPages,
               ),
         );
         ret.add(ctw);

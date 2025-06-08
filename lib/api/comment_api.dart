@@ -1,144 +1,85 @@
-import 'package:get/get.dart';
+import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
+import 'package:yt_dart/cus_tree.pb.dart';
+import 'package:yt_dart/generate_sea_orm_new.pb.dart';
+import 'package:yt_dart/generate_sea_orm_update.pb.dart';
 import 'package:yx/services/http_service.dart';
 import 'package:yx/utils/common_util.dart';
-import 'package:yx/vo/common_vo.dart';
+import 'package:yx/utils/proto.dart';
 
-import '../vo/comment_vo.dart';
+import 'codes.dart';
 
-enum CommentCat { leader, room }
-
-Future<CommentVo> queryAllComments(
-  String id,
-  CommentCat cat,
+Future<ProtoPageVo<CusYooTaskComment>?> queryAllComments(
+  Int64 id,
+  Int64 taskId,
   int page,
-  int limit, {
-  bool isReply = false,
-}) async {
-  var query = {
-    "id": id,
-    "limit": limit.toString(),
-    "page": page.toString(),
-    "type": cat == CommentCat.leader ? "1" : "2",
-  };
-  var url = '';
-  if (isReply) {
-    url = '/duty/get-reply-by-evaluation-id';
-  } else {
-    url = '/duty/get-evaluation-by-duty-id';
-  }
-
+  int limit,
+) async {
+  final query = {"id": id, "task_id": taskId, "limit": limit, "page": page};
   try {
     // 通过任务id查询评论
-    var res = await HttpDioService.instance.dio.get<CommonCommentVo>(
-      url,
+    var resp = await HttpDioService.instance.dio.get<String>(
+      '$apiContextPath/task-comment/all',
       queryParameters: query,
-      // decoder:
-      //     (data) => CommonCommentVo.fromJson(
-      //       data as CommonMapVoData,
-      //       fromJsonT:
-      //           CommentVo.fromJson as FromJsonFn<CommentVo, CommonMapVoData>,
-      //     ),
     );
-    final success = handleCommonToastResponse(res, 'queryAllComments错误');
-    // 消息通知 toast
-    if (!success) {
-      return CommentVo();
-    }
-    return res.data!.data!;
+    return handleProtoPageInstanceVo<CusYooTaskComment>(
+      resp,
+      CusYooTaskComment.fromBuffer,
+    );
   } catch (e) {
-    e.printError(info: e.toString());
-    return CommentVo();
+    debugPrint('接口 queryAllComments 调用失败：$e');
+    return ProtoPageVo.fail(e.toString());
   }
 }
 
 // 新增评论或者回复
-Future<bool> addGraphComment(
-  CommentCat cat,
-  String taskId,
-  String comment, {
-  String? replyId,
+Future<bool> addTaskComment(
+  Int64 taskId,
+  NewTaskComment data, {
+  Int64? replyId,
 }) async {
-  var url = '';
-  var data = {"dutyId": taskId, "evaluationDes": comment};
-  if (replyId == null) {
-    if (cat == CommentCat.room) {
-      url = '/duty-department-evaluation/create-duty-department-evaluation';
-    } else {
-      url = '/duty-leader-evaluation/create-duty-leader-evaluation';
-    }
-  } else {
-    data['id'] = replyId;
-    if (cat == CommentCat.room) {
-      url = '/duty-department-evaluation/reply-duty-department-evaluation';
-    } else {
-      url = '/duty-leader-evaluation/reply-duty-leader-evaluation';
-    }
-  }
   try {
-    var res = await HttpDioService.instance.dio.post<CommonVo<Object, Object>>(
-      url,
-      data: data,
-      // decoder:
-      //     (data) => CommonVo.fromJsonNullData(
-      //       data as Map<String, dynamic>,
-      //       // fromJsonT: GraphVo.fromJson as FromJsonFn<GraphVo, CommonMapVoData>,
-      //     ),
+    var resp = await HttpDioService.instance.dio.post<String>(
+      '$apiContextPath/task-comment/$taskId',
+      data: encodeProtoData(data),
+      queryParameters: {"parent_id": replyId ?? Int64.ZERO},
     );
-    return handleCommonToastResponse(res, 'addGraphComment错误');
+    final res = handleProtoCommonInstanceVo(resp);
+    return res == null || res.isEmpty;
   } catch (e) {
-    e.printError(info: e.toString());
+    debugPrint('接口 addTaskComment 调用失败：$e');
     return false;
   }
 }
 
-Future<bool> deleteGraphComment(CommentCat cat, String id) async {
-  var url = '';
-  if (cat == CommentCat.leader) {
-    url = '/duty-leader-evaluation/delete-duty-leader-evaluation';
-  } else {
-    url = '/duty-department-evaluation/delete-duty-department-evaluation';
-  }
+Future<bool> deleteTaskComment(Int64 id) async {
   try {
-    var res = await HttpDioService.instance.dio.post<CommonVo<Object, Object>>(
-      url,
-      data: {"id": id},
-      // decoder:
-      //     (data) => CommonVo.fromJsonNullData(
-      //       data as Map<String, dynamic>,
-      //       // fromJsonT: GraphVo.fromJson as FromJsonFn<GraphVo, CommonMapVoData>,
-      //     ),
+    var resp = await HttpDioService.instance.dio.delete<String>(
+      '$apiContextPath/task-comment/$id',
     );
-    return handleCommonToastResponse(res, 'deleteGraphComment错误');
+    final res = handleProtoCommonInstanceVo(resp);
+    return res == null || res.isEmpty;
   } catch (e) {
-    e.printError(info: e.toString());
+    debugPrint('接口 deleteTaskComment 调用失败：$e');
     return false;
   }
 }
 
-Future<bool> updateGraphComment(
-  CommentCat cat,
-  String id,
-  String comment,
+Future<bool> updateTaskComment(
+  Int64 id,
+  UpdateTaskComment comment,
+  int mask,
 ) async {
-  var url = '';
-  if (cat == CommentCat.leader) {
-    url = '/duty-leader-evaluation/update-duty-leader-evaluation';
-  } else {
-    url = '/duty-department-evaluation/update-duty-department-evaluation';
-  }
   try {
-    var res = await HttpDioService.instance.dio.post<CommonVo<Object, Object>>(
-      url,
-      data: {"id": id, "evaluationDes": comment},
-      // decoder:
-      //     (data) => CommonVo.fromJsonNullData(
-      //       data as Map<String, dynamic>,
-      //       // fromJsonT: GraphVo.fromJson as FromJsonFn<GraphVo, CommonMapVoData>,
-      //     ),
+    final resp = await HttpDioService.instance.dio.post<String>(
+      '$apiContextPath/task-comment/$id',
+      queryParameters: {"mask": mask},
+      data: encodeProtoData(comment),
     );
-    return handleCommonToastResponse(res, 'updateGraphComment错误');
+    final res = handleProtoCommonInstanceVo(resp);
+    return res == null || res.isEmpty;
   } catch (e) {
-    e.printError(info: e.toString());
+    debugPrint('接口 updateTaskComment 调用失败：$e');
     return false;
   }
 }
