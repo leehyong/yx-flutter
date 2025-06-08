@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:comment_tree/widgets/comment_tree_widget.dart';
 import 'package:comment_tree/widgets/tree_theme_data.dart';
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
@@ -84,7 +86,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     return ContainedTabBarView(
       initialIndex: controller.tabBarIdx.value,
       tabs: [
-        buildTabBarHeadComp(context, "评价列表", Icons.person),
+        buildTabBarHeadComp(context, "评价列表", Icons.message),
         // buildTabBarHeadComp(context, "科室互评", Icons.home_work),
       ],
       // 渲染的内容都是一样的
@@ -484,7 +486,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     int totalReplies,
   ) {
     final now = DateTime.timestamp();
-    final createDt = localFromSeconds(
+    final createDt = localFromMilliSeconds(
       data.data.createdAt.toInt(),
     ).replaceFirst(RegExp('^${now.year}-'), '');
 
@@ -564,7 +566,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        '回复:${txt.length > 10 ? txt.substring(0, 10) : txt}',
+        '回复:${txt.substring(0, min(10, txt.length))}',
         style: Theme.of(context).textTheme.bodySmall!.copyWith(
           fontWeight: FontWeight.w300,
           color: Colors.black,
@@ -580,8 +582,8 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     final totalPages =  controller.popupComments.value.curLayerData?.pages.firstOrNull?.totalPages??0;
     for (var commentVo in controller.popupComments.value.curLayerData!.pages) {
       commentVo.data?.forEach((voData) {
-        var replies = voData.children;
-        var totalChildrenPages = voData.childrenCount;
+        var replies = voData.children ?? [];
+        var totalChildrenPages = voData.childrenCount ?? 0;
         var ctw = CommentTreeWidget<CusYooTaskComment, CusYooTaskComment>(
           voData,
           replies,

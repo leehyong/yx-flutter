@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/comment_api.dart' as comment_api;
-import 'package:yx/services/auth_service.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/toast.dart';
 
@@ -22,7 +21,9 @@ extension CusYooTaskCommentExtension on CusYooTaskComment {
   // 总的回复数，是否比children的多
   bool get hasMore => childrenCount > children.length;
 
-  bool get isMyself => user.id == AuthService.instance.user!.userId;
+  // bool get isMyself => user.id == AuthService.instance.user!.userId;
+  // todo: 后续再校验用户id
+  bool get isMyself => true;
 }
 
 class SoloCommentLayer {

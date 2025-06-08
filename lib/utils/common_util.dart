@@ -23,23 +23,34 @@ final twoValidNumber = NumberFormat('0.##');
 
 DateTime dtLocalFromMilliSecondsTimestamp(int utcMilliSeconds) =>
     // utcMilliSeconds 是utc的秒数
-    DateTime.fromMillisecondsSinceEpoch(utcMilliSeconds * 1000, isUtc: true).toLocal();
+    DateTime.fromMillisecondsSinceEpoch(
+      utcMilliSeconds * 1000,
+      isUtc: true,
+    ).toLocal();
 
 String localFromSeconds(int utcSeconds) =>
     defaultDateTimeFormat1.format(dtLocalFromMilliSecondsTimestamp(utcSeconds));
+
+String localFromMilliSeconds(int utcMilliSeconds) =>
+    defaultDateTimeFormat1.format(
+      DateTime.fromMillisecondsSinceEpoch(
+        utcMilliSeconds,
+        isUtc: true,
+      ).toLocal(),
+    );
 
 String localDateFromSeconds(int utcSeconds) =>
     defaultDateFormat.format(dtLocalFromMilliSecondsTimestamp(utcSeconds));
 
 Int64 parseDateFromSecond(String dt) {
   final d = parseDateFromStr(dt);
-  if(d== null) return Int64.ZERO;
+  if (d == null) return Int64.ZERO;
   return Int64(d.toUtc().millisecondsSinceEpoch ~/ 1000);
 }
 
 Int64 parseDateTimeFromSecond(String dt) {
   final d = parseDatetimeFromStr(dt);
-  if(d== null) return Int64.ZERO;
+  if (d == null) return Int64.ZERO;
   return Int64(d.toUtc().millisecondsSinceEpoch ~/ 1000);
 }
 
@@ -53,7 +64,8 @@ String inputDateTxtFromSecond(Int64? seconds) =>
         ? ''
         : localDateFromSeconds(seconds.toInt());
 
-Future<DateTime> showCusDateTimePicker(BuildContext context, {
+Future<DateTime> showCusDateTimePicker(
+  BuildContext context, {
   DateTime? dt,
 }) async {
   var fullDateTime = DateTime.now();
@@ -91,11 +103,11 @@ Future<DateTime> showCusDateTimePicker(BuildContext context, {
 Future<DateTime> showCusDatePicker(BuildContext context, {DateTime? dt}) async {
   final now = dt ?? DateTime.now();
   return await showDatePicker(
-    context: context,
-    initialDate: now,
-    firstDate: now.subtract(Duration(days: 15)),
-    lastDate: now.add(Duration(days: 365 * 5)),
-  ) ??
+        context: context,
+        initialDate: now,
+        firstDate: now.subtract(Duration(days: 15)),
+        lastDate: now.add(Duration(days: 365 * 5)),
+      ) ??
       now;
 }
 
@@ -136,9 +148,7 @@ Color getHighContrastColor(Color baseColor) {
 }
 
 WoltModalType woltModalType(BuildContext context) {
-  final width = MediaQuery
-      .sizeOf(context)
-      .width;
+  final width = MediaQuery.sizeOf(context).width;
   if (width < 600) {
     return const WoltBottomSheetType(showDragHandle: false);
   } else if (width < 1000) {
@@ -149,21 +159,22 @@ WoltModalType woltModalType(BuildContext context) {
 }
 
 bool isBigScreen(BuildContext context) =>
-    MediaQuery
-        .of(context)
-        .size
-        .width > 720;
+    MediaQuery.of(context).size.width > 720;
 
 bool isOkResponse(Response<dynamic> resp) =>
     resp.statusCode != null && resp.statusCode! ~/ 100 == 2;
 
-bool handleCommonToastResponse(Response<CommonVo<dynamic, dynamic>?> res,
-    String defaultMsg,) {
+bool handleCommonToastResponse(
+  Response<CommonVo<dynamic, dynamic>?> res,
+  String defaultMsg,
+) {
   return handleCommonToastResponseErr(res, defaultMsg).isEmpty;
 }
 
-String handleCommonToastResponseErr(Response<CommonVo<dynamic, dynamic>?> res,
-    String defaultMsg,) {
+String handleCommonToastResponseErr(
+  Response<CommonVo<dynamic, dynamic>?> res,
+  String defaultMsg,
+) {
   final err = isOkResponse(res);
   var errMsg = '';
   if (!err) {
@@ -174,11 +185,12 @@ String handleCommonToastResponseErr(Response<CommonVo<dynamic, dynamic>?> res,
 }
 
 typedef ProtoBufferParser<T extends $pb.GeneratedMessage> =
-T Function(List<int>);
+    T Function(List<int>);
 
 (String?, T?) handleProtoInstanceVo<T extends $pb.GeneratedMessage>(
-    Response<String> res,
-    ProtoBufferParser<T> parser,) {
+  Response<String> res,
+  ProtoBufferParser<T> parser,
+) {
   final ret = decodeCommonVoDataFromResponse(res);
   var err = ret.$1;
   if (err == null) {
@@ -205,23 +217,25 @@ class ProtoPageVo<T extends $pb.GeneratedMessage> {
     this.limit = 0,
   });
 
-  factory ProtoPageVo.success(List<T> data,
-      int page,
-      int totalPages,
-      int limit,) =>
-      ProtoPageVo._(
-        data: data,
-        page: page,
-        totalPages: totalPages,
-        limit: limit,
-      );
+  factory ProtoPageVo.success(
+    List<T> data,
+    int page,
+    int totalPages,
+    int limit,
+  ) => ProtoPageVo._(
+    data: data,
+    page: page,
+    totalPages: totalPages,
+    limit: limit,
+  );
 
   factory ProtoPageVo.fail(String error) => ProtoPageVo._(error: error);
 }
 
 ProtoPageVo<T> handleProtoPageInstanceVo<T extends $pb.GeneratedMessage>(
-    Response<String> res,
-    ProtoBufferParser<T> parser,) {
+  Response<String> res,
+  ProtoBufferParser<T> parser,
+) {
   final ret = decodeCommonPageVoDataFromResponse(res);
   var err = ret.$1;
   if (err == null) {
@@ -238,7 +252,8 @@ ProtoPageVo<T> handleProtoPageInstanceVo<T extends $pb.GeneratedMessage>(
   }
 }
 
-String? handleProtoCommonInstanceVo(Response<String> response, {
+String? handleProtoCommonInstanceVo(
+  Response<String> response, {
   bool toastSuccess = false,
 }) {
   final res = decodeCommonVoDataFromResponse(response);
@@ -255,10 +270,10 @@ String? handleProtoCommonInstanceVo(Response<String> response, {
   }
 }
 
-Int64? handleProtoCommonInstanceVoForMsgIncludeInt64(Response<String> response,
-    {
-      bool toastSuccess = false,
-    }) {
+Int64? handleProtoCommonInstanceVoForMsgIncludeInt64(
+  Response<String> response, {
+  bool toastSuccess = false,
+}) {
   // 处理 msg的位置放置的是 id 的情况
   final res = decodeCommonVoDataFromResponse(response);
   final err = res.$1;
@@ -303,15 +318,14 @@ bool isValidUser(String user) {
 
 const String phoneRegErrorTxt = "手机号格式不对";
 
-bool isValidPhone(String phone)=> RegExp(
+bool isValidPhone(String phone) => RegExp(
   r"^1(3[0-9]|4[01456879]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[0-35-9])\d{8}$",
 ).hasMatch(phone);
 
 // ::__inner加上这个字符串，以免节点删除时，可能出现整体消失的情况
-String treeNodeKey(Int64 id) =>  "$id$innerNodeKey";
+String treeNodeKey(Int64 id) => "$id$innerNodeKey";
 
-
-(DateTime, DateTime) weekRange(DateTime dt){
+(DateTime, DateTime) weekRange(DateTime dt) {
   // 获取本周第一天（周一）
   DateTime firstDayOfWeek = dt.subtract(Duration(days: dt.weekday - 1));
   // 获取本周最后一天（周日）
