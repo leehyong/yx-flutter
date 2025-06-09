@@ -1,7 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
@@ -155,66 +154,40 @@ class TaskListViewState extends State<TaskListView> {
   }
 
   Widget _buildRefresher(BuildContext context, int crossCount) {
-    return SmartRefresher(
-      key: curLayer.smartRefreshKey,
-      enablePullDown: true,
-      enablePullUp: true,
-      header: WaterDropHeader(),
-      onLoading: curLayer.loadTaskList,
-      onRefresh: () async {
-        curLayer.reset();
-        await curLayer.loadTaskList();
-      },
-      footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus? mode) {
-          Widget body;
-          if (mode == LoadStatus.idle) {
-            body = Text("加载更多");
-          } else if (mode == LoadStatus.loading) {
-            body = LoadingIndicator(
-              indicatorType: Indicator.audioEqualizer,
-
-              /// Required, The loading type of the widget
-              colors: loadingColors,
-              strokeWidth: 2,
-            );
-          } else if (mode == LoadStatus.failed) {
-            body = Text("加载失败，请重试");
-          } else if (mode == LoadStatus.canLoading) {
-            body = Text("释放加载更多");
-          } else {
-            return emptyWidget(context);
-          }
-          return SizedBox(height: 55.0, child: Center(child: body));
-        },
-      ),
-      controller: RefreshController(initialRefresh: false),
-      // controller: controller.refreshController,
-      child: _buildTaskList(context, crossCount),
-    );
-  }
-
-  Widget _buildTaskList(BuildContext context, int crossCount) {
     return curLayer.tasks.isEmpty
         ? Column(children: [emptyWidget(context)])
-        : GridView.builder(
-          primary: true,
-          shrinkWrap: true,
-          itemCount: curLayer.tasks.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossCount,
-            crossAxisSpacing: crossCount == 1 ? 0 : 6,
-            mainAxisSpacing: 1,
-            childAspectRatio: crossCount == 1 ? 2 : 1.6,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            final userTaskHis = curLayer.tasks[index];
-            return OneTaskCardView(
-              key: ValueKey(userTaskHis.task.id),
-              userTaskHis: userTaskHis,
-              taskCategory: curLayer.curCat.first,
-            );
+        : SmartRefresher(
+          key: curLayer.smartRefreshKey,
+          enablePullDown: true,
+          enablePullUp: true,
+          // header: WaterDropHeader(),
+          onLoading: curLayer.loadTaskList,
+          onRefresh: () async {
+            debugPrint('onRefresh');
+            curLayer.reset();
+            await curLayer.loadTaskList();
           },
+          controller: RefreshController(initialRefresh: false),
+          // controller: controller.refreshController,
+          child: GridView.builder(
+            primary: true,
+            shrinkWrap: true,
+            itemCount: curLayer.tasks.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossCount,
+              crossAxisSpacing: crossCount == 1 ? 0 : 6,
+              mainAxisSpacing: 1,
+              childAspectRatio: crossCount == 1 ? 2 : 1.6,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              final userTaskHis = curLayer.tasks[index];
+              return OneTaskCardView(
+                key: ValueKey(userTaskHis.task.id),
+                userTaskHis: userTaskHis,
+                taskCategory: curLayer.curCat.first,
+              );
+            },
+          ),
         );
   }
 }
@@ -850,7 +823,8 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
         children = [const Text("剩余名额"), Text(left, style: defaultNumberStyle)];
         if (!controller.accepted &&
             // 任务没截止时才显示领取按钮
-            hasLeft && !isTaskReceiveDeadline &&
+            hasLeft &&
+            !isTaskReceiveDeadline &&
             {
               // 这些任务类型，还是可以领取的
               ReceiveTaskStrategy.freeSelection.index,
