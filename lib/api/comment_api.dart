@@ -71,7 +71,7 @@ Future<bool> updateTaskComment(
   int mask,
 ) async {
   try {
-    final resp = await HttpDioService.instance.dio.post<String>(
+    final resp = await HttpDioService.instance.dio.put<String>(
       '$apiContextPath/task-comment/$id',
       queryParameters: {"mask": mask},
       data: encodeProtoData(comment),

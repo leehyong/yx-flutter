@@ -214,7 +214,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
             ),
           ),
         ),
-        SizedBox(height: 4),
         Container(
           padding: EdgeInsets.only(left: 20, right: 20),
           decoration: BoxDecoration(color: Colors.blue[600]),
@@ -286,7 +285,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     CusYooTaskComment data,
     bool isRoot,
     bool hasMore,
-    int totalReplies,
   ) {
     return DefaultTextStyle(
       style: Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -342,7 +340,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
                   children: [
                     const Text('更多'),
                     const SizedBox(width: 1),
-                    TDBadge(TDBadgeType.bubble, message: '$totalReplies'),
+                    TDBadge(TDBadgeType.bubble, message: '${data.childrenCount}'),
                   ],
                 ),
               ),
@@ -357,7 +355,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     CusYooTaskComment data,
     bool isRoot,
     bool hasMore,
-    int totalReplies,
   ) {
     return Obx(
       () =>
@@ -374,11 +371,10 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
                     data,
                     isRoot,
                     hasMore,
-                    totalReplies,
                   ),
                 ),
               )
-              : _commentBuilder(context, data, isRoot, hasMore, totalReplies),
+              : _commentBuilder(context, data, isRoot, hasMore),
     );
   }
 
@@ -387,7 +383,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     CusYooTaskComment data,
     bool isRoot,
     bool hasMore,
-    int totalReplies,
   ) {
     final now = DateTime.timestamp();
     final createDt = localFromMilliSeconds(
@@ -453,7 +448,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
             ),
           ),
         ),
-        _buildCommentOperations(context, data, isRoot, hasMore, totalReplies),
+        _buildCommentOperations(context, data, isRoot, hasMore),
       ],
     );
   }
@@ -482,23 +477,12 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   List<Widget> buildAllCommentsVoComp(BuildContext context) {
     var ret = <Widget>[];
-    final hasRootMore = controller.hasMoreCommentsData;
-    final totalPages =
-        controller
-            .popupComments
-            .value
-            .curLayerData
-            ?.pages
-            .firstOrNull
-            ?.totalPages ??
-        0;
+    final hasCurLayerMore = controller.hasMoreCommentsData;
     for (var commentVo in controller.popupComments.value.curLayerData!.pages) {
       commentVo.data?.forEach((voData) {
-        var replies = voData.children ?? [];
-        var totalChildrenPages = voData.childrenCount ?? 0;
         var ctw = CommentTreeWidget<CusYooTaskComment, CusYooTaskComment>(
           voData,
-          replies,
+          voData.children,
           treeThemeData: TreeThemeData(
             lineColor: Colors.green[500]!,
             lineWidth: 3,
@@ -511,19 +495,18 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
                 context,
                 data,
                 false,
-                false,
-                totalChildrenPages,
+                false
               ),
           contentRoot:
               (context, data) =>
-                  commentBuilder(context, data, true, hasRootMore, totalPages),
+                  commentBuilder(context, data, true, hasCurLayerMore),
         );
         ret.add(ctw);
       });
     }
-    var ed = ret.isNotEmpty && controller.hasMoreCommentsData;
+    var more = ret.isNotEmpty && hasCurLayerMore;
     // ret.add(Spacer())
-    if (ed) {
+    if (more) {
       ret.add(
         InkWell(
           onTap: () async {
