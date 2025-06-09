@@ -265,7 +265,9 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       return task.maxReceiverCount <= 0
           // maxReceiverCount <= 0, 那就都是 无限制的
           ? -1
-          : task.maxReceiverCount - userTaskHis.total;
+          : task.maxReceiverCount -
+              userTaskHis.total -
+              (controller.accepted ? 1 : 0);
     } else if ([
       ReceiveTaskStrategy.onlyForceDelegation.index,
       ReceiveTaskStrategy.onlyTwoWaySelection.index,
@@ -312,7 +314,21 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     return '无限制';
   }
 
-  bool get hasLeft => leftNum > 0;
+  bool get hasLeft {
+    final receiveStrategy = ReceiveTaskStrategy.values[task.receiveStrategy];
+    switch (receiveStrategy) {
+      case ReceiveTaskStrategy.freeSelection:
+        if (task.maxReceiverCount <= 0) {
+          return true;
+        }
+        return leftNum > 0;
+      case ReceiveTaskStrategy.twoWaySelection:
+      case ReceiveTaskStrategy.forceDelegation:
+        return true;
+      default:
+        return false;
+    }
+  }
 
   double get taskCredits {
     // 如果任务积分
