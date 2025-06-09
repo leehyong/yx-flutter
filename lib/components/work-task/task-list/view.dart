@@ -330,6 +330,13 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
     }
   }
 
+  bool get isTaskReceiveDeadline {
+    if (task.receiveDeadline <= 0) {
+      return false;
+    }
+    return controller.leftDetail.left <= 0;
+  }
+
   double get taskCredits {
     // 如果任务积分
     if (controller.accepted) {
@@ -842,7 +849,8 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
       case TaskListCategory.allPublished:
         children = [const Text("剩余名额"), Text(left, style: defaultNumberStyle)];
         if (!controller.accepted &&
-            hasLeft &&
+            // 任务没截止时才显示领取按钮
+            hasLeft && !isTaskReceiveDeadline &&
             {
               // 这些任务类型，还是可以领取的
               ReceiveTaskStrategy.freeSelection.index,
