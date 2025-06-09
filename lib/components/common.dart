@@ -34,10 +34,11 @@ class TaskListLayer {
     tasks.clear();
   }
 
+  RefreshController? get refreshController => smartRefreshKey.currentState?.widget.controller;
+
   Future<void> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
     final cat = parentId < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
-    final refreshController = smartRefreshKey.currentState?.widget.controller;
     if (!pageReq.hasMore) {
       warnToast("没有更多数据了");
       refreshController?.loadNoData();

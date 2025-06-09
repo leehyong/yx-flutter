@@ -131,9 +131,30 @@ class TaskListViewState extends State<TaskListView> {
           padding: EdgeInsets.only(left: 3, right: 3),
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: _buildSegmentButtons(context),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildSegmentButtons(context),
+                  const Spacer(),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      onPressed: () {
+                        if (curLayer.tasks.isEmpty) {
+                          curLayer.reset();
+                          curLayer.loadTaskList();
+                        } else {
+                          curLayer.refreshController?.requestRefresh();
+                        }
+                      },
+                      icon: Tooltip(
+                        message: '刷新',
+                        preferBelow: false,
+                        child: Icon(Icons.refresh, color: Colors.blue.shade300),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Expanded(child: _buildTasks(context)),
             ],
