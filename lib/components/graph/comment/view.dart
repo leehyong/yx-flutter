@@ -8,41 +8,14 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/cus_tree.pb.dart';
-import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/components/graph/comment/popup.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import 'controller.dart';
 
-class GraphTaskCommentView extends StatefulWidget {
-  const GraphTaskCommentView(this.task, {super.key});
-
-  final WorkTask task;
-
-  @override
-  GraphTaskCommentViewState createState() => GraphTaskCommentViewState();
-}
-
-class GraphTaskCommentViewState extends State<GraphTaskCommentView> {
-  @override
-  void initState() {
-    super.initState();
-    Get.put(GraphTaskCommentController(widget.task));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    Get.delete<GraphTaskCommentController>();
-  }
-
-  @override
-  Widget build(BuildContext context) => _GraphTaskCommentView();
-}
-
-class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
-  const _GraphTaskCommentView({super.key});
+class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
+  const GraphTaskCommentView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -106,46 +79,6 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     );
   }
 
-  // Widget buildHeadTabBarComp(BuildContext context) {
-  //   return buildCommonCommentComp(context);
-  // return ContainedTabBarView(
-  //   initialIndex: controller.tabBarIdx.value,
-  //   tabs: [buildTabBarHeadComp(context, "评价列表", Icons.message)],
-  //   // 渲染的内容都是一样的
-  //   views: [buildCommonCommentComp(context)],
-  // );
-  // }
-
-  Widget buildTabBarHeadComp(
-    BuildContext context,
-    String title,
-    IconData iconData,
-  ) {
-    return Row(
-      children: [
-        Container(
-          margin: const EdgeInsets.fromLTRB(0, 0, 12, 0),
-          child: Icon(iconData, size: 24),
-        ),
-        Text(title, style: TextStyle(fontSize: 22)),
-      ],
-    );
-  }
-
-  Widget buildCommentCompOfEmptyData(BuildContext context) {
-    return Stack(
-      children: [
-        Center(child: emptyWidget(context)),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: buildEditCommentComp(context),
-        ),
-      ],
-    );
-  }
-
   Widget buildCommonCommentComp(BuildContext context) {
     final comments =
         controller.curPopupLayerDataIsEmpty
@@ -165,26 +98,6 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         buildEditCommentComp(context),
       ],
     );
-    // if (controller.curPopupLayerDataIsEmpty) {
-    //   return buildCommentCompOfEmptyData(context);
-    // }
-    // return Stack(
-    //   children: [
-    //     RefreshIndicator(
-    //       onRefresh: controller.refreshCommentsData,
-    //       child: SingleChildScrollView(
-    //         padding: EdgeInsets.only(bottom: 60),
-    //         child: Column(children: buildAllCommentsVoComp(context)),
-    //       ),
-    //     ),
-    //     Positioned(
-    //       left: 0,
-    //       right: 0,
-    //       bottom: 0,
-    //       child: buildEditCommentComp(context),
-    //     ),
-    //   ],
-    // );
   }
 
   PreferredSize avatarBuilder(
@@ -254,96 +167,82 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
   }
 
   Widget buildPopupColEditCommentComp(BuildContext context) {
-    return Stack(
+    return Column(
+      spacing: 4,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: EdgeInsets.only(left: 10, right: 10),
-          child: Column(
-            spacing: 4,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (controller.curTaskComment.value != null &&
-                  controller.curEditingCommentOldContent.value.isEmpty)
-                _buildCommentReplyTextWidget(
-                  context,
-                  controller.curTaskComment.value!.data.content,
-                ),
-              Expanded(
-                child: TextField(
-                  textInputAction: TextInputAction.send,
-                  expands: true,
-                  autofocus: true,
-                  maxLines: null,
-                  textAlign: TextAlign.start,
-                  textAlignVertical: TextAlignVertical.top,
-                  minLines: null,
-                  controller: controller.curInputCommentController,
-                  onChanged: (v) {
-                    print(v);
-                    // debounce(
-                    //   controller.curInputCommentController,
-                    //   (t) {
-                    //     print(t.text);
-                    //   },
-                    //   time: Duration(milliseconds: 500),
-                    // );
-                  },
-                  decoration: InputDecoration(
-                    hintText: "美好的一天从评论开始",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        width: 1.0,
-                        style: BorderStyle.solid,
-                      ),
-                    ),
-                    hintStyle: TextStyle(color: Colors.grey),
-                    // border:,
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        controller.curInputCommentController.clear();
-                      },
-                      icon: Icon(Icons.clear, color: Colors.red),
-                    ),
-                  ),
-                ),
+        if (controller.curTaskComment.value != null &&
+            controller.curEditingCommentOldContent.value.isEmpty)
+          _buildCommentReplyTextWidget(
+            context,
+            controller.curTaskComment.value!.data.content,
+          ),
+        Expanded(
+          child: TextField(
+            textInputAction: TextInputAction.send,
+            expands: true,
+            autofocus: true,
+            maxLines: null,
+            textAlign: TextAlign.start,
+            textAlignVertical: TextAlignVertical.top,
+            minLines: null,
+            controller: controller.curInputCommentController,
+            onChanged: (v) {
+              print(v);
+              // debounce(
+              //   controller.curInputCommentController,
+              //   (t) {
+              //     print(t.text);
+              //   },
+              //   time: Duration(milliseconds: 500),
+              // );
+            },
+            decoration: InputDecoration(
+              hintText: "美好的一天从评论开始",
+              border: OutlineInputBorder(
+                borderSide: BorderSide(width: 1.0, style: BorderStyle.solid),
               ),
-              SizedBox(height: 60),
-            ],
+              hintStyle: TextStyle(color: Colors.grey),
+              // border:,
+              suffixIcon: IconButton(
+                alignment: Alignment.bottomRight,
+                onPressed: () {
+                  controller.curInputCommentController.clear();
+                },
+                icon: Icon(Icons.clear, color: Colors.red),
+              ),
+            ),
           ),
         ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Container(
-            padding: EdgeInsets.only(left: 20, right: 20),
-            decoration: BoxDecoration(color: Colors.blue[600]),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 4,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    print('表情');
-                  },
-                  icon: Icon(Icons.tag_faces, color: Colors.yellow),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Text("@", style: TextStyle(fontSize: 20)),
-                ),
-                IconButton(
-                  onPressed: () async {
-                    await controller.sendComment();
-                    if (context.mounted) {
-                      WoltModalSheet.of(context).showAtIndex(0);
-                    }
-                  },
-                  icon: Icon(Icons.send, color: Colors.red),
-                ),
-              ],
-            ),
+        SizedBox(height: 4),
+        Container(
+          padding: EdgeInsets.only(left: 20, right: 20),
+          decoration: BoxDecoration(color: Colors.blue[600]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 4,
+            children: [
+              IconButton(
+                onPressed: () {
+                  print('表情');
+                },
+                icon: Icon(Icons.tag_faces, color: Colors.yellow),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: Text("@", style: TextStyle(fontSize: 20)),
+              ),
+              IconButton(
+                onPressed: () async {
+                  await controller.sendComment();
+                  if (context.mounted) {
+                    WoltModalSheet.of(context).showAtIndex(0);
+                  }
+                },
+                icon: Icon(Icons.send, color: Colors.red),
+              ),
+            ],
           ),
         ),
       ],
@@ -645,7 +544,7 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
   }
 }
 
-class GraphEditTaskCommentView extends _GraphTaskCommentView {
+class GraphEditTaskCommentView extends GraphTaskCommentView {
   const GraphEditTaskCommentView({super.key});
 
   @override

@@ -401,8 +401,8 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
     // 双击任务时才会展示任务评价
     final taskId = graphNode.key!.value as Int64;
     final node = _graphData!.nodes[taskId]!;
+    Get.put(GraphTaskCommentController(node));
     // 打开任务评价页面 并且设置当前任务节点
-    // controller.curTaskNode.value = graph_vo.Node(label: "lhytets", children: [],);
     WoltModalSheet.show(
       useSafeArea: true,
       context: context,
@@ -466,7 +466,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
               hasTopBarLayer: true,
               // hasSabGradient: false,
               // isTopBarLayerAlwaysVisible: true,
-              child: GraphTaskCommentView(node),
+              child: GraphTaskCommentView(),
             ),
 
             NonScrollingWoltModalSheetPage(

@@ -44,7 +44,7 @@ class SoloCommentLayer {
           ? <ProtoPageVo<CusYooTaskComment>>[]
           : _pages.map((e) => e!).toList();
 
-  bool get isEmpty => _pages.isEmpty || _pages.first == null;
+  bool get isEmpty => _pages.isEmpty || _pages.first == null || (_pages.first!.data?.isEmpty ?? true);
 
   // 当前层是否有下一页数据, 以便可以加载更多
   bool get hasMore {

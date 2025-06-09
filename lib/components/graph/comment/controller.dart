@@ -110,7 +110,13 @@ class GraphTaskCommentController extends GetxController {
       }
     } else {
       _clearAllPopupLayer();
-      Navigator.maybePop(context);
+      Navigator.maybePop(context).whenComplete((){
+       //  移除本controller
+       WidgetsBinding.instance.addPostFrameCallback((_){
+         Get.delete<GraphTaskCommentController>();
+       });
+      });
+
     }
   }
 
