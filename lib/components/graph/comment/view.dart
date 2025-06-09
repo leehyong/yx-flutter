@@ -6,13 +6,11 @@ import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:get/get.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/components/graph/comment/popup.dart';
-import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
@@ -51,8 +49,8 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
   Widget build(BuildContext context) {
     return Obx(() {
       Widget w;
-      if (controller.loading.value) {
-        w = buildLoadingComp(context);
+      if (controller.loading) {
+        w = buildLoading(context);
       } else if (controller.isReplyPopupLayer) {
         w = buildCommentReplyComp(context);
       } else {
@@ -60,7 +58,7 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
       }
       return ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: GetPlatform.isMobile ? 500 : 720,
+          maxHeight: isBigScreen(context) ? 720 : 500,
         ),
         child: w,
       );
@@ -114,23 +112,11 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
       initialIndex: controller.tabBarIdx.value,
       tabs: [
         buildTabBarHeadComp(context, "评价列表", Icons.message),
-        // buildTabBarHeadComp(context, "科室互评", Icons.home_work),
       ],
       // 渲染的内容都是一样的
       views: [
-        buildCommonTabBarChildContentComp(context),
-        // buildCommonTabBarChildContentComp(context),
-        // buildRoomTabBarChildComp(context),
+        buildCommonCommentComp(context),
       ],
-      // onChange: (idx) async {
-      //   controller.tabBarIdx.value = idx;
-      //   controller.curTaskComment.value = null;
-      //   // 切换tabbar时, 如有必要则需加载初始化数据
-      //   if (!controller.curPopupModel.loaded &&
-      //       controller.curPopupModel.isEmpty) {
-      //     await controller.fetchInitData();
-      //   }
-      // },
     );
   }
 
@@ -147,28 +133,6 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         ),
         Text(title, style: TextStyle(fontSize: 22)),
       ],
-    );
-  }
-
-  Widget buildCommonTabBarChildContentComp(BuildContext context) {
-    return controller.loading.value
-        ? buildLoadingComp(context)
-        : buildCommonCommentComp(context);
-  }
-
-  Widget buildLoadingComp(BuildContext cxt) {
-    return const Center(
-      child: SizedBox(
-        width: 40,
-        height: 40,
-        child: LoadingIndicator(
-          indicatorType: Indicator.ballGridPulse,
-
-          /// Required, The loading type of the widget
-          colors: loadingColors,
-          strokeWidth: 3,
-        ),
-      ),
     );
   }
 

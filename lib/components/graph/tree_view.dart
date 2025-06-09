@@ -410,7 +410,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
       enableDrag: GetPlatform.isMobile,
       onModalDismissedWithBarrierTap: () async {
         // 避免快速点击
-        if (GraphTaskCommentController.instance.loading.value) {
+        if (GraphTaskCommentController.instance.loading) {
           errIsLoadingData();
         } else {
           await GraphTaskCommentController.instance.closeOrRemoveOnePopupLayer(
@@ -419,7 +419,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
         }
       },
       onModalDismissedWithDrag: () async {
-        if (GraphTaskCommentController.instance.loading.value) {
+        if (GraphTaskCommentController.instance.loading) {
           errIsLoadingData();
         } else {
           await GraphTaskCommentController.instance.closeOrRemoveOnePopupLayer(

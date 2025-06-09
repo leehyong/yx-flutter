@@ -193,7 +193,7 @@ Widget buildLoading(
   Indicator indicatorType = Indicator.lineSpinFadeLoader,
   double? strokeWidth,
 }) {
-  final s = isBigScreen(context) ? 80.0 : 200.0;
+  final s = isBigScreen(context) ? 100.0 : 80.0;
   return Center(
     child: SizedBox(
       height: s,

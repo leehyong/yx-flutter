@@ -53,7 +53,7 @@ class GraphTaskCommentController extends GetxController {
 
   Int64 get curTaskId => curTask.id;
 
-  RxBool get loading => popupComments.value.loading;
+  bool get loading => popupComments.value.loading.value;
 
   static GraphTaskCommentController get instance => Get.find();
 
@@ -79,7 +79,7 @@ class GraphTaskCommentController extends GetxController {
 
   Future<void> refreshCommentsData() async {
     //  loading.value 避免重复加载数据
-    if (loading.value) {
+    if (loading) {
       errIsLoadingData();
       return;
     }
