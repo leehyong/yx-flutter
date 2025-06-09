@@ -174,7 +174,14 @@ class TaskListViewState extends State<TaskListView> {
         );
   }
 
+  Future<void> loadTaskList() async {
+    curLayer.loadTaskList().whenComplete(() {
+      setState(() {});
+    });
+  }
+
   Widget _buildRefresher(BuildContext context, int crossCount) {
+    final extraCnt = curLayer.hasMore && !GetPlatform.isMobile ? 1 : 0;
     return curLayer.tasks.isEmpty
         ? Column(children: [emptyWidget(context)])
         : SmartRefresher(
@@ -182,18 +189,19 @@ class TaskListViewState extends State<TaskListView> {
           enablePullDown: true,
           enablePullUp: true,
           // header: WaterDropHeader(),
-          onLoading: curLayer.loadTaskList,
+          onLoading: loadTaskList,
           onRefresh: () async {
             debugPrint('onRefresh');
             curLayer.reset();
-            await curLayer.loadTaskList();
+            loadTaskList();
           },
+          footer: GetPlatform.isMobile ? ClassicFooter() : null,
           controller: RefreshController(initialRefresh: false),
           // controller: controller.refreshController,
           child: GridView.builder(
             primary: true,
             shrinkWrap: true,
-            itemCount: curLayer.tasks.length,
+            itemCount: curLayer.tasks.length + extraCnt,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossCount,
               crossAxisSpacing: crossCount == 1 ? 0 : 6,
@@ -201,12 +209,21 @@ class TaskListViewState extends State<TaskListView> {
               childAspectRatio: crossCount == 1 ? 2 : 1.6,
             ),
             itemBuilder: (BuildContext context, int index) {
-              final userTaskHis = curLayer.tasks[index];
-              return OneTaskCardView(
-                key: ValueKey(userTaskHis.task.id),
-                userTaskHis: userTaskHis,
-                taskCategory: curLayer.curCat.first,
-              );
+              if (index < curLayer.tasks.length) {
+                final userTaskHis = curLayer.tasks[index];
+                return OneTaskCardView(
+                  key: ValueKey(userTaskHis.task.id),
+                  userTaskHis: userTaskHis,
+                  taskCategory: curLayer.curCat.first,
+                );
+              } else {
+                return IconButton(
+                  onPressed: () {
+                    curLayer.refreshController?.requestLoading();
+                  },
+                  icon: Text('加载更多...'),
+                );
+              }
             },
           ),
         );

@@ -28,6 +28,8 @@ class TaskListLayer {
   Int64 parentId = Int64.ZERO;
   final smartRefreshKey = GlobalKey<SmartRefresherState>();
 
+  bool get hasMore => pageReq.hasMore;
+
   void reset() {
     pageReq.hasMore = true;
     pageReq.page = 1;
@@ -55,13 +57,10 @@ class TaskListLayer {
         isLoading = false;
         assert(pageReq.limit == data.limit);
         pageReq.hasMore = pageReq.page < data.totalPages;
-        if (pageReq.page == 1) {
-          refreshController?.refreshCompleted(resetFooterState: true);
-        }
         if (tasks.isEmpty) {
-          refreshController?.loadNoData();
+          refreshController!.loadNoData();
         } else {
-          refreshController?.loadComplete();
+          refreshController!.loadComplete();
         }
         pageReq.page++;
       } else {
