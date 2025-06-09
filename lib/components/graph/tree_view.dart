@@ -439,7 +439,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
       },
       pageListBuilder:
           (modalSheetContext) => [
-            WoltModalSheetPage(
+            NonScrollingWoltModalSheetPage(
               topBarTitle: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -465,11 +465,11 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
               ),
               hasTopBarLayer: true,
               // hasSabGradient: false,
-              isTopBarLayerAlwaysVisible: true,
+              // isTopBarLayerAlwaysVisible: true,
               child: GraphTaskCommentView(node),
             ),
 
-            WoltModalSheetPage(
+            NonScrollingWoltModalSheetPage(
               topBarTitle: Center(
                 child: Obx(
                   () => Text(
@@ -484,7 +484,7 @@ class _TaskGraphTreeViewState extends State<_TaskGraphTreeView>
               ),
               hasTopBarLayer: true,
               // hasSabGradient: false,
-              isTopBarLayerAlwaysVisible: true,
+              // isTopBarLayerAlwaysVisible: true,
               leadingNavBarWidget: IconButton(
                 padding: const EdgeInsets.all(4),
                 icon: const Text("返回"),

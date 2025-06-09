@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:comment_tree/widgets/comment_tree_widget.dart';
 import 'package:comment_tree/widgets/tree_theme_data.dart';
-import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:get/get.dart';
@@ -47,22 +46,22 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      Widget w;
-      if (controller.loading) {
-        w = buildLoading(context);
-      } else if (controller.isReplyPopupLayer) {
-        w = buildCommentReplyComp(context);
-      } else {
-        w = buildHeadTabBarComp(context);
-      }
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: isBigScreen(context) ? 720 : 500,
-        ),
-        child: w,
-      );
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth, height = constraints.maxHeight;
+        return Obx(() {
+          Widget w;
+          if (controller.loading) {
+            w = buildLoading(context);
+          } else if (controller.isReplyPopupLayer) {
+            w = buildCommentReplyComp(context);
+          } else {
+            w = buildCommonCommentComp(context);
+          }
+          return SizedBox(width: width, height: height, child: w);
+        });
+      },
+    );
   }
 
   Widget _buildHeadCommentReplyComp(BuildContext context) {
@@ -107,18 +106,15 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     );
   }
 
-  Widget buildHeadTabBarComp(BuildContext context) {
-    return ContainedTabBarView(
-      initialIndex: controller.tabBarIdx.value,
-      tabs: [
-        buildTabBarHeadComp(context, "评价列表", Icons.message),
-      ],
-      // 渲染的内容都是一样的
-      views: [
-        buildCommonCommentComp(context),
-      ],
-    );
-  }
+  // Widget buildHeadTabBarComp(BuildContext context) {
+  //   return buildCommonCommentComp(context);
+  // return ContainedTabBarView(
+  //   initialIndex: controller.tabBarIdx.value,
+  //   tabs: [buildTabBarHeadComp(context, "评价列表", Icons.message)],
+  //   // 渲染的内容都是一样的
+  //   views: [buildCommonCommentComp(context)],
+  // );
+  // }
 
   Widget buildTabBarHeadComp(
     BuildContext context,
@@ -151,26 +147,44 @@ class _GraphTaskCommentView extends GetView<GraphTaskCommentController> {
   }
 
   Widget buildCommonCommentComp(BuildContext context) {
-    if (controller.curPopupLayerDataIsEmpty) {
-      return buildCommentCompOfEmptyData(context);
-    }
-    return Stack(
+    final comments =
+        controller.curPopupLayerDataIsEmpty
+            ? Center(child: emptyWidget(context))
+            : RefreshIndicator(
+              onRefresh: controller.refreshCommentsData,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: 8, top: 8),
+                child: Column(children: buildAllCommentsVoComp(context)),
+              ),
+            );
+
+    return Column(
       children: [
-        RefreshIndicator(
-          onRefresh: controller.refreshCommentsData,
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: 60),
-            child: Column(children: buildAllCommentsVoComp(context)),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: buildEditCommentComp(context),
-        ),
+        Expanded(child: comments),
+        SizedBox(height: 10),
+        buildEditCommentComp(context),
       ],
     );
+    // if (controller.curPopupLayerDataIsEmpty) {
+    //   return buildCommentCompOfEmptyData(context);
+    // }
+    // return Stack(
+    //   children: [
+    //     RefreshIndicator(
+    //       onRefresh: controller.refreshCommentsData,
+    //       child: SingleChildScrollView(
+    //         padding: EdgeInsets.only(bottom: 60),
+    //         child: Column(children: buildAllCommentsVoComp(context)),
+    //       ),
+    //     ),
+    //     Positioned(
+    //       left: 0,
+    //       right: 0,
+    //       bottom: 0,
+    //       child: buildEditCommentComp(context),
+    //     ),
+    //   ],
+    // );
   }
 
   PreferredSize avatarBuilder(
