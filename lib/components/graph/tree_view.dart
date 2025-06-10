@@ -9,6 +9,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/cus_tree.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/types.dart';
+import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 import 'package:yx/utils/toast.dart';
 
@@ -244,6 +245,13 @@ mixin _GraphTreeViewMixin<T extends State> {
   }
 
   Widget _buildInteractiveViewer(BuildContext context) {
+    double? top = 0, right = 10, bottom = 0;
+    if (isBigScreen(context)) {
+      top = 0;
+    } else {
+      top = null;
+      bottom = 10;
+    }
     return Stack(
       children: [
         LayoutBuilder(
@@ -283,9 +291,9 @@ mixin _GraphTreeViewMixin<T extends State> {
           // Center(child: _buildGraphView(context)),
         ),
         Positioned(
-          top: 0,
-          right: 10,
-          bottom: 0,
+          top: top,
+          right: right,
+          bottom: bottom,
           child: SizedBox(
             width: 40,
             child: Column(

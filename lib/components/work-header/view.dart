@@ -66,9 +66,7 @@ class PublishSubmitItemsCrudViewState
         _buildHeaderActions(context),
         Expanded(
           child: RepaintBoundary(
-            child: PublishItemsViewSimpleCrud(
-              rootSubmitItemAnimatedTreeData,
-            ),
+            child: PublishItemsViewSimpleCrud(rootSubmitItemAnimatedTreeData),
           ),
         ),
       ],

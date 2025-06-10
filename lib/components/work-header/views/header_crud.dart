@@ -230,9 +230,12 @@ class PublishItemsViewSimpleCrudState
 
   @override
   Widget build(BuildContext context) {
-    return _isLoadingSubmitItem
-        ? buildLoading(context)
-        : TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
+    if (_isLoadingSubmitItem) {
+      return buildLoading(context);
+    }else if(widget.rootSubmitItemAnimatedTreeData.childrenAsList.isEmpty){
+      return emptyWidget(context);
+    }
+    return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
           showRootNode: false,
           // focusToNewNode: true,
           tree: widget.rootSubmitItemAnimatedTreeData,
