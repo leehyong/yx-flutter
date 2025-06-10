@@ -56,8 +56,11 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
     return ListView.builder(
       cacheExtent: 100,
       controller: scrollController,
-      itemCount: contents!.length,
+      itemCount: contents!.length + 1,
       itemBuilder: (context, index) {
+        if(index == contents!.length){
+          return buildLoadMoreTipAction(context, _hasMore, loadData);
+        }
         final thisContent = contents![index];
         final colorIdx =
             Random(thisContent.content.id.toInt()).nextInt(10000) %
@@ -173,6 +176,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
 
   bool _loading = false;
   int _page = 0;
+  bool _hasMore = true;
   List<CusYooWorkContent>? contents;
 
   @override
@@ -192,6 +196,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
       setState(() {
         _loading = false;
         contents = v?.data;
+        _hasMore = v!.page < v.totalPages;
       });
       return v!.page == v.totalPages;
     });

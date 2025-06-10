@@ -206,3 +206,24 @@ Widget buildLoading(
     ),
   );
 }
+
+Widget buildLoadMoreTipAction(
+  BuildContext context,
+  bool hasMore,
+  VoidCallback cb,
+) =>
+    hasMore
+        ? IconButton(
+          onPressed: cb,
+          icon: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 4,
+            children: [
+              Text('加载更多', style: TextStyle(color: Colors.blue)),
+              Icon(Icons.more_horiz, color: Colors.blue),
+            ],
+          ),
+        )
+        : const Center(
+          child: Text("没有更多数据了", style: TextStyle(color: Colors.grey)),
+        );

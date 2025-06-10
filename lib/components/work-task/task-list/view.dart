@@ -73,7 +73,7 @@ class TaskListViewState extends State<TaskListView>
         return GridView.builder(
           controller: scrollController,
           shrinkWrap: true,
-          itemCount: curLayer.tasks.length,
+          itemCount: curLayer.tasks.length + 1,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossCount,
             crossAxisSpacing: crossCount == 1 ? 0 : 6,
@@ -81,12 +81,25 @@ class TaskListViewState extends State<TaskListView>
             childAspectRatio: crossCount == 1 ? 2 : 1.6,
           ),
           itemBuilder: (BuildContext context, int index) {
-            final userTaskHis = curLayer.tasks[index];
-            return OneTaskCardView(
-              key: ValueKey(userTaskHis.task.id),
-              userTaskHis: userTaskHis,
-              taskCategory: curLayer.curCat.first,
+            if (index < curLayer.tasks.length) {
+              final userTaskHis = curLayer.tasks[index];
+              return OneTaskCardView(
+                key: ValueKey(userTaskHis.task.id),
+                userTaskHis: userTaskHis,
+                taskCategory: curLayer.curCat.first,
+              );
+            }
+            return Container(
+              color: Colors.transparent,
+              child: Center(
+                child: buildLoadMoreTipAction(
+                  context,
+                  curLayer.hasMore,
+                  refreshController.callLoad,
+                ),
+              ),
             );
+            // refreshController
           },
         );
       },

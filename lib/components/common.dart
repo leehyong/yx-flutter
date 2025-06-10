@@ -100,6 +100,7 @@ mixin CommonEasyRefresherMixin {
         bezierBackgroundBounce: _footerProperties.bounce,
         infiniteOffset: _footerProperties.infinite ? 100 : null,
         springRebound: _footerProperties.listSpring,
+        noMoreIcon: Text('没有更多数据了')
       ),
       clipBehavior: Clip.none,
       controller: refreshController,

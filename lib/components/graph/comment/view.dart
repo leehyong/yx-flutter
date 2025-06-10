@@ -302,23 +302,13 @@ class _CommentListViewState extends State<_TaskCommentListView>
         ret.add(ctw);
       });
     }
-    var more = ret.isNotEmpty && hasCurLayerMore;
-    // ret.add(Spacer())
-    if (more) {
-      ret.add(
-        InkWell(
-          onTap: () => refreshController.callLoad(),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 4,
-            children: [
-              Text('加载更多', style: TextStyle(color: Colors.blue)),
-              Icon(Icons.more_horiz, color: Colors.blue),
-            ],
-          ),
-        ),
-      );
-    }
+    ret.add(
+      buildLoadMoreTipAction(
+        context,
+        ret.isNotEmpty && hasCurLayerMore,
+        refreshController.callLoad,
+      ),
+    );
     return ret;
   }
 
