@@ -401,3 +401,17 @@ extension GraphViewActionExtension on GraphViewType {
   GraphViewType get nextViewType =>
       GraphViewType.values[(index + 1) % GraphViewType.values.length];
 }
+
+
+/// Material indicator properties.
+class MIProperties {
+  final String name;
+  bool clamping = true;
+  bool background = false;
+  bool animation = false;
+  bool bounce = false;
+  bool infinite = false;
+  bool listSpring = false;
+
+  MIProperties({required this.name});
+}

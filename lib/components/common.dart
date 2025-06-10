@@ -1,7 +1,5 @@
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/root/controller.dart';
@@ -25,7 +23,6 @@ class TaskListLayer {
   bool tabChanging = false;
   PageReq pageReq = PageReq();
   Int64 parentId = Int64.ZERO;
-  final smartRefreshKey = GlobalKey<SmartRefresherState>();
 
   bool get hasMore => pageReq.hasMore;
 
@@ -35,14 +32,13 @@ class TaskListLayer {
     tasks.clear();
   }
 
-  RefreshController? get refreshController => smartRefreshKey.currentState?.widget.controller;
 
-  Future<void> loadTaskList() async {
+  Future<bool> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
     final cat = parentId < 1 ? curCat.first : TaskListCategory.childrenTaskInfo;
     if (!pageReq.hasMore) {
       warnToast("没有更多数据了");
-      refreshController?.loadNoData();
+      return true;
     } else {
       final data = await task_api.queryWorkTasks(
         cat,
@@ -54,19 +50,10 @@ class TaskListLayer {
         tasks.addAll(data.data as List<UserTaskHistory>);
         assert(pageReq.limit == data.limit);
         pageReq.hasMore = pageReq.page < data.totalPages;
-        if (tasks.isEmpty) {
-          refreshController!.loadNoData();
-        } else {
-          refreshController!.loadComplete();
-        }
         pageReq.page++;
-      } else {
-        if (pageReq.page == 1) {
-          refreshController?.refreshFailed();
-        } else {
-          refreshController?.loadFailed();
-        }
+        return true;
       }
+      return false;
     }
   }
 }

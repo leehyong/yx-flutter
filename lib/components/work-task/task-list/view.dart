@@ -1,7 +1,7 @@
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
@@ -28,8 +28,28 @@ class TaskListView extends StatefulWidget {
   TaskListViewState createState() => TaskListViewState();
 }
 
+
+
 class TaskListViewState extends State<TaskListView> {
   final _layers = <TaskListLayer>[TaskListLayer()];
+  late final EasyRefreshController _controller;
+  final MIProperties _headerProperties = MIProperties(name: 'Header');
+  final MIProperties _footerProperties = MIProperties(name: 'Footer');
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = EasyRefreshController(
+      controlFinishRefresh: true,
+      controlFinishLoad: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   bool isSecondLayer(TaskListCategory cat) => {
     TaskListCategory.parentTaskInfo,
@@ -139,14 +159,7 @@ class TaskListViewState extends State<TaskListView> {
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
-                      onPressed: () {
-                        if (curLayer.tasks.isEmpty) {
-                          curLayer.reset();
-                          curLayer.loadTaskList();
-                        } else {
-                          curLayer.refreshController?.requestRefresh();
-                        }
-                      },
+                      onPressed: _controller.callRefresh,
                       icon: Tooltip(
                         message: '刷新',
                         preferBelow: false,
@@ -174,34 +187,64 @@ class TaskListViewState extends State<TaskListView> {
         );
   }
 
-  Future<void> loadTaskList() async {
-    curLayer.loadTaskList().whenComplete(() {
+  Future<bool> loadTaskList() async {
+    return curLayer.loadTaskList().then((success) {
       setState(() {});
+      return success;
     });
   }
 
   Widget _buildRefresher(BuildContext context, int crossCount) {
-    final extraCnt = curLayer.hasMore && !GetPlatform.isMobile ? 1 : 0;
     return curLayer.tasks.isEmpty
         ? Column(children: [emptyWidget(context)])
-        : SmartRefresher(
-          key: curLayer.smartRefreshKey,
-          enablePullDown: true,
-          enablePullUp: true,
+        : EasyRefresh(
+          header: MaterialHeader(
+            clamping: _headerProperties.clamping,
+            showBezierBackground: _headerProperties.background,
+            bezierBackgroundAnimation: _headerProperties.animation,
+            bezierBackgroundBounce: _headerProperties.bounce,
+            infiniteOffset: _headerProperties.infinite ? 100 : null,
+            springRebound: _headerProperties.listSpring,
+          ),
+          footer: MaterialFooter(
+            clamping: _footerProperties.clamping,
+            showBezierBackground: _footerProperties.background,
+            bezierBackgroundAnimation: _footerProperties.animation,
+            bezierBackgroundBounce: _footerProperties.bounce,
+            infiniteOffset: _footerProperties.infinite ? 100 : null,
+            springRebound: _footerProperties.listSpring,
+          ),
+          clipBehavior: Clip.none,
+          controller: _controller,
           // header: WaterDropHeader(),
-          onLoading: loadTaskList,
+          onLoad: () async {
+            loadTaskList().then((success) {
+              if (success) {
+                _controller.finishLoad(
+                  curLayer.hasMore
+                      ? IndicatorResult.noMore
+                      : IndicatorResult.success,
+                );
+              } else {
+                _controller.finishLoad(IndicatorResult.fail);
+              }
+            });
+          },
           onRefresh: () async {
             debugPrint('onRefresh');
             curLayer.reset();
-            loadTaskList();
+            loadTaskList().then((success) {
+              _controller.finishRefresh(
+                success ? IndicatorResult.success : IndicatorResult.fail,
+              );
+              _controller.resetFooter();
+            });
           },
-          footer: GetPlatform.isMobile ? ClassicFooter() : null,
-          controller: RefreshController(initialRefresh: false),
           // controller: controller.refreshController,
           child: GridView.builder(
             primary: true,
             shrinkWrap: true,
-            itemCount: curLayer.tasks.length + extraCnt,
+            itemCount: curLayer.tasks.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossCount,
               crossAxisSpacing: crossCount == 1 ? 0 : 6,
@@ -209,21 +252,12 @@ class TaskListViewState extends State<TaskListView> {
               childAspectRatio: crossCount == 1 ? 2 : 1.6,
             ),
             itemBuilder: (BuildContext context, int index) {
-              if (index < curLayer.tasks.length) {
-                final userTaskHis = curLayer.tasks[index];
-                return OneTaskCardView(
-                  key: ValueKey(userTaskHis.task.id),
-                  userTaskHis: userTaskHis,
-                  taskCategory: curLayer.curCat.first,
-                );
-              } else {
-                return IconButton(
-                  onPressed: () {
-                    curLayer.refreshController?.requestLoading();
-                  },
-                  icon: Text('加载更多...'),
-                );
-              }
+              final userTaskHis = curLayer.tasks[index];
+              return OneTaskCardView(
+                key: ValueKey(userTaskHis.task.id),
+                userTaskHis: userTaskHis,
+                taskCategory: curLayer.curCat.first,
+              );
             },
           ),
         );

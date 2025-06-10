@@ -64,6 +64,7 @@ dependencies:
   dio: ^5.8.0+1
   native_dio_adapter: ^1.4.0
   pull_to_refresh_flutter3: ^2.0.2
+  easy_refresh: ^3.4.0
   easy_debounce: ^2.0.3
   yt_dart:
     path: ../proto/yt-dart
