@@ -22,7 +22,6 @@ class PageReq {
 class TaskListLayer {
   Set<TaskListCategory> curCat = <TaskListCategory>{};
   List<UserTaskHistory> tasks = <UserTaskHistory>[];
-  bool isLoading = false;
   bool tabChanging = false;
   PageReq pageReq = PageReq();
   Int64 parentId = Int64.ZERO;
@@ -45,16 +44,14 @@ class TaskListLayer {
       warnToast("没有更多数据了");
       refreshController?.loadNoData();
     } else {
-      isLoading = true;
       final data = await task_api.queryWorkTasks(
         cat,
         pageReq.page,
         pageReq.limit,
         parentId,
       );
-      if (data.error == null) {
+      if (data.error == null || data.error!.isEmpty) {
         tasks.addAll(data.data as List<UserTaskHistory>);
-        isLoading = false;
         assert(pageReq.limit == data.limit);
         pageReq.hasMore = pageReq.page < data.totalPages;
         if (tasks.isEmpty) {
