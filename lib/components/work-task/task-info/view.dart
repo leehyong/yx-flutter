@@ -187,7 +187,8 @@ class TaskInfoViewState extends State<TaskInfoView> {
         });
       });
       return;
-    } else if (parentTask == null && (widget.publishTaskParams.task?.id ?? Int64.ZERO) > Int64.ZERO) {
+    } else if (parentTask == null &&
+        (widget.publishTaskParams.task?.id ?? Int64.ZERO) > Int64.ZERO) {
       final curTask = widget.publishTaskParams.task!;
       if (curTask.level > 1) {
         // 如果当前任务不是叶节点，那么就需要查询他的父节点
@@ -433,6 +434,9 @@ class TaskInfoViewState extends State<TaskInfoView> {
     return Row(children: children);
   }
 
+  bool get hasSubmitItemHeaders =>
+      submitTasksViewState?.taskSubmitItems?.isNotEmpty ?? false;
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -464,6 +468,10 @@ class TaskInfoViewState extends State<TaskInfoView> {
                       ),
                       onPressed: () {
                         debugPrint("新增");
+                        if (!hasSubmitItemHeaders) {
+                          warnToast("无填报项，无法操作");
+                          return;
+                        }
                         submitTasksViewState?.handleTaskSubmitAction(
                           TaskSubmitAction.add,
                         );
@@ -474,6 +482,10 @@ class TaskInfoViewState extends State<TaskInfoView> {
                     ElevatedButton(
                       onPressed: () {
                         debugPrint("保存");
+                        if (!hasSubmitItemHeaders) {
+                          warnToast("无填报项，无法操作");
+                          return;
+                        }
                         submitTasksViewState?.handleTaskSubmitAction(
                           TaskSubmitAction.save,
                         );
@@ -488,6 +500,10 @@ class TaskInfoViewState extends State<TaskInfoView> {
                         // 文字颜色
                       ),
                       onPressed: () {
+                        if (!hasSubmitItemHeaders) {
+                          warnToast("无填报项，无法操作");
+                          return;
+                        }
                         WoltModalSheet.show(
                           onModalDismissedWithBarrierTap: () {
                             Navigator.of(context).maybePop();
