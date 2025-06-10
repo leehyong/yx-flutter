@@ -69,40 +69,61 @@ class TaskListViewState extends State<TaskListView>
     }
     return LayoutBuilder(
       builder: (ctx, constraints) {
-        final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
-        return GridView.builder(
-          controller: scrollController,
-          shrinkWrap: true,
-          itemCount: curLayer.tasks.length + 1,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossCount,
-            crossAxisSpacing: crossCount == 1 ? 0 : 6,
-            mainAxisSpacing: 1,
-            childAspectRatio: crossCount == 1 ? 2 : 1.6,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            if (index < curLayer.tasks.length) {
-              final userTaskHis = curLayer.tasks[index];
-              return OneTaskCardView(
-                key: ValueKey(userTaskHis.task.id),
-                userTaskHis: userTaskHis,
-                taskCategory: curLayer.curCat.first,
-              );
-            }
-            return Container(
-              color: Colors.transparent,
-              child: Center(
-                child: buildLoadMoreTipAction(
-                  context,
-                  curLayer.hasMore,
-                  refreshController.callLoad,
-                ),
+        final maxWidth = constraints.maxWidth;
+        final crossCount = maxWidth >= 720 ? 3 : 1;
+        final totalItemCont = curLayer.tasks.length + 1;
+        final needCenter = crossCount == 3 && totalItemCont % 3 == 1;
+        return Stack(
+          children: [
+            GridView.builder(
+              controller: scrollController,
+              shrinkWrap: true,
+              itemCount: totalItemCont,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossCount,
+                crossAxisSpacing: crossCount == 1 ? 0 : 6,
+                mainAxisSpacing: 1,
+                childAspectRatio: crossCount == 1 ? 2 : 1.6,
               ),
-            );
-            // refreshController
-          },
+              itemBuilder: (BuildContext context, int index) {
+                if (index < curLayer.tasks.length) {
+                  final userTaskHis = curLayer.tasks[index];
+                  return OneTaskCardView(
+                    key: ValueKey(userTaskHis.task.id),
+                    userTaskHis: userTaskHis,
+                    taskCategory: curLayer.curCat.first,
+                  );
+                }
+                return needCenter
+                    ? const SizedBox.shrink()
+                    : _buildLoadMore(context);
+              },
+            ),
+            if (needCenter)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 30,
+                child: _buildLoadMore(context, maxWidth),
+              ),
+          ],
         );
       },
+    );
+  }
+
+  Widget _buildLoadMore(BuildContext context, [double? width]) {
+    return Container(
+      color: Colors.transparent,
+      width: width,
+      // padding: EdgeInsets.only(top: 0),
+      child: Center(
+        child: buildLoadMoreTipAction(
+          context,
+          curLayer.hasMore,
+          refreshController.callLoad,
+        ),
+      ),
     );
   }
 
