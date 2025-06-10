@@ -497,7 +497,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
                           modalTypeBuilder: woltModalType,
                           pageListBuilder:
                               (modalSheetContext) => [
-                                WoltModalSheetPage(
+                                NonScrollingWoltModalSheetPage(
                                   topBarTitle: Center(
                                     child: Text(
                                       "历史填报",
@@ -509,8 +509,6 @@ class TaskInfoViewState extends State<TaskInfoView> {
                                     ),
                                   ),
                                   hasTopBarLayer: true,
-                                  // hasSabGradient: false,
-                                  isTopBarLayerAlwaysVisible: true,
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
                                       maxHeight:
