@@ -64,12 +64,14 @@ class TaskListViewState extends State<TaskListView>
 
   @override
   Widget buildRefresherChildDataBox(BuildContext context) {
+    if (curLayer.tasks.isEmpty) {
+      return emptyWidget(context);
+    }
     return LayoutBuilder(
       builder: (ctx, constraints) {
         final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
         return GridView.builder(
           controller: scrollController,
-          primary: true,
           shrinkWrap: true,
           itemCount: curLayer.tasks.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -217,9 +219,10 @@ class TaskListViewState extends State<TaskListView>
   }
 
   Widget _buildTasks(BuildContext context) {
-    return curLayer.tabChanging
-        ? buildLoading(context)
-        : buildEasyRefresher(context);
+    if (curLayer.tabChanging) {
+      return buildLoading(context);
+    }
+    return buildEasyRefresher(context);
   }
 
   Future<bool> loadTaskList() async {
