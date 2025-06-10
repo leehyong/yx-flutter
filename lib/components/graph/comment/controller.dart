@@ -15,7 +15,6 @@ class GraphTaskCommentController extends GetxController {
   final popupComments = PopupLayerModel().obs;
   final needRefreshLastLayer = false.obs;
   final curInputCommentController = TextEditingController();
-  final tabBarIdx = 0.obs;
   final curDeletingCommentId = (null as Int64?).obs;
   final curEditingCommentOldContent = ''.obs;
   final curTaskComment = (null as CusYooTaskComment?).obs;
@@ -69,10 +68,6 @@ class GraphTaskCommentController extends GetxController {
     }
   }
 
-  get isLeaderCommentTabBar => tabBarIdx.value == 0;
-
-  get isRoomCommentTabBar => tabBarIdx.value == 1;
-
   // 是否还有更多评论数据需要加载
   bool get hasMoreCommentsData =>
       popupComments.value.curLayerData?.hasMore ?? false;
@@ -85,8 +80,6 @@ class GraphTaskCommentController extends GetxController {
     }
     return _fetchCommentsData(FetchDataAction.refresh);
   }
-
-  get commentType => tabBarIdx.value == 0 ? '领导' : '科室';
 
   void _clearAllPopupLayer() {
     // 清空

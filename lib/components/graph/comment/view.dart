@@ -2,17 +2,336 @@ import 'dart:math';
 
 import 'package:comment_tree/widgets/comment_tree_widget.dart';
 import 'package:comment_tree/widgets/tree_theme_data.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:yt_dart/cus_tree.pb.dart';
+import 'package:yx/components/common.dart';
 import 'package:yx/components/graph/comment/popup.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
 
 import 'controller.dart';
+
+Future<void> _buildPopupLayerCommentComp(BuildContext context) async {
+  WoltModalSheet.of(context).showAtIndex(1);
+}
+
+class _TaskCommentListView extends StatefulWidget {
+  @override
+  _CommentListViewState createState() => _CommentListViewState();
+}
+
+class _CommentListViewState extends State<_TaskCommentListView>
+    with CommonEasyRefresherMixin {
+  GraphTaskCommentController get controller =>
+      Get.find<GraphTaskCommentController>();
+
+  @override
+  Widget build(BuildContext context) => buildEasyRefresher(context);
+
+  @override
+  void dispose() {
+    refreshController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget buildRefresherChildDataBox(BuildContext context) {
+    return GetX(
+      builder: (GraphTaskCommentController controller) {
+        return ListView(
+          padding: EdgeInsets.only(bottom: 8, top: 8),
+          children: _buildAllCommentsVoComp(context, controller),
+        );
+      },
+    );
+  }
+
+  PreferredSize _avatarBuilder(
+    BuildContext context,
+    CusYooTaskComment data,
+    bool isRoot,
+  ) {
+    var s = isRoot ? 18.0 : 12.0;
+    return PreferredSize(
+      preferredSize: Size.fromRadius(s),
+      child: CircleAvatar(
+        radius: s,
+        backgroundColor: Colors.grey,
+        backgroundImage: AssetImage(
+          'assets/images/avatar_${isRoot ? 2 : 1}.png',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteCommentComp(BuildContext context, CusYooTaskComment data) {
+    return IconButton(
+      onPressed: () {
+        controller.curDeletingCommentId.value = data.data.id;
+        showGeneralDialog(
+          context: context,
+          pageBuilder: (
+            BuildContext buildContext,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) {
+            return TDAlertDialog(
+              title: "确认删除吗？",
+              titleColor: Colors.red,
+              leftBtnAction: () {
+                controller.curDeletingCommentId.value = null;
+                Navigator.of(buildContext).pop();
+              },
+              rightBtnAction: () async {
+                await controller.deleteCurComment();
+                if (buildContext.mounted) {
+                  Navigator.of(buildContext).pop();
+                }
+              },
+            );
+          },
+        );
+      },
+      icon: Icon(Icons.delete, size: 16, color: Colors.red),
+    );
+  }
+
+  Widget _buildCommentOperations(
+    BuildContext context,
+    CusYooTaskComment data,
+    bool isRoot,
+    bool hasMore,
+  ) {
+    return DefaultTextStyle(
+      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+        color: Colors.grey[700],
+        fontWeight: FontWeight.bold,
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(top: 4),
+        child: Row(
+          spacing: 12,
+          children: [
+            // SizedBox(width: 8),
+            IconButton(
+              onPressed: () {
+                print('赞');
+              },
+              icon: Icon(Icons.thumb_up, size: 16),
+            ),
+            IconButton(
+              onPressed: () {
+                print('踩');
+              },
+              icon: Icon(Icons.thumb_down, size: 16),
+            ),
+            if (data.isMyself) _buildDeleteCommentComp(context, data),
+            if (data.isMyself)
+              IconButton(
+                onPressed: () async {
+                  // 修改
+                  controller.curTaskComment.value = data;
+                  controller.curEditingCommentOldContent.value =
+                      data.data.content;
+                  await _buildPopupLayerCommentComp(context);
+                },
+                icon: Icon(Icons.edit, size: 16),
+              ),
+            if (hasMore && isRoot)
+              InkWell(
+                onTap: () async {
+                  controller.curTaskComment.value = data;
+                  await controller.addNewPopupCommentLayer();
+                  // await buildPopupLayerCommentReply(context);
+                },
+                child: Row(
+                  children: [
+                    const Text('更多'),
+                    const SizedBox(width: 1),
+                    TDBadge(
+                      TDBadgeType.bubble,
+                      message: '${data.childrenCount}',
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget commentBuilder(
+    BuildContext context,
+    CusYooTaskComment data,
+    bool isRoot,
+    bool hasMore,
+  ) {
+    return GetX(
+      builder:
+          (GraphTaskCommentController controller) =>
+              controller.curDeletingCommentId.value == data.data.id
+                  ? Flash(
+                    preferences: const AnimationPreferences(
+                      autoPlay: AnimationPlayStates.Loop,
+                      duration: Duration(seconds: 5),
+                    ),
+                    child: ColoredBox(
+                      color: Colors.blue,
+                      child: _commentBuilder(context, data, isRoot, hasMore),
+                    ),
+                  )
+                  : _commentBuilder(context, data, isRoot, hasMore),
+    );
+  }
+
+  Widget _commentBuilder(
+    BuildContext context,
+    CusYooTaskComment data,
+    bool isRoot,
+    bool hasMore,
+  ) {
+    final now = DateTime.timestamp();
+    final createDt = localFromMilliSeconds(
+      data.data.createdAt.toInt(),
+    ).replaceFirst(RegExp('^${now.year}-'), '');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () async {
+            controller.curTaskComment.value = data;
+            controller.curEditingCommentOldContent.value = '';
+            await _buildPopupLayerCommentComp(context);
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          Text(
+                            data.user.name,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                              fontSize: 18,
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 4,
+                            child: TDBadge(
+                              TDBadgeType.message,
+                              message: createDt,
+                              color: Colors.lightBlueAccent,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  data.data.content,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        _buildCommentOperations(context, data, isRoot, hasMore),
+      ],
+    );
+  }
+
+  List<Widget> _buildAllCommentsVoComp(
+    BuildContext context,
+    GraphTaskCommentController controller,
+  ) {
+    var ret = <Widget>[];
+    final hasCurLayerMore = controller.hasMoreCommentsData;
+    for (var commentVo in controller.popupComments.value.curLayerData!.pages) {
+      commentVo.data?.forEach((voData) {
+        var ctw = CommentTreeWidget<CusYooTaskComment, CusYooTaskComment>(
+          voData,
+          voData.children,
+          treeThemeData: TreeThemeData(
+            lineColor: Colors.green[500]!,
+            lineWidth: 3,
+          ),
+          avatarRoot: (context, data) => _avatarBuilder(context, data, true),
+          avatarChild: (context, data) => _avatarBuilder(context, data, false),
+          contentChild:
+              // 回复节点不需要点击更多按钮
+              (context, data) => commentBuilder(context, data, false, false),
+          contentRoot:
+              (context, data) =>
+                  commentBuilder(context, data, true, hasCurLayerMore),
+        );
+        ret.add(ctw);
+      });
+    }
+    var more = ret.isNotEmpty && hasCurLayerMore;
+    // ret.add(Spacer())
+    if (more) {
+      ret.add(
+        InkWell(
+          onTap: loadData,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 4,
+            children: [
+              Text('加载更多', style: TextStyle(color: Colors.blue)),
+              Icon(Icons.more_horiz, color: Colors.blue),
+            ],
+          ),
+        ),
+      );
+    }
+    return ret;
+  }
+
+  @override
+  Future<void> loadData() =>
+      controller.fetchMoreCommentsData().whenComplete(() {
+        refreshController.finishLoad(
+          controller.curPopupLayerData!.hasMore
+              ? IndicatorResult.success
+              : IndicatorResult.fail,
+        );
+      });
+
+  @override
+  Future<void> refreshData() =>
+      controller.refreshCommentsData().whenComplete(() {
+        refreshController.finishRefresh(
+          controller.curPopupLayerData!.hasMore
+              ? IndicatorResult.success
+              : IndicatorResult.noMore,
+        );
+      });
+}
 
 class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
   const GraphTaskCommentView({super.key});
@@ -83,15 +402,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     final comments =
         controller.curPopupLayerDataIsEmpty
             ? Center(child: emptyWidget(context))
-            :
-
-        RefreshIndicator(
-              onRefresh: controller.refreshCommentsData,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.only(bottom: 8, top: 8),
-                child: Column(children: buildAllCommentsVoComp(context)),
-              ),
-            );
+            : _TaskCommentListView();
 
     return Column(
       children: [
@@ -100,28 +411,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         buildEditCommentComp(context),
       ],
     );
-  }
-
-  PreferredSize avatarBuilder(
-    BuildContext context,
-    CusYooTaskComment data,
-    bool isRoot,
-  ) {
-    var s = isRoot ? 18.0 : 12.0;
-    return PreferredSize(
-      preferredSize: Size.fromRadius(s),
-      child: CircleAvatar(
-        radius: s,
-        backgroundColor: Colors.grey,
-        backgroundImage: AssetImage(
-          'assets/images/avatar_${isRoot ? 2 : 1}.png',
-        ),
-      ),
-    );
-  }
-
-  Future<void> buildPopupLayerCommentComp(BuildContext context) async {
-    WoltModalSheet.of(context).showAtIndex(1);
   }
 
   Widget buildEditCommentComp(BuildContext context) {
@@ -139,7 +428,7 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
                   controller.curTaskComment.value = null;
                 }
                 controller.curEditingCommentOldContent.value = '';
-                await buildPopupLayerCommentComp(context);
+                await _buildPopupLayerCommentComp(context);
               },
               readOnly: true,
               // controller: controller.curInputCommentController,
@@ -250,211 +539,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     );
   }
 
-  Widget _buildDeleteCommentComp(BuildContext context, CusYooTaskComment data) {
-    return IconButton(
-      onPressed: () {
-        controller.curDeletingCommentId.value = data.data.id;
-        showGeneralDialog(
-          context: context,
-          pageBuilder: (
-            BuildContext buildContext,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) {
-            return TDAlertDialog(
-              title: "确认删除吗？",
-              titleColor: Colors.red,
-              leftBtnAction: () {
-                controller.curDeletingCommentId.value = null;
-                Navigator.of(buildContext).pop();
-              },
-              rightBtnAction: () async {
-                await controller.deleteCurComment();
-                if (buildContext.mounted) {
-                  Navigator.of(buildContext).pop();
-                }
-              },
-            );
-          },
-        );
-      },
-      icon: Icon(Icons.delete, size: 16, color: Colors.red),
-    );
-  }
-
-  Widget _buildCommentOperations(
-    BuildContext context,
-    CusYooTaskComment data,
-    bool isRoot,
-    bool hasMore,
-  ) {
-    return DefaultTextStyle(
-      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-        color: Colors.grey[700],
-        fontWeight: FontWeight.bold,
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(top: 4),
-        child: Row(
-          spacing: 12,
-          children: [
-            // SizedBox(width: 8),
-            IconButton(
-              onPressed: () {
-                print('赞');
-              },
-              icon: Icon(Icons.thumb_up, size: 16),
-            ),
-            IconButton(
-              onPressed: () {
-                print('踩');
-              },
-              icon: Icon(Icons.thumb_down, size: 16),
-            ),
-            if (data.isMyself) _buildDeleteCommentComp(context, data),
-            if (data.isMyself)
-              IconButton(
-                onPressed: () async {
-                  // 修改
-                  controller.curTaskComment.value = data;
-                  controller.curEditingCommentOldContent.value =
-                      data.data.content;
-                  await buildPopupLayerCommentComp(context);
-                },
-                icon: Icon(Icons.edit, size: 16),
-              ),
-            // SizedBox(width: 24),
-            // InkWell(
-            //   onTap: () async {
-            //     controller.curTaskComment.value = data;
-            //     await buildPopupLayerCommentComp(context);
-            //   },
-            //   child: Text('回复'),
-            // ),
-            if (hasMore && isRoot)
-              InkWell(
-                onTap: () async {
-                  controller.curTaskComment.value = data;
-                  await controller.addNewPopupCommentLayer();
-                  // await buildPopupLayerCommentReply(context);
-                },
-                child: Row(
-                  children: [
-                    const Text('更多'),
-                    const SizedBox(width: 1),
-                    TDBadge(TDBadgeType.bubble, message: '${data.childrenCount}'),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget commentBuilder(
-    BuildContext context,
-    CusYooTaskComment data,
-    bool isRoot,
-    bool hasMore,
-  ) {
-    return Obx(
-      () =>
-          controller.curDeletingCommentId.value == data.data.id
-              ? Flash(
-                preferences: const AnimationPreferences(
-                  autoPlay: AnimationPlayStates.Loop,
-                  duration: Duration(seconds: 5),
-                ),
-                child: ColoredBox(
-                  color: Colors.blue,
-                  child: _commentBuilder(
-                    context,
-                    data,
-                    isRoot,
-                    hasMore,
-                  ),
-                ),
-              )
-              : _commentBuilder(context, data, isRoot, hasMore),
-    );
-  }
-
-  Widget _commentBuilder(
-    BuildContext context,
-    CusYooTaskComment data,
-    bool isRoot,
-    bool hasMore,
-  ) {
-    final now = DateTime.timestamp();
-    final createDt = localFromMilliSeconds(
-      data.data.createdAt.toInt(),
-    ).replaceFirst(RegExp('^${now.year}-'), '');
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: () async {
-            controller.curTaskComment.value = data;
-            controller.curEditingCommentOldContent.value = '';
-            await buildPopupLayerCommentComp(context);
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Text(
-                            data.user.name,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall!.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 4,
-                            child: TDBadge(
-                              TDBadgeType.message,
-                              message: createDt,
-                              color: Colors.lightBlueAccent,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  data.data.content,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontWeight: FontWeight.w300,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        _buildCommentOperations(context, data, isRoot, hasMore),
-      ],
-    );
-  }
-
   Widget _buildCommentReplyTextWidget(
     BuildContext context,
     String txt, {
@@ -475,57 +559,6 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
         ),
       ),
     );
-  }
-
-  List<Widget> buildAllCommentsVoComp(BuildContext context) {
-    var ret = <Widget>[];
-    final hasCurLayerMore = controller.hasMoreCommentsData;
-    for (var commentVo in controller.popupComments.value.curLayerData!.pages) {
-      commentVo.data?.forEach((voData) {
-        var ctw = CommentTreeWidget<CusYooTaskComment, CusYooTaskComment>(
-          voData,
-          voData.children,
-          treeThemeData: TreeThemeData(
-            lineColor: Colors.green[500]!,
-            lineWidth: 3,
-          ),
-          avatarRoot: (context, data) => avatarBuilder(context, data, true),
-          avatarChild: (context, data) => avatarBuilder(context, data, false),
-          contentChild:
-              // 回复节点不需要点击更多按钮
-              (context, data) => commentBuilder(
-                context,
-                data,
-                false,
-                false
-              ),
-          contentRoot:
-              (context, data) =>
-                  commentBuilder(context, data, true, hasCurLayerMore),
-        );
-        ret.add(ctw);
-      });
-    }
-    var more = ret.isNotEmpty && hasCurLayerMore;
-    // ret.add(Spacer())
-    if (more) {
-      ret.add(
-        InkWell(
-          onTap: () async {
-            await controller.fetchMoreCommentsData();
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 4,
-            children: [
-              Text('加载更多', style: TextStyle(color: Colors.blue)),
-              Icon(Icons.more_horiz, color: Colors.blue),
-            ],
-          ),
-        ),
-      );
-    }
-    return ret;
   }
 }
 
