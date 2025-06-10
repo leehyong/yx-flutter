@@ -28,27 +28,66 @@ class TaskListView extends StatefulWidget {
   TaskListViewState createState() => TaskListViewState();
 }
 
-
-
-class TaskListViewState extends State<TaskListView> {
+class TaskListViewState extends State<TaskListView>
+    with CommonEasyRefresherMixin {
   final _layers = <TaskListLayer>[TaskListLayer()];
-  late final EasyRefreshController _controller;
-  final MIProperties _headerProperties = MIProperties(name: 'Header');
-  final MIProperties _footerProperties = MIProperties(name: 'Footer');
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = EasyRefreshController(
-      controlFinishRefresh: true,
-      controlFinishLoad: true,
-    );
-  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controller.dispose();
     super.dispose();
+  }
+
+  @override
+  Future<void> loadData() async {
+    loadTaskList().then((success) {
+      if (success) {
+        controller.finishLoad(
+          curLayer.hasMore ? IndicatorResult.noMore : IndicatorResult.success,
+        );
+      } else {
+        controller.finishLoad(IndicatorResult.fail);
+      }
+    });
+  }
+
+  @override
+  Future<void> refreshData() async {
+    curLayer.reset();
+    loadTaskList().then((success) {
+      controller.finishRefresh(
+        success ? IndicatorResult.success : IndicatorResult.fail,
+      );
+      controller.resetFooter();
+    });
+  }
+
+  @override
+  Widget buildRefresherChildDataBox(BuildContext context) {
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
+        return GridView.builder(
+          primary: true,
+          shrinkWrap: true,
+          itemCount: curLayer.tasks.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossCount,
+            crossAxisSpacing: crossCount == 1 ? 0 : 6,
+            mainAxisSpacing: 1,
+            childAspectRatio: crossCount == 1 ? 2 : 1.6,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            final userTaskHis = curLayer.tasks[index];
+            return OneTaskCardView(
+              key: ValueKey(userTaskHis.task.id),
+              userTaskHis: userTaskHis,
+              taskCategory: curLayer.curCat.first,
+            );
+          },
+        );
+      },
+    );
   }
 
   bool isSecondLayer(TaskListCategory cat) => {
@@ -159,7 +198,7 @@ class TaskListViewState extends State<TaskListView> {
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
-                      onPressed: _controller.callRefresh,
+                      onPressed: controller.callRefresh,
                       icon: Tooltip(
                         message: '刷新',
                         preferBelow: false,
@@ -179,12 +218,7 @@ class TaskListViewState extends State<TaskListView> {
   Widget _buildTasks(BuildContext context) {
     return curLayer.tabChanging
         ? buildLoading(context)
-        : LayoutBuilder(
-          builder: (ctx, constraints) {
-            final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
-            return _buildRefresher(context, crossCount);
-          },
-        );
+        : buildEasyRefresher(context);
   }
 
   Future<bool> loadTaskList() async {
@@ -192,75 +226,6 @@ class TaskListViewState extends State<TaskListView> {
       setState(() {});
       return success;
     });
-  }
-
-  Widget _buildRefresher(BuildContext context, int crossCount) {
-    return curLayer.tasks.isEmpty
-        ? Column(children: [emptyWidget(context)])
-        : EasyRefresh(
-          header: MaterialHeader(
-            clamping: _headerProperties.clamping,
-            showBezierBackground: _headerProperties.background,
-            bezierBackgroundAnimation: _headerProperties.animation,
-            bezierBackgroundBounce: _headerProperties.bounce,
-            infiniteOffset: _headerProperties.infinite ? 100 : null,
-            springRebound: _headerProperties.listSpring,
-          ),
-          footer: MaterialFooter(
-            clamping: _footerProperties.clamping,
-            showBezierBackground: _footerProperties.background,
-            bezierBackgroundAnimation: _footerProperties.animation,
-            bezierBackgroundBounce: _footerProperties.bounce,
-            infiniteOffset: _footerProperties.infinite ? 100 : null,
-            springRebound: _footerProperties.listSpring,
-          ),
-          clipBehavior: Clip.none,
-          controller: _controller,
-          // header: WaterDropHeader(),
-          onLoad: () async {
-            loadTaskList().then((success) {
-              if (success) {
-                _controller.finishLoad(
-                  curLayer.hasMore
-                      ? IndicatorResult.noMore
-                      : IndicatorResult.success,
-                );
-              } else {
-                _controller.finishLoad(IndicatorResult.fail);
-              }
-            });
-          },
-          onRefresh: () async {
-            debugPrint('onRefresh');
-            curLayer.reset();
-            loadTaskList().then((success) {
-              _controller.finishRefresh(
-                success ? IndicatorResult.success : IndicatorResult.fail,
-              );
-              _controller.resetFooter();
-            });
-          },
-          // controller: controller.refreshController,
-          child: GridView.builder(
-            primary: true,
-            shrinkWrap: true,
-            itemCount: curLayer.tasks.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossCount,
-              crossAxisSpacing: crossCount == 1 ? 0 : 6,
-              mainAxisSpacing: 1,
-              childAspectRatio: crossCount == 1 ? 2 : 1.6,
-            ),
-            itemBuilder: (BuildContext context, int index) {
-              final userTaskHis = curLayer.tasks[index];
-              return OneTaskCardView(
-                key: ValueKey(userTaskHis.task.id),
-                userTaskHis: userTaskHis,
-                taskCategory: curLayer.curCat.first,
-              );
-            },
-          ),
-        );
   }
 }
 

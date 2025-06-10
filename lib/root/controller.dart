@@ -19,7 +19,7 @@ class RootTabController extends GetxController {
   final rootTabKey = GlobalKey<ScaffoldState>();
   final taskListViewState = GlobalKey<TaskListViewState>();
   final taskInfoViewState = GlobalKey<TaskInfoViewState>();
-  final curTab = 1.obs;
+  final curTab = 2.obs;
   final menuOpen = false.obs;
 
   // LinkedHashMap 保证插入顺序，以便函数按照正确的顺序执行

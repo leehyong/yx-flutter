@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:toastification/toastification.dart';
 
 import 'routes/app_pages.dart';
@@ -15,53 +14,37 @@ void main() async {
   await GetStorage.init(userStorage);
   return runApp(
     ToastificationWrapper(
-      child: RefreshConfiguration(
-        headerBuilder: () => WaterDropHeader(),
-        // 配置默认头部指示器,假如你每个页面的头部指示器都一样的话,你需要设置这个
-        footerBuilder: () => ClassicFooter(),
-        // 配置默认底部指示器
-        hideFooterWhenNotFull: false,
-        enableBallisticLoad: true,
-        // 可以通过惯性滑动触发加载更多
-        maxOverScrollExtent: 160,
-        //头部最大可以拖动的范围,如果发生冲出视图范围区域,请设置这个属性
-        maxUnderScrollExtent: 0,
-        // 底部最大可以拖动的范围
-        headerTriggerDistance: 80.0,
-        enableScrollWhenRefreshCompleted: true,
-        //这个属性不兼容PageView和TabBarView,如果你特别需要TabBarView左右滑动,你需要把它设置为true
-        child: GetMaterialApp(
-          locale: const Locale('zh', 'CN'),
-          localizationsDelegates: [
-            RefreshLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate, // Material 组件本地化
-            GlobalWidgetsLocalizations.delegate, // 基础 Widget 本地化（如文本方向）
-            GlobalCupertinoLocalizations.delegate, // iOS 风格组件本地化（可选）
-          ],
-          supportedLocales: [
-            const Locale('zh', 'CN'), // 中文（简体）
-            const Locale('en', 'US'), // 英文（美国）
-          ],
-          enableLog: true,
-          title: "悦享管",
-          theme: ThemeData(),
-          useInheritedMediaQuery: true,
-          initialBinding: BindingsBuilder(() {
-            Get.put(AuthService());
-            Get.put(HttpDioService());
-          }),
-          getPages: AppPages.routes,
-          initialRoute: Routes.login,
-          onGenerateRoute: (RouteSettings settings) {
-            // 重新设置密码
-            if (settings.name == Routes.app) {
-              var service = AuthService.instance;
-              if (service.isWeak) {
-                Get.offAndToNamed(Routes.changePwd);
-              }
+      //这个属性不兼容PageView和TabBarView,如果你特别需要TabBarView左右滑动,你需要把它设置为true
+      child: GetMaterialApp(
+        locale: const Locale('zh', 'CN'),
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate, // Material 组件本地化
+          GlobalWidgetsLocalizations.delegate, // 基础 Widget 本地化（如文本方向）
+          GlobalCupertinoLocalizations.delegate, // iOS 风格组件本地化（可选）
+        ],
+        supportedLocales: [
+          const Locale('zh', 'CN'), // 中文（简体）
+          const Locale('en', 'US'), // 英文（美国）
+        ],
+        enableLog: true,
+        title: "悦享管",
+        theme: ThemeData(),
+        useInheritedMediaQuery: true,
+        initialBinding: BindingsBuilder(() {
+          Get.put(AuthService());
+          Get.put(HttpDioService());
+        }),
+        getPages: AppPages.routes,
+        initialRoute: Routes.login,
+        onGenerateRoute: (RouteSettings settings) {
+          // 重新设置密码
+          if (settings.name == Routes.app) {
+            var service = AuthService.instance;
+            if (service.isWeak) {
+              Get.offAndToNamed(Routes.changePwd);
             }
-          },
-        ),
+          }
+        },
       ),
     ),
   );

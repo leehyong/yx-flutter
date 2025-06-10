@@ -83,7 +83,9 @@ class GraphTaskCommentView extends GetView<GraphTaskCommentController> {
     final comments =
         controller.curPopupLayerDataIsEmpty
             ? Center(child: emptyWidget(context))
-            : RefreshIndicator(
+            :
+
+        RefreshIndicator(
               onRefresh: controller.refreshCommentsData,
               child: SingleChildScrollView(
                 padding: EdgeInsets.only(bottom: 8, top: 8),

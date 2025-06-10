@@ -1,12 +1,12 @@
 import 'dart:math';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:loading_indicator/loading_indicator.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:yt_dart/cus_content.pb.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/content_api.dart' as content_api;
+import 'package:yx/components/common.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -21,49 +21,38 @@ class TaskContentHistoryView extends StatefulWidget {
   TaskContentHistoryViewState createState() => TaskContentHistoryViewState();
 }
 
-class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
-  Widget _buildRefresher(BuildContext context) {
-    return SmartRefresher(
-      enablePullDown: true,
-      enablePullUp: true,
-      header: WaterDropHeader(),
-      onLoading: _queryTaskHistory,
-      onRefresh: () async {
-        setState(() {
-          _page = 0;
-        });
-        _queryTaskHistory();
-      },
-      footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus? mode) {
-          Widget body;
-          if (mode == LoadStatus.idle) {
-            body = Text("上拉加载更多");
-          } else if (mode == LoadStatus.loading) {
-            body = LoadingIndicator(
-              indicatorType: Indicator.audioEqualizer,
+class TaskContentHistoryViewState extends State<TaskContentHistoryView>
+    with CommonEasyRefresherMixin {
 
-              /// Required, The loading type of the widget
-              colors: loadingColors,
-              strokeWidth: 2,
-            );
-          } else if (mode == LoadStatus.failed) {
-            body = Text("加载失败，请重试");
-          } else if (mode == LoadStatus.canLoading) {
-            body = Text("释放加载更多");
-          } else {
-            return SizedBox.shrink();
-          }
-          return SizedBox(height: 55.0, child: Center(child: body));
-        },
-      ),
-      controller: _refreshController,
-      // controller: controller._refreshController,
-      child: _buildTaskHistory(context),
-    );
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
-  Widget _buildTaskHistory(BuildContext context) {
+  @override
+  Future<void> loadData() async {
+    _queryTaskHistory().then((more) {
+      controller.finishLoad(
+        more ? IndicatorResult.success : IndicatorResult.noMore,
+      );
+    });
+  }
+
+  @override
+  Future<void> refreshData() async {
+    setState(() {
+      _page = 0;
+    });
+    _queryTaskHistory().then((more) {
+      controller.finishRefresh(
+        more ? IndicatorResult.success : IndicatorResult.noMore,
+      );
+    });
+  }
+
+  @override
+  Widget buildRefresherChildDataBox(BuildContext context) {
     return ListView.builder(
       cacheExtent: 100,
       controller: ScrollController(initialScrollOffset: 0),
@@ -174,26 +163,17 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return SizedBox(
-        width: 200,
-        height: 200,
-        child: LoadingIndicator(
-          indicatorType: Indicator.lineScale,
-          colors: loadingColors,
-          strokeWidth: 2,
-        ),
-      );
+      return buildLoading(context);
     } else if (contents == null || contents!.isEmpty) {
       return emptyWidget(context);
     } else {
-      return _buildRefresher(context);
+      return buildEasyRefresher(context);
     }
   }
 
   bool _loading = false;
   int _page = 0;
   List<CusYooWorkContent>? contents;
-  final _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -201,21 +181,19 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView> {
     _queryTaskHistory();
   }
 
-  Future<void> _queryTaskHistory() async {
+  Future<bool> _queryTaskHistory() async {
     setState(() {
       _page++;
       _loading = true;
     });
-    content_api.queryWorkTaskContents(widget.task.id, _page, 10).then((v) {
+    return content_api.queryWorkTaskContents(widget.task.id, _page, 10).then((
+      v,
+    ) {
       setState(() {
         _loading = false;
         contents = v?.data;
       });
-      if (v!.page == v.totalPages) {
-        _refreshController.loadNoData();
-      } else {
-        _refreshController.loadComplete();
-      }
+      return v!.page == v.totalPages;
     });
   }
 }

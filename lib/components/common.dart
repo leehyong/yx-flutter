@@ -1,11 +1,12 @@
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:yt_dart/cus_task.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
 import 'package:yx/root/controller.dart';
+import 'package:yx/types.dart';
 import 'package:yx/utils/toast.dart';
-
-import '../types.dart';
 
 class PageReq {
   int page = 1;
@@ -31,7 +32,6 @@ class TaskListLayer {
     pageReq.page = 1;
     tasks.clear();
   }
-
 
   Future<bool> loadTaskList() async {
     // 初始化 multiDutyMap，确保每个任务类型都有一个空列表
@@ -64,4 +64,48 @@ void commonSetTaskListInfo({
 }) {
   Get.find<RootTabController>().taskListViewState.currentState
       ?.setSecondLayerTaskListInfo(parentId: parentId, defaultCat: defaultCat);
+}
+
+mixin CommonEasyRefresherMixin {
+  final EasyRefreshController controller = EasyRefreshController(
+    controlFinishRefresh: true,
+    controlFinishLoad: true,
+  );
+
+  final MIProperties _headerProperties = MIProperties(name: 'Header');
+  final MIProperties _footerProperties = MIProperties(name: 'Footer');
+
+  Widget buildRefresherChildDataBox(BuildContext context);
+
+  Future<void> loadData();
+
+  Future<void> refreshData();
+
+  Widget buildEasyRefresher(BuildContext context) {
+    return EasyRefresh(
+      header: MaterialHeader(
+        clamping: _headerProperties.clamping,
+        showBezierBackground: _headerProperties.background,
+        bezierBackgroundAnimation: _headerProperties.animation,
+        bezierBackgroundBounce: _headerProperties.bounce,
+        infiniteOffset: _headerProperties.infinite ? 100 : null,
+        springRebound: _headerProperties.listSpring,
+      ),
+      footer: MaterialFooter(
+        clamping: _footerProperties.clamping,
+        showBezierBackground: _footerProperties.background,
+        bezierBackgroundAnimation: _footerProperties.animation,
+        bezierBackgroundBounce: _footerProperties.bounce,
+        infiniteOffset: _footerProperties.infinite ? 100 : null,
+        springRebound: _footerProperties.listSpring,
+      ),
+      clipBehavior: Clip.none,
+      controller: controller,
+      // header: WaterDropHeader(),
+      onLoad: loadData,
+      onRefresh: refreshData,
+      // controller: controller.refreshController,
+      child: buildRefresherChildDataBox(context),
+    );
+  }
 }
