@@ -170,10 +170,10 @@ class GraphTaskCommentController extends GetxController {
     }
   }
 
-  Future<void> deleteCurComment() async {
+  Future<bool> deleteCurComment() async {
     if (curDeletingCommentId.value == null ||
         curDeletingCommentId.value! == Int64.ZERO) {
-      return;
+      return false;
     }
     var success = await comment_api.deleteTaskComment(
       curDeletingCommentId.value!,
@@ -185,11 +185,10 @@ class GraphTaskCommentController extends GetxController {
         title: Text('删除成功'),
         autoCloseDuration: const Duration(seconds: 1),
       );
-      // 新增评论之后，重置当前层的数据，并重新加载数据
-      await refreshCommentsData();
     }
     // 不管成功还是失败均把它置为null， 不然正在删除的那个评论一直闪烁
     curDeletingCommentId.value = null;
+    return success;
   }
 
   bool get isEditing =>

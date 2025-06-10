@@ -44,6 +44,7 @@ class _CommentListViewState extends State<_TaskCommentListView>
     return GetX(
       builder: (GraphTaskCommentController controller) {
         return ListView(
+          controller: scrollController,
           padding: EdgeInsets.only(bottom: 8, top: 8),
           children: _buildAllCommentsVoComp(context, controller),
         );
@@ -88,10 +89,19 @@ class _CommentListViewState extends State<_TaskCommentListView>
                 Navigator.of(buildContext).pop();
               },
               rightBtnAction: () async {
-                await controller.deleteCurComment();
-                if (buildContext.mounted) {
-                  Navigator.of(buildContext).pop();
-                }
+                controller
+                    .deleteCurComment()
+                    .then((success) {
+                      if (success) {
+                        // 删除评论之后，重置当前层的数据，并重新加载数据
+                        refreshController.callRefresh();
+                      }
+                    })
+                    .whenComplete(() {
+                      if (buildContext.mounted) {
+                        Navigator.of(buildContext).pop();
+                      }
+                    });
               },
             );
           },
@@ -297,7 +307,7 @@ class _CommentListViewState extends State<_TaskCommentListView>
     if (more) {
       ret.add(
         InkWell(
-          onTap: loadData,
+          onTap: () => refreshController.callLoad(),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 4,
@@ -315,6 +325,7 @@ class _CommentListViewState extends State<_TaskCommentListView>
   @override
   Future<void> loadData() =>
       controller.fetchMoreCommentsData().whenComplete(() {
+        setState(() {});
         refreshController.finishLoad(
           controller.curPopupLayerData!.hasMore
               ? IndicatorResult.success

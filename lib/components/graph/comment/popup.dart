@@ -126,11 +126,12 @@ class PopupLayerModel {
 
   // 在当前层添加下一页的数据
   Future<void> fetchMoreCommentsData() async {
-    _ensure();
-    loading.value = true;
-    return curLayerData?.loadMoreData().whenComplete(() {
-      loading.value = false;
-    });
+    return curLayerData?.loadMoreData();
+    // _ensure();
+    // loading.value = true;
+    // return curLayerData?.loadMoreData().whenComplete(() {
+    //   loading.value = false;
+    // });
   }
 
   void clear() {

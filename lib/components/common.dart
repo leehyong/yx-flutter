@@ -72,6 +72,8 @@ mixin CommonEasyRefresherMixin {
     controlFinishLoad: true,
   );
 
+  final scrollController = ScrollController();
+
   final MIProperties _headerProperties = MIProperties(name: 'Header');
   final MIProperties _footerProperties = MIProperties(name: 'Footer');
 
@@ -101,8 +103,19 @@ mixin CommonEasyRefresherMixin {
       ),
       clipBehavior: Clip.none,
       controller: refreshController,
+      scrollController: scrollController,
       // header: WaterDropHeader(),
-      onLoad: loadData,
+      onLoad: () async {
+        loadData().whenComplete(
+          () => WidgetsBinding.instance.addPostFrameCallback((_) {
+            scrollController.animateTo(
+              scrollController.position.maxScrollExtent, // 滚动到列表底部
+              duration: Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            );
+          }),
+        );
+      },
       onRefresh: refreshData,
       // controller: controller.refreshController,
       child: buildRefresherChildDataBox(context),
