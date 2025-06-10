@@ -67,7 +67,7 @@ void commonSetTaskListInfo({
 }
 
 mixin CommonEasyRefresherMixin {
-  final EasyRefreshController controller = EasyRefreshController(
+  final EasyRefreshController refreshController = EasyRefreshController(
     controlFinishRefresh: true,
     controlFinishLoad: true,
   );
@@ -100,7 +100,7 @@ mixin CommonEasyRefresherMixin {
         springRebound: _footerProperties.listSpring,
       ),
       clipBehavior: Clip.none,
-      controller: controller,
+      controller: refreshController,
       // header: WaterDropHeader(),
       onLoad: loadData,
       onRefresh: refreshData,

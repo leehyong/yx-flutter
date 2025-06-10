@@ -26,14 +26,14 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
 
   @override
   void dispose() {
-    controller.dispose();
+    refreshController.dispose();
     super.dispose();
   }
 
   @override
   Future<void> loadData() async {
     _queryTaskHistory().then((more) {
-      controller.finishLoad(
+      refreshController.finishLoad(
         more ? IndicatorResult.success : IndicatorResult.noMore,
       );
     });
@@ -45,7 +45,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
       _page = 0;
     });
     _queryTaskHistory().then((more) {
-      controller.finishRefresh(
+      refreshController.finishRefresh(
         more ? IndicatorResult.success : IndicatorResult.noMore,
       );
     });

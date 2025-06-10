@@ -34,7 +34,7 @@ class TaskListViewState extends State<TaskListView>
 
   @override
   void dispose() {
-    controller.dispose();
+    refreshController.dispose();
     super.dispose();
   }
 
@@ -42,11 +42,11 @@ class TaskListViewState extends State<TaskListView>
   Future<void> loadData() async {
     loadTaskList().then((success) {
       if (success) {
-        controller.finishLoad(
+        refreshController.finishLoad(
           curLayer.hasMore ? IndicatorResult.noMore : IndicatorResult.success,
         );
       } else {
-        controller.finishLoad(IndicatorResult.fail);
+        refreshController.finishLoad(IndicatorResult.fail);
       }
     });
   }
@@ -55,10 +55,10 @@ class TaskListViewState extends State<TaskListView>
   Future<void> refreshData() async {
     curLayer.reset();
     loadTaskList().then((success) {
-      controller.finishRefresh(
+      refreshController.finishRefresh(
         success ? IndicatorResult.success : IndicatorResult.fail,
       );
-      controller.resetFooter();
+      refreshController.resetFooter();
     });
   }
 
@@ -198,7 +198,7 @@ class TaskListViewState extends State<TaskListView>
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
-                      onPressed: controller.callRefresh,
+                      onPressed: refreshController.callRefresh,
                       icon: Tooltip(
                         message: '刷新',
                         preferBelow: false,
