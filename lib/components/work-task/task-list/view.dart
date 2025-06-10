@@ -68,6 +68,7 @@ class TaskListViewState extends State<TaskListView>
       builder: (ctx, constraints) {
         final crossCount = constraints.maxWidth >= 720 ? 3 : 1;
         return GridView.builder(
+          controller: scrollController,
           primary: true,
           shrinkWrap: true,
           itemCount: curLayer.tasks.length,

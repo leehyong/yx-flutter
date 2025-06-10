@@ -55,7 +55,7 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
   Widget buildRefresherChildDataBox(BuildContext context) {
     return ListView.builder(
       cacheExtent: 100,
-      controller: ScrollController(initialScrollOffset: 0),
+      controller: scrollController,
       itemCount: contents!.length,
       itemBuilder: (context, index) {
         final thisContent = contents![index];
