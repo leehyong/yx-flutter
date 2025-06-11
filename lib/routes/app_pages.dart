@@ -5,8 +5,7 @@ import 'package:get/get.dart';
 import 'package:yx/components/user/change-pwd/views/change_pwd_view.dart';
 import 'package:yx/components/user/login/bindings/login_binding.dart';
 
-import '../components/settings/bindings/settings_binding.dart';
-import '../components/settings/views/settings_view.dart';
+import '../components/user/center/view.dart';
 import '../components/user/change-pwd/bindings/change_pwd_binding.dart';
 import '../components/user/login/views/login_view.dart';
 import '../middlewares/auth_middleware.dart';
@@ -47,8 +46,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.userCenter,
-      page: () => const SettingsView(),
-      bindings: [SettingsBinding()],
+      page: () => const PersonalCenterView(),
       middlewares: [
         //only enter this route when not authed
         EnsureAuthMiddleware(),
