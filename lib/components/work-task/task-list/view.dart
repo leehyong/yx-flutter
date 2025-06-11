@@ -173,6 +173,8 @@ class TaskListViewState extends State<TaskListView>
       curLayer.curCat = {
         cat ?? widget.cats?.first ?? TaskListCategory.allPublished,
       };
+      // 重置初始值
+      isScrollToEndEdge = true;
     });
     curLayer
         .loadTaskList()
