@@ -125,7 +125,12 @@ class TaskListViewState extends State<TaskListView>
     );
   }
 
-  Widget _buildLoadMore(BuildContext context, {double? width, Color? color, EdgeInsets?padding}) {
+  Widget _buildLoadMore(
+    BuildContext context, {
+    double? width,
+    Color? color,
+    EdgeInsets? padding,
+  }) {
     return Container(
       color: color ?? Colors.transparent,
       width: width,
@@ -470,6 +475,24 @@ class OneTaskCardView extends GetView<OneTaskCardController> {
           return desc.isEmpty
               ? card
               : _buildTaskActionIndicator(context, card, desc);
+        case TaskListCategory.myParticipant:
+          final s = SystemTaskStatus.values[controller.taskStatus.value];
+          String desc;
+          switch (s) {
+            case SystemTaskStatus.running:
+            case SystemTaskStatus.started:
+              desc = '进行中';
+              break;
+            case SystemTaskStatus.suspended:
+              desc = '已暂停';
+              break;
+            case SystemTaskStatus.unfinished:
+              desc = '未完成';
+              break;
+            default:
+              desc = '待启动';
+          }
+          return _buildTaskActionIndicator(context, card, desc);
         default:
           return card;
       }
