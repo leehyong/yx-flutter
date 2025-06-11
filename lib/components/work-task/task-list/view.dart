@@ -39,12 +39,14 @@ class TaskListViewState extends State<TaskListView>
   void initState() {
     super.initState();
     listenScroll();
+    debugPrint('initState');
   }
 
   @override
   void dispose() {
     refreshController.dispose();
     super.dispose();
+    debugPrint('dispose');
   }
 
   @override
@@ -116,7 +118,11 @@ class TaskListViewState extends State<TaskListView>
               left: 0,
               right: 0,
               bottom: 8,
-              child: _buildLoadMore(context),
+              child: _buildLoadMore(
+                context,
+                height: 30,
+                width: constraints.maxWidth,
+              ),
             ),
           );
         }
@@ -128,6 +134,7 @@ class TaskListViewState extends State<TaskListView>
   Widget _buildLoadMore(
     BuildContext context, {
     double? width,
+    double? height,
     Color? color,
     EdgeInsets? padding,
   }) {
@@ -170,7 +177,7 @@ class TaskListViewState extends State<TaskListView>
     curLayer
         .loadTaskList()
         .then((v) {
-          return Future.delayed(Duration(milliseconds: 100));
+          return Future.delayed(Duration(milliseconds: 50));
         })
         .whenComplete(() {
           curLayer.tabChanging = false;
