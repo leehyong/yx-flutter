@@ -3,7 +3,7 @@ part of 'app_pages.dart';
 
 abstract class Routes {
   static const app = '/';
-  static const settings = '/settings';
+  static const userCenter = '/user-center';
   static const login = '/login';
   static const changePwd = '/change-pwd';
   static const notFound = '/not-found';

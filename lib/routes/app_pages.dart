@@ -2,13 +2,13 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/components/user/change-pwd/views/change_pwd_view.dart';
+import 'package:yx/components/user/login/bindings/login_binding.dart';
 
-import '../components/change-pwd/bindings/change_pwd_binding.dart';
-import '../components/change-pwd/views/change_pwd_view.dart';
-import '../components/login/bindings/login_binding.dart';
-import '../components/login/views/login_view.dart';
 import '../components/settings/bindings/settings_binding.dart';
 import '../components/settings/views/settings_view.dart';
+import '../components/user/change-pwd/bindings/change_pwd_binding.dart';
+import '../components/user/login/views/login_view.dart';
 import '../middlewares/auth_middleware.dart';
 import '../root/binding.dart';
 import '../root/view.dart';
@@ -46,7 +46,7 @@ class AppPages {
       bindings: [ChangePwdBinding()],
     ),
     GetPage(
-      name: Routes.settings,
+      name: Routes.userCenter,
       page: () => const SettingsView(),
       bindings: [SettingsBinding()],
       middlewares: [

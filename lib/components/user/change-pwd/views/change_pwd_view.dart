@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/services/auth_service.dart';
 
-import '../../../components/user/change_pwd_comp.dart';
+import 'change_pwd_comp.dart';
 
 class ChangePwdView extends GetView<GetxController> {
   const ChangePwdView({super.key});

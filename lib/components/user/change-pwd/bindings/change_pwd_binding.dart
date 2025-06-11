@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
-import 'package:yx/components/user/controller/change_pwd.dart';
+
+import '../controller/change_pwd.dart';
 
 
 class ChangePwdBinding implements Bindings {

@@ -168,6 +168,8 @@ class UserLoginView extends GetView<UserLoginController> {
           child: const Text('登录', style: TextStyle(fontSize: 24)),
           onPressed: () async {
             // 表单校验通过才会继续执行
+            // Get.offAndToNamed(Routes.app);
+
             if (controller.isValidInput) {
               //执行登录方法
               final err = await controller.login();

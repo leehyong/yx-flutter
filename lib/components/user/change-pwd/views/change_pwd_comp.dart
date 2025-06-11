@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../services/auth_service.dart';
-import '../../routes/app_pages.dart';
-import 'controller/change_pwd.dart';
+import '../controller/change_pwd.dart';
+
 
 class ChangePwdCompView extends GetView<ChangePwdController> {
   const ChangePwdCompView({super.key});

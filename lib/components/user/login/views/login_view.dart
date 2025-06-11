@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/login_controller.dart';
-import './phone_login_view.dart';
+import 'phone_login_view.dart';
 import 'user_login_view.dart';
 
 class LoginView extends GetView<LoginController> {
