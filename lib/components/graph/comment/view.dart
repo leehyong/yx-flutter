@@ -30,6 +30,10 @@ class _CommentListViewState extends State<_TaskCommentListView>
   GraphTaskCommentController get controller =>
       Get.find<GraphTaskCommentController>();
 
+
+  @override
+  _CommentListViewState get widgetState => this;
+
   @override
   Widget build(BuildContext context) => buildEasyRefresher(context);
 

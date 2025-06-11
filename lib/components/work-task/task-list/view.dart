@@ -33,6 +33,15 @@ class TaskListViewState extends State<TaskListView>
   final _layers = <TaskListLayer>[TaskListLayer()];
 
   @override
+  TaskListViewState get widgetState => this;
+
+  @override
+  void initState() {
+    super.initState();
+    listenScroll();
+  }
+
+  @override
   void dispose() {
     refreshController.dispose();
     super.dispose();
@@ -73,9 +82,11 @@ class TaskListViewState extends State<TaskListView>
         final crossCount = maxWidth >= 720 ? 3 : 1;
         final totalItemCont = curLayer.tasks.length + 1;
         final needCenter = crossCount == 3 && totalItemCont % 3 == 1;
-        return Stack(
-          children: [
-            GridView.builder(
+        final children = <Widget>[
+          Container(
+            // 空置 30， 用来放置 加载更多 操作或者 没有更多数据 的提示
+            margin: EdgeInsets.only(bottom: 30),
+            child: GridView.builder(
               controller: scrollController,
               shrinkWrap: true,
               itemCount: totalItemCont,
@@ -94,29 +105,31 @@ class TaskListViewState extends State<TaskListView>
                     taskCategory: curLayer.curCat.first,
                   );
                 }
-                return needCenter
-                    ? const SizedBox.shrink()
-                    : _buildLoadMore(context);
+                return needCenter ? null : _buildLoadMore(context);
               },
             ),
-            if (needCenter)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 30,
-                child: _buildLoadMore(context, maxWidth),
-              ),
-          ],
-        );
+          ),
+        ];
+        if (needCenter && isScrollToEndEdge) {
+          children.add(
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 8,
+              child: _buildLoadMore(context),
+            ),
+          );
+        }
+        return Stack(children: children);
       },
     );
   }
 
-  Widget _buildLoadMore(BuildContext context, [double? width]) {
+  Widget _buildLoadMore(BuildContext context, {double? width, Color? color, EdgeInsets?padding}) {
     return Container(
-      color: Colors.transparent,
+      color: color ?? Colors.transparent,
       width: width,
-      // padding: EdgeInsets.only(top: 0),
+      padding: padding,
       child: Center(
         child: buildLoadMoreTipAction(
           context,

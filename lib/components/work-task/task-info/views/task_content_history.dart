@@ -25,6 +25,9 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
     with CommonEasyRefresherMixin {
 
   @override
+  TaskContentHistoryViewState get widgetState => this;
+
+  @override
   void dispose() {
     refreshController.dispose();
     super.dispose();

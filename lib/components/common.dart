@@ -66,13 +66,32 @@ void commonSetTaskListInfo({
       ?.setSecondLayerTaskListInfo(parentId: parentId, defaultCat: defaultCat);
 }
 
-mixin CommonEasyRefresherMixin {
+mixin CommonEasyRefresherMixin <T extends State>{
   final EasyRefreshController refreshController = EasyRefreshController(
     controlFinishRefresh: true,
     controlFinishLoad: true,
   );
 
+  bool isScrollToEndEdge = true;
+
+  T get widgetState;
+
   final scrollController = ScrollController();
+
+  void listenScroll(){
+    scrollController.addListener((){
+      if (scrollController.hasClients) {
+        widgetState.setState((){
+          isScrollToEndEdge = scrollController.position.pixels + 20 >
+              scrollController.position.maxScrollExtent;
+        });
+      }else{
+        widgetState.setState((){
+          isScrollToEndEdge = true;
+        });
+      }
+    });
+  }
 
   final MIProperties _headerProperties = MIProperties(name: 'Header');
   final MIProperties _footerProperties = MIProperties(name: 'Footer');
@@ -100,7 +119,7 @@ mixin CommonEasyRefresherMixin {
         bezierBackgroundBounce: _footerProperties.bounce,
         infiniteOffset: _footerProperties.infinite ? 100 : null,
         springRebound: _footerProperties.listSpring,
-        noMoreIcon: Text('没有更多数据了')
+        noMoreIcon: Text('没有更多数据了'),
       ),
       clipBehavior: Clip.none,
       controller: refreshController,
