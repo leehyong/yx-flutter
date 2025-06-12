@@ -180,10 +180,13 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
             });
           },
         ),
-        const SizedBox(width: 10,),
-        const Text(
+        const SizedBox(width: 10),
+        Text(
           '是否关联当前组织',
-          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: _whetherRelateCurrentOrganization ? Colors.red : Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );

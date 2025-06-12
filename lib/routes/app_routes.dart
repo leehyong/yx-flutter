@@ -27,5 +27,6 @@ abstract class UserProfileRoutes {
   static const center = '/user-center/myself';
   static const organization = '/user-center/organization';
   static const registerOrganization = '/user-center/register-org';
+  static const changePwd = '/user-center/change-pwd';
 }
 
