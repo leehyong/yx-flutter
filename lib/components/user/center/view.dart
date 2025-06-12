@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yx/root/controller.dart';
+import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
@@ -96,7 +96,9 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
               const Text('欢迎加入'),
               TextButton(
                 // 短按展示企业信息
-                onPressed: () {},
+                onPressed: () {
+                  debugPrint('地球村');
+                },
                 // 长按复杂企业名称
                 onLongPress: () {},
                 child: Row(
@@ -147,7 +149,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
                 arguments: UserCenterPageParams(
                   UserCenterAction.joinOrganization,
                 ),
-                id: Get.find<RootTabController>().curRouteId,
+                id: NestedNavigatorKeyId.userCenterId,
               );
             },
           ),
@@ -161,7 +163,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
                 arguments: UserCenterPageParams(
                   UserCenterAction.switchOrganization,
                 ),
-                id: Get.find<RootTabController>().curRouteId,
+                id: NestedNavigatorKeyId.userCenterId,
               );
             },
           ),
@@ -177,7 +179,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
                 arguments: UserCenterPageParams(
                   UserCenterAction.registerOrganization,
                 ),
-                id: Get.find<RootTabController>().curRouteId,
+                id: NestedNavigatorKeyId.userCenterId,
               );
             },
           ),
@@ -285,36 +287,33 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
       body: LayoutBuilder(
         builder: (cxt, cons) {
           return Stack(
-            clipBehavior: Clip.none,
+            // clipBehavior: Clip.none,
             children: [
-              Container(
-                width: cons.maxWidth,
-                height: profileBoxHeight,
-                alignment: Alignment(-1, -0.5),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade300,
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(40),
+              Column(
+                children: [
+                  Container(
+                    width: cons.maxWidth,
+                    height: profileBoxHeight,
+                    alignment: Alignment(-1, -0.5),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade300,
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(40),
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: hp),
+                    margin: EdgeInsets.only(bottom: profileBoxMarginBottom),
+                    child: _buildTopActions(context),
                   ),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: hp),
-                margin: EdgeInsets.only(bottom: profileBoxMarginBottom),
-                child: _buildTopActions(context),
+                  Expanded(child: _buildActionBox(context)),
+                ],
               ),
               Positioned(
                 left: hp,
                 width: cons.maxWidth - hp * 2,
                 top: profileBoxMarginBottom * 2,
-                height: cons.maxHeight,
-                child: Column(
-                  spacing: 8,
-                  children: [
-                    _buildMyselfProfile(context),
-                    // SizedBox(height: 4),
-                    // _buildMyInfo(context),
-                    Expanded(child: _buildActionBox(context)),
-                  ],
-                ),
+                // height: cons.maxHeight,
+                child: _buildMyselfProfile(context),
               ),
             ],
           );

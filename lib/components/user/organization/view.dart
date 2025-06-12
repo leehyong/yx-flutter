@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:group_button/group_button.dart';
-import 'package:yx/routes/app_pages.dart';
+import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
-
-void goBackToUserCenter(BuildContext context) {
-  Get.offAndToNamed(Routes.userCenter);
-  // Navigator.of(context).pop(context);
-}
 
 mixin CommonOrganizationView {
   UserCenterPageParams get pageParams;
@@ -74,14 +69,14 @@ class OrganizationViewState extends State<OrganizationView>
           children: [
             TextButton(
               onPressed: () {
-                goBackToUserCenter(context);
+                Get.back(id: NestedNavigatorKeyId.userCenterId);
               },
               child: Text('取消'),
             ),
             const SizedBox(width: 10),
             TextButton(
               onPressed: () {
-                goBackToUserCenter(context);
+                Get.back(id: NestedNavigatorKeyId.userCenterId);
               },
               child: Text('确认'),
             ),
@@ -103,7 +98,7 @@ class RegisterOrganizationView extends StatefulWidget {
   final UserCenterPageParams params;
 
   @override
-  OrganizationViewState createState() => OrganizationViewState();
+  RegisterOrganizationViewState createState() => RegisterOrganizationViewState();
 }
 
 class RegisterOrganizationViewState extends State<RegisterOrganizationView>
@@ -179,14 +174,14 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
           children: [
             TextButton(
               onPressed: () {
-                goBackToUserCenter(context);
+                Get.back(id: NestedNavigatorKeyId.userCenterId);
               },
               child: Text('取消'),
             ),
             const SizedBox(width: 10),
             TextButton(
               onPressed: () {
-                goBackToUserCenter(context);
+                Get.back(id: NestedNavigatorKeyId.userCenterId);
               },
               child: Text('确认'),
             ),
@@ -197,6 +192,5 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
   }
 
   @override
-  // TODO: implement pageParams
   UserCenterPageParams get pageParams => widget.params;
 }
