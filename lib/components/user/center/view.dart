@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
@@ -187,50 +188,38 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             context,
             icon: Icons.logout,
             title: '退出登录',
-            onTap: () {},
+            onTap: () {
+              showGeneralDialog(
+                context: context,
+                pageBuilder: (
+                  BuildContext buildContext,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                ) {
+                  return TDAlertDialog(
+                    title: "确定退出吗？",
+                    leftBtnAction: () {
+                      Navigator.of(buildContext).pop();
+                    },
+                    rightBtnAction: () {
+                      Navigator.of(buildContext).pop();
+                      Get.toNamed(Routes.login);
+                    },
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  // Widget _buildMyInfo(BuildContext context) {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //     children: [
-  //       _FunctionItem(
-  //         icon: Icons.diamond,
-  //         label: '我的积分',
-  //         bgColor: Colors.greenAccent,
-  //         onTap: () {},
-  //       ),
-  //       // _FunctionItem(
-  //       //   icon: Icons.stacked_bar_chart,
-  //       //   label: '进行中的任务',
-  //       //   bgColor: Colors.pinkAccent,
-  //       //   onTap: () {},
-  //       // ),
-  //       // _FunctionItem(
-  //       //   icon: Icons.pie_chart,
-  //       //   label: '已完成的任务',
-  //       //   bgColor: Colors.purpleAccent,
-  //       //   onTap: () {},
-  //       // ),
-  //       _FunctionItem(
-  //         icon: Icons.view_list,
-  //         label: '我的计划',
-  //         bgColor: Colors.orangeAccent,
-  //         onTap: () {},
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildTopActions(BuildContext context) {
     final msg = Icon(Icons.message, color: Colors.white, size: 28);
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      spacing: 16,
+      spacing: 20,
       children: [
         IconButton(
           onPressed: () {
@@ -240,11 +229,6 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
               messageCount > 0
                   ? Badge(label: Text('$messageCount'), child: msg)
                   : msg,
-        ),
-        const Spacer(),
-        IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.share, color: Colors.white, size: 28),
         ),
         IconButton(
           onPressed: () {},
@@ -266,16 +250,6 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
         leading: Icon(icon),
         title: Text(title),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        // child: Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //   spacing: 6,
-        //   children: [
-        //     Icon(icon),
-        //     Text(title),
-        //     const Spacer(),
-        //     const Icon(Icons.arrow_forward_ios, size: 16)
-        //   ],
-        // ),
       ),
     );
   }
@@ -318,44 +292,6 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-// 功能入口子项 widget
-class _FunctionItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color bgColor;
-  final VoidCallback onTap;
-
-  const _FunctionItem({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.bgColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12)),
-        ],
       ),
     );
   }

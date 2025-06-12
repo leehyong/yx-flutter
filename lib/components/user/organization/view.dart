@@ -15,7 +15,9 @@ mixin CommonOrganizationView {
       appBar: AppBar(
         title: Text(pageParams.action.i18name, style: defaultTitleStyle),
       ),
-      body: Center(
+      body: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
         child:
             isBigScreen(context)
                 ? ConstrainedBox(
@@ -52,36 +54,49 @@ class OrganizationViewState extends State<OrganizationView>
   @override
   Widget build(BuildContext context) => buildScaffold(context);
 
+  Widget _buildOrganizationActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            Get.back(id: NestedNavigatorKeyId.userCenterId);
+          },
+          child: Text('取消'),
+        ),
+        const SizedBox(width: 30),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue, // 背景色
+            foregroundColor: Colors.white,
+            // padding: EdgeInsets.all(4),
+            // 文字颜色
+          ),
+          onPressed: () {
+            Get.back(id: NestedNavigatorKeyId.userCenterId);
+          },
+          child: Text('确认'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget buildBody(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Expanded(
-          child: GroupButton<int>(
+        // Expanded(
+        //   child:
+          GroupButton<int>(
             isRadio: true,
             buttons: List.generate(20, (i) => i + 1),
             buttonTextBuilder:
                 (selected, content, context) => content.toString(),
           ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () {
-                Get.back(id: NestedNavigatorKeyId.userCenterId);
-              },
-              child: Text('取消'),
-            ),
-            const SizedBox(width: 10),
-            TextButton(
-              onPressed: () {
-                Get.back(id: NestedNavigatorKeyId.userCenterId);
-              },
-              child: Text('确认'),
-            ),
-          ],
-        ),
+        // ),
+        const SizedBox(height: 20,),
+        _buildOrganizationActions(context),
       ],
     );
   }
@@ -98,7 +113,8 @@ class RegisterOrganizationView extends StatefulWidget {
   final UserCenterPageParams params;
 
   @override
-  RegisterOrganizationViewState createState() => RegisterOrganizationViewState();
+  RegisterOrganizationViewState createState() =>
+      RegisterOrganizationViewState();
 }
 
 class RegisterOrganizationViewState extends State<RegisterOrganizationView>
@@ -135,7 +151,10 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
         }
         return null;
       },
-      decoration: InputDecoration(labelText: "位置", icon: Icon(Icons.layers)),
+      decoration: InputDecoration(
+        labelText: "位置",
+        icon: Icon(Icons.location_on_outlined),
+      ),
     );
   }
 
@@ -143,7 +162,34 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
     return TextFormField(
       controller: _remarkTxtController,
 
-      decoration: InputDecoration(labelText: "备注", icon: Icon(Icons.layers)),
+      decoration: InputDecoration(labelText: "备注", icon: Icon(Icons.reorder)),
+    );
+  }
+
+  Widget _buildOrganizationActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            Get.back(id: NestedNavigatorKeyId.userCenterId);
+          },
+          child: Text('取消'),
+        ),
+        const SizedBox(width: 30),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue, // 背景色
+            foregroundColor: Colors.white,
+            // padding: EdgeInsets.all(4),
+            // 文字颜色
+          ),
+          onPressed: () {
+            Get.back(id: NestedNavigatorKeyId.userCenterId);
+          },
+          child: Text('确认'),
+        ),
+      ],
     );
   }
 
@@ -156,6 +202,8 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
           _buildNameTextField(context),
           _buildAddressTextField(context),
           _buildRemarkTextField(context),
+          SizedBox(height: 40,),
+          _buildOrganizationActions(context),
         ],
       ),
     );
@@ -166,29 +214,7 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
 
   @override
   Widget buildBody(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(child: _buildOrganizationForm(context)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () {
-                Get.back(id: NestedNavigatorKeyId.userCenterId);
-              },
-              child: Text('取消'),
-            ),
-            const SizedBox(width: 10),
-            TextButton(
-              onPressed: () {
-                Get.back(id: NestedNavigatorKeyId.userCenterId);
-              },
-              child: Text('确认'),
-            ),
-          ],
-        ),
-      ],
-    );
+    return Column(children: [Expanded(child: _buildOrganizationForm(context))]);
   }
 
   @override
