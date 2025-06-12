@@ -1,6 +1,7 @@
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/utils/common_util.dart';
 
 import '../controllers/login_controller.dart';
 import 'phone_login_view.dart';
@@ -35,7 +36,7 @@ class LoginView extends GetView<LoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body:
-      GetPlatform.isMobile
+      !isBigScreen(context)
           ? buildBasicLoginView(context)
           : Stack(
         children: [

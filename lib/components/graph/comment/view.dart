@@ -30,7 +30,6 @@ class _CommentListViewState extends State<_TaskCommentListView>
   GraphTaskCommentController get controller =>
       Get.find<GraphTaskCommentController>();
 
-
   @override
   _CommentListViewState get widgetState => this;
 
@@ -575,7 +574,7 @@ class GraphEditTaskCommentView extends GraphTaskCommentView {
     return Obx(
       () => ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: GetPlatform.isMobile ? 500 : 720,
+          maxHeight: isBigScreen(context) ? 720 : 500,
         ),
         child: buildPopupColEditCommentComp(context),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:yx/utils/common_util.dart';
 
 import 'controller.dart';
 
@@ -11,7 +12,7 @@ class RootView extends GetView<RootTabController> {
     return Scaffold(
       key: controller.rootTabKey,
       body:
-          GetPlatform.isWeb
+      isBigScreen(context)
               ? Row(
                 children: [
                   RootWebMenuView(),
@@ -20,7 +21,7 @@ class RootView extends GetView<RootTabController> {
               )
               : Obx(() => controller.curTabView),
       bottomNavigationBar:
-          GetPlatform.isMobile ? RootMobileBottomTabView() : null,
+      !isBigScreen(context) ? RootMobileBottomTabView() : null,
     );
   }
 }

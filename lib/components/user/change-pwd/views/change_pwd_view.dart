@@ -2,6 +2,7 @@ import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/services/auth_service.dart';
+import 'package:yx/utils/common_util.dart';
 
 import 'change_pwd_comp.dart';
 
@@ -34,7 +35,7 @@ class ChangePwdView extends GetView<GetxController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body:
-          GetPlatform.isMobile
+          !isBigScreen(context)
               ? buildBasicChangePwdView(context)
               : Stack(
                 children: [

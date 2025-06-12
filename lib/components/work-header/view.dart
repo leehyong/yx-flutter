@@ -198,7 +198,7 @@ class PublishSubmitItemsCrudViewState
                         ),
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxHeight: GetPlatform.isMobile ? 500 : 800,
+                            maxHeight: !isBigScreen(context) ? 500 : 800,
                           ),
                           child:
                               isSaving

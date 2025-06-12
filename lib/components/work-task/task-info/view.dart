@@ -204,14 +204,6 @@ class TaskInfoViewState extends State<TaskInfoView> {
     parentTask = null;
   }
 
-  void handleOperationCategoryChange(TaskOperationCategory v) {
-    final defaultCat =
-        isSubmitRelated && GetPlatform.isMobile
-            ? TaskAttributeCategory.submitItem
-            : TaskAttributeCategory.basic;
-    selectedAttrSet = {defaultCat};
-  }
-
   RootTabController get rootTabController => Get.find<RootTabController>();
 
   void saveModification(ModifyWarningCategory modification) {
@@ -528,7 +520,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
                                       maxHeight:
-                                          GetPlatform.isMobile ? 500 : 800,
+                                      !isBigScreen(context) ? 500 : 800,
                                     ),
                                     child: RepaintBoundary(
                                       child: TaskContentHistoryView(
@@ -787,7 +779,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
         if (!readOnly && noParent)
           Align(
             alignment:
-                GetPlatform.isMobile
+            !isBigScreen(context)
                     ? Alignment.centerRight
                     : Alignment.topLeft,
             child: ElevatedButton(
@@ -849,7 +841,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
                           ),
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxHeight: GetPlatform.isMobile ? 500 : 800,
+                              maxHeight: !isBigScreen(context) ? 500 : 800,
                             ),
                             child: RepaintBoundary(
                               child: SelectParentTaskView(
@@ -874,7 +866,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
               child: LayoutBuilder(
                 builder: (context, constrains) {
                   final width =
-                      !GetPlatform.isMobile
+                  isBigScreen(context)
                           ? min(500.0, constrains.maxWidth)
                           : constrains.maxWidth;
                   return SizedBox(
@@ -1172,7 +1164,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
             ),
             child: Tooltip(
               message: p,
-              triggerMode: GetPlatform.isMobile ? TooltipTriggerMode.tap : null,
+              triggerMode: !isBigScreen(context) ? TooltipTriggerMode.tap : null,
               preferBelow: false,
               child: Text(
                 p.substring(0, min(5, p.length)),
@@ -1270,7 +1262,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
                       ),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          maxHeight: GetPlatform.isMobile ? 500 : 800,
+                          maxHeight: !isBigScreen(context) ? 500 : 800,
                         ),
                         child: RepaintBoundary(
                           child: SelectTaskPersonView(key: selectTaskUsersKey),

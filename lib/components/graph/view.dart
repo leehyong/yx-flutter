@@ -151,7 +151,7 @@ class GraphTaskView extends GetView<GraphTaskController> {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: 80,
-                      maxHeight: GetPlatform.isMobile ? 500 : 800,
+                      maxHeight: isBigScreen(context) ? 800 : 500,
                     ),
                     child: Center(
                       child: _multiRoomSelectSelectBox(modalSheetContext),
@@ -234,7 +234,7 @@ class GraphTaskView extends GetView<GraphTaskController> {
                   ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxHeight: GetPlatform.isMobile ? 500 : 800,
+                      maxHeight: !isBigScreen(context) ? 500 : 800,
                     ),
                     child: _taskSelectTree(modalSheetContext),
                   ),
