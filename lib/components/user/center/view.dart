@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:yx/root/controller.dart';
+import 'package:yx/routes/app_pages.dart';
+import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 
 class PersonalCenterView extends StatefulWidget {
@@ -111,7 +115,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
                 ),
               ),
               const Text('大家庭'),
-              Icon(Icons.tag_faces, color: Colors.blue,),
+              Icon(Icons.tag_faces, color: Colors.blue),
             ],
           ),
         ],
@@ -133,10 +137,56 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
       child: Column(
         spacing: 4,
         children: [
-          _ListTileItem(icon: Icons.layers, title: '加入组织', onTap: () {}),
-          _ListTileItem(icon: Icons.swap_horiz, title: '切换组织', onTap: () {}),
-          _ListTileItem(icon: Icons.add, title: '注册组织', onTap: () {}),
-          _ListTileItem(icon: Icons.logout, title: '退出登录', onTap: () {}),
+          _buildListTileItem(
+            context,
+            icon: Icons.layers,
+            title: '加入组织',
+            onTap: () {
+              Get.toNamed(
+                UserProfileRoutes.organization,
+                arguments: UserCenterPageParams(
+                  UserCenterAction.joinOrganization,
+                ),
+                id: Get.find<RootTabController>().curRouteId,
+              );
+            },
+          ),
+          _buildListTileItem(
+            context,
+            icon: Icons.swap_horiz,
+            title: '切换组织',
+            onTap: () {
+              Get.toNamed(
+                UserProfileRoutes.organization,
+                arguments: UserCenterPageParams(
+                  UserCenterAction.switchOrganization,
+                ),
+                id: Get.find<RootTabController>().curRouteId,
+              );
+            },
+          ),
+          _buildListTileItem(
+            context,
+            icon: Icons.add,
+            title: '注册组织',
+            onTap: () {
+              final a = 'x';
+              debugPrint('注册组织');
+              Get.toNamed(
+                UserProfileRoutes.registerOrganization,
+                arguments: UserCenterPageParams(
+                  UserCenterAction.registerOrganization,
+                ),
+                id: Get.find<RootTabController>().curRouteId,
+              );
+            },
+          ),
+          _buildListTileItem(
+            context,
+            icon: Icons.logout,
+            title: '退出登录',
+            onTap: () {},
+          ),
         ],
       ),
     );
@@ -181,7 +231,9 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
       spacing: 16,
       children: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            debugPrint('消息');
+          },
           icon:
               messageCount > 0
                   ? Badge(label: Text('$messageCount'), child: msg)
@@ -200,46 +252,74 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
     );
   }
 
+  Widget _buildListTileItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(title),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        // child: Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //   spacing: 6,
+        //   children: [
+        //     Icon(icon),
+        //     Text(title),
+        //     const Spacer(),
+        //     const Icon(Icons.arrow_forward_ios, size: 16)
+        //   ],
+        // ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hp = isBigScreen(context) ? 60.0 : 10.0;
-    return LayoutBuilder(
-      builder: (cxt, cons) {
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: cons.maxWidth,
-              height: profileBoxHeight,
-              alignment: Alignment(-1, -0.5),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade300,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(40),
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (cxt, cons) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: cons.maxWidth,
+                height: profileBoxHeight,
+                alignment: Alignment(-1, -0.5),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade300,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(40),
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: hp),
+                margin: EdgeInsets.only(bottom: profileBoxMarginBottom),
+                child: _buildTopActions(context),
+              ),
+              Positioned(
+                left: hp,
+                width: cons.maxWidth - hp * 2,
+                top: profileBoxMarginBottom * 2,
+                height: cons.maxHeight,
+                child: Column(
+                  spacing: 8,
+                  children: [
+                    _buildMyselfProfile(context),
+                    // SizedBox(height: 4),
+                    // _buildMyInfo(context),
+                    Expanded(child: _buildActionBox(context)),
+                  ],
                 ),
               ),
-              padding: EdgeInsets.symmetric(horizontal: hp),
-              margin: EdgeInsets.only(bottom: profileBoxMarginBottom),
-              child: _buildTopActions(context),
-            ),
-            Positioned(
-              left: hp,
-              width: cons.maxWidth - hp * 2,
-              top: profileBoxMarginBottom * 2,
-              height: cons.maxHeight,
-              child: Column(
-                spacing: 8,
-                children: [
-                  _buildMyselfProfile(context),
-                  // SizedBox(height: 4),
-                  // _buildMyInfo(context),
-                  Expanded(child: _buildActionBox(context)),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -278,30 +358,6 @@ class _FunctionItem extends StatelessWidget {
           Text(label, style: const TextStyle(fontSize: 12)),
         ],
       ),
-    );
-  }
-}
-
-// 列表项 widget
-class _ListTileItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const _ListTileItem({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
     );
   }
 }

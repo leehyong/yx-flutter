@@ -402,7 +402,6 @@ extension GraphViewActionExtension on GraphViewType {
       GraphViewType.values[(index + 1) % GraphViewType.values.length];
 }
 
-
 /// Material indicator properties.
 class MIProperties {
   final String name;
@@ -414,4 +413,38 @@ class MIProperties {
   bool listSpring = false;
 
   MIProperties({required this.name});
+}
+
+enum UserCenterAction {
+  creditsHistory,
+  joinOrganization,
+  switchOrganization,
+  registerOrganization,
+  messageHistory,
+  systemSetting,
+}
+
+extension UserCenterActionExtension on UserCenterAction {
+  String get i18name {
+    switch (this) {
+      case UserCenterAction.creditsHistory:
+        return '积分记录';
+      case UserCenterAction.joinOrganization:
+        return '加入组织';
+      case UserCenterAction.switchOrganization:
+        return '切换组织';
+      case UserCenterAction.registerOrganization:
+        return '注册组织';
+      case UserCenterAction.messageHistory:
+        return '消息历史';
+      case UserCenterAction.systemSetting:
+        return '系统设置';
+    }
+  }
+}
+
+class UserCenterPageParams {
+  const UserCenterPageParams(this.action);
+
+  final UserCenterAction action;
 }
