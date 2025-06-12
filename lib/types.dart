@@ -56,17 +56,17 @@ extension TaskListCategoryExtension on TaskListCategory {
   String get i18name {
     switch (this) {
       case TaskListCategory.allPublished:
-        return "任务列表";
+        return "全部";
       case TaskListCategory.myPublished:
         return "我发布的";
       case TaskListCategory.myManuscript:
-        return "我的草稿";
+        return "草稿";
       case TaskListCategory.myParticipant:
         return "参与的";
       case TaskListCategory.finished:
         return "完成的";
       case TaskListCategory.delegatedToMe:
-        return "委派的";
+        return "委派";
       case TaskListCategory.parentTaskInfo:
         return "父任务信息";
       case TaskListCategory.childrenTaskInfo:

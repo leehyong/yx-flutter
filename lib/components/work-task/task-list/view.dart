@@ -218,28 +218,30 @@ class TaskListViewState extends State<TaskListView>
   }
 
   Widget _buildSegmentButtons(BuildContext context) {
-    return SizedBox(
-      width: 400,
-      child: SegmentedButton(
-        emptySelectionAllowed: true,
-        expandedInsets: EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
-        segments:
-            widget.cats!
-                .map(
-                  (e) => ButtonSegment(
-                    value: e,
-                    label: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(e.i18name, softWrap: false, maxLines: 1),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 400),
+      child: Center(
+        child: SegmentedButton(
+          emptySelectionAllowed: true,
+          expandedInsets: EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
+          segments:
+              widget.cats!
+                  .map(
+                    (e) => ButtonSegment(
+                      value: e,
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(e.i18name, softWrap: false, maxLines: 1),
+                      ),
                     ),
-                  ),
-                )
-                .toList(),
-        onSelectionChanged: (s) {
-          reloadCurTaskListData(s.first);
-        },
-        selected: curLayer.curCat,
-        multiSelectionEnabled: false,
+                  )
+                  .toList(),
+          onSelectionChanged: (s) {
+            reloadCurTaskListData(s.first);
+          },
+          selected: curLayer.curCat,
+          multiSelectionEnabled: false,
+        ),
       ),
     );
   }
@@ -258,18 +260,23 @@ class TaskListViewState extends State<TaskListView>
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   _buildSegmentButtons(context),
-                  const Spacer(),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      onPressed: refreshController.callRefresh,
-                      icon: Tooltip(
-                        message: '刷新',
-                        preferBelow: false,
-                        child: Icon(Icons.refresh, color: Colors.blue.shade300),
+                  if (isBigScreen(context)) ...[
+                    const Spacer(),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        onPressed: refreshController.callRefresh,
+                        icon: Tooltip(
+                          message: '刷新',
+                          preferBelow: false,
+                          child: Icon(
+                            Icons.refresh,
+                            color: Colors.blue.shade300,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               Expanded(child: _buildTasks(context)),
