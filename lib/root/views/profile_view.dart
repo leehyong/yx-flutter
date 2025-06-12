@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/components/user/center/view.dart';
+import 'package:yx/components/user/change-pwd/bindings/change_pwd_binding.dart';
+import 'package:yx/components/user/change-pwd/view.dart';
+import 'package:yx/components/user/change-pwd/views/change_pwd_comp.dart';
 import 'package:yx/components/user/organization/view.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
@@ -22,7 +25,6 @@ class ProfileView extends GetView<ProfileController> {
             return GetPageRoute(
               settings: settings,
               page: () => PersonalCenterView(),
-              bindings: [],
               transition: Transition.topLevel,
             );
           case UserProfileRoutes.organization:
@@ -30,7 +32,6 @@ class ProfileView extends GetView<ProfileController> {
             return GetPageRoute(
               settings: settings,
               page: () => OrganizationView(params: params),
-              bindings: [],
               transition: Transition.topLevel,
             );
           case UserProfileRoutes.registerOrganization:
@@ -38,8 +39,14 @@ class ProfileView extends GetView<ProfileController> {
             return GetPageRoute(
               settings: settings,
               page: () => RegisterOrganizationView(params: params),
-              bindings: [],
               transition: Transition.leftToRight,
+            );
+          case UserProfileRoutes.changePwd:
+            final params = settings.arguments! as UserCenterPageParams;
+            return GetPageRoute(
+              settings: settings,
+              page: () => ChangePwdVIew(params: params),
+              transition: Transition.rightToLeftWithFade,
             );
         }
         return null;

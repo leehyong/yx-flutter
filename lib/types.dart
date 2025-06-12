@@ -422,6 +422,7 @@ enum UserCenterAction {
   registerOrganization,
   messageHistory,
   systemSetting,
+  changePwd,
 }
 
 extension UserCenterActionExtension on UserCenterAction {
@@ -439,6 +440,8 @@ extension UserCenterActionExtension on UserCenterAction {
         return '消息历史';
       case UserCenterAction.systemSetting:
         return '系统设置';
+      case UserCenterAction.changePwd:
+        return '修改密码';
     }
   }
 }

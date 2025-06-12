@@ -42,7 +42,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             children: [
               ClipOval(
                 child: Image.network(
-                  'https://img.36krcdn.com/hsossms/20250611/v2_6946b1a1ac1f436ab79880cd07c98c3f@000000_oswg42582oswg1080oswg720_img_000?x-oss-process=image/format,jpg/interlace,1',
+                  'https://mms-graph.cdn.bcebos.com/home-pc/human.jpg',
                   // 实际替换成你的头像地址
                   width: 80,
                   height: 80,
@@ -173,12 +173,24 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             icon: Icons.add,
             title: '注册组织',
             onTap: () {
-              final a = 'x';
-              debugPrint('注册组织');
               Get.toNamed(
                 UserProfileRoutes.registerOrganization,
                 arguments: UserCenterPageParams(
                   UserCenterAction.registerOrganization,
+                ),
+                id: NestedNavigatorKeyId.userCenterId,
+              );
+            },
+          ),
+          _buildListTileItem(
+            context,
+            icon: Icons.update,
+            title: '修改秘密',
+            onTap: () {
+              Get.toNamed(
+                UserProfileRoutes.changePwd,
+                arguments: UserCenterPageParams(
+                  UserCenterAction.changePwd,
                 ),
                 id: NestedNavigatorKeyId.userCenterId,
               );

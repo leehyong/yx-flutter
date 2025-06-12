@@ -3,32 +3,8 @@ import 'package:get/get.dart';
 import 'package:group_button/group_button.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
-import 'package:yx/utils/common_util.dart';
 
-mixin CommonOrganizationView {
-  UserCenterPageParams get pageParams;
-
-  Widget buildBody(BuildContext context);
-
-  Widget buildScaffold(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(pageParams.action.i18name, style: defaultTitleStyle),
-      ),
-      body: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-        child:
-            isBigScreen(context)
-                ? ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 500),
-                  child: buildBody(context),
-                )
-                : buildBody(context),
-      ),
-    );
-  }
-}
+import '../mixin.dart';
 
 class OrganizationView extends StatefulWidget {
   OrganizationView({super.key, required this.params}) {
@@ -45,7 +21,7 @@ class OrganizationView extends StatefulWidget {
 }
 
 class OrganizationViewState extends State<OrganizationView>
-    with CommonOrganizationView {
+    with CommonUserCenterView {
   @override
   void initState() {
     super.initState();
@@ -88,14 +64,13 @@ class OrganizationViewState extends State<OrganizationView>
       children: [
         // Expanded(
         //   child:
-          GroupButton<int>(
-            isRadio: true,
-            buttons: List.generate(20, (i) => i + 1),
-            buttonTextBuilder:
-                (selected, content, context) => content.toString(),
-          ),
+        GroupButton<int>(
+          isRadio: true,
+          buttons: List.generate(20, (i) => i + 1),
+          buttonTextBuilder: (selected, content, context) => content.toString(),
+        ),
         // ),
-        const SizedBox(height: 20,),
+        const SizedBox(height: 20),
         _buildOrganizationActions(context),
       ],
     );
@@ -118,11 +93,12 @@ class RegisterOrganizationView extends StatefulWidget {
 }
 
 class RegisterOrganizationViewState extends State<RegisterOrganizationView>
-    with CommonOrganizationView {
+    with CommonUserCenterView {
   final _formKey = GlobalKey<FormState>();
   final _nameTxtController = TextEditingController();
   final _addressTxtController = TextEditingController();
   final _remarkTxtController = TextEditingController();
+  bool _whetherRelateCurrentOrganization = false;
 
   @override
   void initState() {
@@ -161,7 +137,6 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
   Widget _buildRemarkTextField(BuildContext context) {
     return TextFormField(
       controller: _remarkTxtController,
-
       decoration: InputDecoration(labelText: "备注", icon: Icon(Icons.reorder)),
     );
   }
@@ -193,6 +168,27 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
     );
   }
 
+  Widget _buildWhetherCurrentOrganization(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Switch(
+          value: _whetherRelateCurrentOrganization,
+          onChanged: (nv) {
+            setState(() {
+              _whetherRelateCurrentOrganization = nv;
+            });
+          },
+        ),
+        const SizedBox(width: 10,),
+        const Text(
+          '是否关联当前组织',
+          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
   Widget _buildOrganizationForm(BuildContext context) {
     return Form(
       key: _formKey,
@@ -200,9 +196,13 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
       child: ListView(
         children: [
           _buildNameTextField(context),
+          const SizedBox(height: 10),
           _buildAddressTextField(context),
+          const SizedBox(height: 10),
           _buildRemarkTextField(context),
-          SizedBox(height: 40,),
+          const SizedBox(height: 10),
+          _buildWhetherCurrentOrganization(context),
+          const SizedBox(height: 40),
           _buildOrganizationActions(context),
         ],
       ),
