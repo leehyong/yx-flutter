@@ -9,11 +9,13 @@ class PersonalCenterView extends StatefulWidget {
 }
 
 class PersonalCenterViewState extends State<PersonalCenterView> {
-  final profileBoxHeight = 260.0;
+  final profileBoxHeight = 220.0;
   final profileBoxMarginBottom = 60.0;
   final horizontalPadding = 40.0;
   final verticalPadding = 20.0;
   final borderRadiusAll20 = BorderRadius.all(Radius.circular(20));
+  final messageCount = 10;
+  final credits = 10.0;
 
   Widget _buildMyselfProfile(BuildContext context) {
     return Container(
@@ -23,13 +25,14 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
       ),
       padding: EdgeInsets.symmetric(
         vertical: verticalPadding,
-        horizontal: horizontalPadding,
+        // horizontal: horizontalPadding,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // 头像、用户名等信息
           Row(
+            spacing: 8,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ClipOval(
@@ -41,36 +44,74 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
                   fit: BoxFit.cover,
                 ),
               ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    '奋斗的青春',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4),
-                  Text('儒生 北京市 高三理', style: TextStyle(fontSize: 14)),
-                ],
+              SizedBox(
+                width: 140,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      '奋斗的青春',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '儒生 北京市 高三理',
+                      style: TextStyle(
+                        fontSize: 14,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
               TextButton(
+                clipBehavior: Clip.antiAliasWithSaveLayer,
                 onPressed: () {
-                  // 个人主页点击事件
+                  // 获取积分列表
                 },
-                child: const Text('个人主页'),
+                child: Row(
+                  spacing: 4,
+                  children: [
+                    Text(
+                      '$credits',
+                      style: TextStyle(fontSize: 18, color: Colors.purple),
+                    ),
+                    Icon(Icons.diamond, color: Colors.purple, size: 22),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          // 收藏、关注等统计数据
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              _StatsItem(title: '66', subTitle: '收藏'),
-              _StatsItem(title: '102', subTitle: '关注'),
-              _StatsItem(title: '68', subTitle: '帖子'),
-              _StatsItem(title: '99', subTitle: '问答'),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('欢迎加入'),
+              TextButton(
+                // 短按展示企业信息
+                onPressed: () {},
+                // 长按复杂企业名称
+                onLongPress: () {},
+                child: Row(
+                  spacing: 4,
+                  children: [
+                    const Text(
+                      '地球村',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    Icon(Icons.copy, size: 14),
+                  ],
+                ),
+              ),
+              const Text('大家庭'),
+              Icon(Icons.tag_faces, color: Colors.blue,),
             ],
           ),
         ],
@@ -78,16 +119,10 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
     );
   }
 
-  double profileBoxPaddingHorizontal(BuildContext context) {
-    return isBigScreen(context) ? 60 : 10;
-  }
-
   Widget _buildActionBox(BuildContext context) {
-    final children = _buildCommonActions(context);
-    children.insert(0, _buildMyInfo(context));
     return Container(
       decoration: BoxDecoration(
-        color: Colors.yellow.shade50,
+        color: Colors.yellow.withAlpha(10),
         borderRadius: borderRadiusAll20,
       ),
       margin: EdgeInsets.only(top: 10),
@@ -95,54 +130,71 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
         vertical: verticalPadding,
         horizontal: horizontalPadding,
       ),
-      child: Column(spacing: 4, children: children),
+      child: Column(
+        spacing: 4,
+        children: [
+          _ListTileItem(icon: Icons.layers, title: '加入组织', onTap: () {}),
+          _ListTileItem(icon: Icons.swap_horiz, title: '切换组织', onTap: () {}),
+          _ListTileItem(icon: Icons.add, title: '注册组织', onTap: () {}),
+          _ListTileItem(icon: Icons.logout, title: '退出登录', onTap: () {}),
+        ],
+      ),
     );
   }
 
-  Widget _buildPositionedCenter(BuildContext context) {
-    return Column(
-      children: [_buildMyselfProfile(context), _buildActionBox(context)],
-    );
-  }
+  // Widget _buildMyInfo(BuildContext context) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //     children: [
+  //       _FunctionItem(
+  //         icon: Icons.diamond,
+  //         label: '我的积分',
+  //         bgColor: Colors.greenAccent,
+  //         onTap: () {},
+  //       ),
+  //       // _FunctionItem(
+  //       //   icon: Icons.stacked_bar_chart,
+  //       //   label: '进行中的任务',
+  //       //   bgColor: Colors.pinkAccent,
+  //       //   onTap: () {},
+  //       // ),
+  //       // _FunctionItem(
+  //       //   icon: Icons.pie_chart,
+  //       //   label: '已完成的任务',
+  //       //   bgColor: Colors.purpleAccent,
+  //       //   onTap: () {},
+  //       // ),
+  //       _FunctionItem(
+  //         icon: Icons.view_list,
+  //         label: '我的计划',
+  //         bgColor: Colors.orangeAccent,
+  //         onTap: () {},
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  List<Widget> _buildCommonActions(BuildContext context) {
-    return [
-      // 我的积分等列表项
-      _ListTileItem(icon: Icons.star, title: '我的积分', onTap: () {}),
-      _ListTileItem(icon: Icons.download, title: '我的下载', onTap: () {}),
-      _ListTileItem(icon: Icons.nightlight_round, title: '夜间模式', onTap: () {}),
-      _ListTileItem(icon: Icons.settings, title: '设置', onTap: () {}),
-      _ListTileItem(icon: Icons.logout, title: '退出登录', onTap: () {}),
-    ];
-  }
-
-  Widget _buildMyInfo(BuildContext context) {
+  Widget _buildTopActions(BuildContext context) {
+    final msg = Icon(Icons.message, color: Colors.white, size: 28);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.end,
+      spacing: 16,
       children: [
-        _FunctionItem(
-          icon: Icons.calendar_today,
-          label: '高考日历',
-          bgColor: Colors.greenAccent,
-          onTap: () {},
+        IconButton(
+          onPressed: () {},
+          icon:
+              messageCount > 0
+                  ? Badge(label: Text('$messageCount'), child: msg)
+                  : msg,
         ),
-        _FunctionItem(
-          icon: Icons.timer,
-          label: '倒计时',
-          bgColor: Colors.pinkAccent,
-          onTap: () {},
+        const Spacer(),
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.share, color: Colors.white, size: 28),
         ),
-        _FunctionItem(
-          icon: Icons.pie_chart,
-          label: '学习统计',
-          bgColor: Colors.purpleAccent,
-          onTap: () {},
-        ),
-        _FunctionItem(
-          icon: Icons.view_list,
-          label: '我的计划',
-          bgColor: Colors.orangeAccent,
-          onTap: () {},
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.settings, color: Colors.white, size: 28),
         ),
       ],
     );
@@ -150,7 +202,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
 
   @override
   Widget build(BuildContext context) {
-    final hp = profileBoxPaddingHorizontal(context);
+    final hp = isBigScreen(context) ? 60.0 : 10.0;
     return LayoutBuilder(
       builder: (cxt, cons) {
         return Stack(
@@ -159,6 +211,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             Container(
               width: cons.maxWidth,
               height: profileBoxHeight,
+              alignment: Alignment(-1, -0.5),
               decoration: BoxDecoration(
                 color: Colors.blue.shade300,
                 borderRadius: BorderRadius.vertical(
@@ -167,39 +220,26 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
               ),
               padding: EdgeInsets.symmetric(horizontal: hp),
               margin: EdgeInsets.only(bottom: profileBoxMarginBottom),
+              child: _buildTopActions(context),
             ),
             Positioned(
               left: hp,
               width: cons.maxWidth - hp * 2,
-              top: profileBoxMarginBottom * 1.6,
-              child: _buildPositionedCenter(context),
+              top: profileBoxMarginBottom * 2,
+              height: cons.maxHeight,
+              child: Column(
+                spacing: 8,
+                children: [
+                  _buildMyselfProfile(context),
+                  // SizedBox(height: 4),
+                  // _buildMyInfo(context),
+                  Expanded(child: _buildActionBox(context)),
+                ],
+              ),
             ),
           ],
         );
       },
-    );
-  }
-}
-
-// 统计数据子项 widget
-class _StatsItem extends StatelessWidget {
-  final String title;
-  final String subTitle;
-
-  const _StatsItem({Key? key, required this.title, required this.subTitle})
-    : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(subTitle, style: const TextStyle(fontSize: 12)),
-      ],
     );
   }
 }
@@ -212,12 +252,12 @@ class _FunctionItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const _FunctionItem({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     required this.bgColor,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
