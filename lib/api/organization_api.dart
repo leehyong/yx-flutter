@@ -49,7 +49,7 @@ Future<List<Organization>> queryAllOrganization() async {
 }
 
 // 查询可加入的组织
-Future<List<CusYooOrganizationTree>> queryJoinableOrganizations(
+Future<ProtoPageVo<CusYooOrganizationTree>> queryJoinableOrganizations(
   int page,
   int limit,
 ) async {
@@ -62,10 +62,10 @@ Future<List<CusYooOrganizationTree>> queryJoinableOrganizations(
       resp,
       CusYooOrganizationTree.fromBuffer,
     );
-    return data.data ?? <CusYooOrganizationTree>[];
+    return data;
   } catch (e) {
     debugPrint('接口 queryJoinableOrganizations 调用失败：$e');
-    return <CusYooOrganizationTree>[];
+    return ProtoPageVo.fail(e.toString());
   }
 }
 
@@ -97,9 +97,8 @@ Future<bool> registerOrganization(
       queryParameters: {"parent_org_id": parentOrgId},
       data: encodeProtoData(newOrganization),
     );
-
     return handleProtoCommonInstanceVo(resp, toastSuccess: true)?.isEmpty ??
-        false;
+        true;
   } catch (e) {
     debugPrint('接口 registerOrganization 调用失败：$e');
     return false;

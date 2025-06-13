@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/components/user/center/view.dart';
-import 'package:yx/components/user/change-pwd/bindings/change_pwd_binding.dart';
 import 'package:yx/components/user/change-pwd/view.dart';
-import 'package:yx/components/user/change-pwd/views/change_pwd_comp.dart';
 import 'package:yx/components/user/organization/view.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
@@ -29,9 +27,20 @@ class ProfileView extends GetView<ProfileController> {
             );
           case UserProfileRoutes.organization:
             final params = settings.arguments! as UserCenterPageParams;
+            Widget page;
+            switch (params.action) {
+              case UserCenterAction.joinOrganization:
+                page = JoinableOrganizationView(params: params);
+                break;
+              case UserCenterAction.switchOrganization:
+                page = SwitchableOrganizationView(params: params);
+                break;
+              default:
+                throw UnsupportedError("不支持的参数");
+            }
             return GetPageRoute(
               settings: settings,
-              page: () => OrganizationView(params: params),
+              page: () => page,
               transition: Transition.topLevel,
             );
           case UserProfileRoutes.registerOrganization:

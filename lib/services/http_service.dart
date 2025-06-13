@@ -112,11 +112,15 @@ class HttpDioService extends GetxService {
   }
 }
 
-String handleTokenResponse(Response<String> res) {
+String handleTokenResponse(Response<String> res, {bool check=false}) {
   final result = decodeCommonVoDataFromResponse(res);
   if (result.$2 != null) {
     if (result.$2!.data.hasValue()) {
       final loginVoData = result.$2!.data.unpackInto(LoginResponseVo());
+      // 检查条件是否满足
+      if (check && loginVoData.orgId <= 0 && loginVoData.userId <= 0) {
+        return '';
+      }
       AuthService.instance.setLoginInfo(
         loginVoData.accessToken,
         loginVoData.refreshToken,

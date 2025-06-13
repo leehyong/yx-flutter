@@ -451,3 +451,30 @@ class UserCenterPageParams {
 
   final UserCenterAction action;
 }
+
+enum OrganizationJoinStrategy {
+  public, // 公开
+  private, // 私有
+  invite, // 邀请
+}
+
+extension OrganizationJoinStrategyExtension on OrganizationJoinStrategy {
+  String get i18name {
+    switch (this) {
+      case OrganizationJoinStrategy.public:
+        return '公开';
+      case OrganizationJoinStrategy.private:
+        return '私有';
+      case OrganizationJoinStrategy.invite:
+        return '邀请';
+    }
+  }
+}
+
+enum UserApplyOrganizationJoinStrategy {
+  none, // 无操作
+  approvePass, // 审批通过
+  approveRefuse,
+  invite, // 邀请加入
+  register, // 注册加入
+}
