@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:yx/routes/app_pages.dart';
 import 'package:yx/types.dart';
-import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/toast.dart';
 
 import '../controllers/user_login_controller.dart';
@@ -56,9 +55,9 @@ class UserLoginView extends GetView<UserLoginController> {
         ),
       ),
       validator: (v) {
-        if (!isValidUser(v!)) {
-          return "用户名格式不对";
-        }
+        // if (!isValidUser(v!)) {
+        //   return "用户名格式不对";
+        // }
         // controller.user.value = v!;
         return null;
       },
@@ -72,9 +71,9 @@ class UserLoginView extends GetView<UserLoginController> {
       // 是否显示文字
       validator: (v) {
         // 密码格式验证
-        if (!isValidPwd(v!)) {
-          return "密码格式不对，请检查";
-        }
+        // if (!isValidPwd(v!)) {
+        //   return "密码格式不对，请检查";
+        // }
         return null;
         // controller.pwd.value = v!;
       },
@@ -168,15 +167,15 @@ class UserLoginView extends GetView<UserLoginController> {
           child: const Text('登录', style: TextStyle(fontSize: 24)),
           onPressed: () async {
             // 表单校验通过才会继续执行
-            // Get.offAndToNamed(Routes.app);
-
-            if (controller.isValidInput) {
-              //执行登录方法
-              final err = await controller.login();
-              if (err.isEmpty) {
-                Get.offAndToNamed(Routes.app);
-              }
-            }
+            Get.offAndToNamed(Routes.app);
+            //
+            // if (controller.isValidInput) {
+            //   //执行登录方法
+            //   final err = await controller.login();
+            //   if (err.isEmpty) {
+            //     Get.offAndToNamed(Routes.app);
+            //   }
+            // }
           },
         ),
       ),
