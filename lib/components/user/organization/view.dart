@@ -103,21 +103,25 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
         data.name,
         style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 16),
       ),
-      subtitle: Row(
-        children: [
-          const Text(
-            '创建时间',
-            style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
-          ),
-          Text(
-            localFromMilliSeconds(data.createdAt.toInt()),
-            style: TextStyle(
-              overflow: TextOverflow.ellipsis,
-              fontSize: 12,
-              color: Colors.lightBlueAccent,
+      subtitle: Container(
+        margin: EdgeInsets.only(top: 8),
+        child: Row(
+          spacing: 4,
+          children: [
+            const Text(
+              '创建时间',
+              style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 12),
             ),
-          ),
-        ],
+            Text(
+              localFromMilliSeconds(data.createdAt.toInt()),
+              style: TextStyle(
+                overflow: TextOverflow.ellipsis,
+                fontSize: 12,
+                color: Colors.red,
+              ),
+            ),
+          ],
+        ),
       ),
       value: data.id,
       groupValue: _checkedOrganizationId,
@@ -373,8 +377,9 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
     BuildContext context,
     String name,
     String title,
-    double fontSize,
-  ) => Row(
+    double fontSize, {
+    Color? color,
+  }) => Row(
     spacing: 4,
     children: [
       Text('$name:'),
@@ -382,7 +387,11 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
         message: title,
         child: Text(
           title,
-          style: TextStyle(fontSize: fontSize, overflow: TextOverflow.ellipsis),
+          style: TextStyle(
+            fontSize: fontSize,
+            overflow: TextOverflow.ellipsis,
+            color: color,
+          ),
         ),
       ),
     ],
@@ -395,7 +404,16 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
     return buildRandomColorfulBox(
       RadioListTile(
         title: _buildTitle(context, '名称', org.organization.name, 16.0),
-        subtitle: _buildTitle(context, '角色', org.role.name, 12.0),
+        subtitle: Container(
+          margin: EdgeInsets.only(top: 8),
+          child: _buildTitle(
+            context,
+            '角色',
+            org.role.name,
+            12.0,
+            color: Colors.red,
+          ),
+        ),
         value: org,
         groupValue: _checkedSwitchOrg,
         onChanged: (v) {
