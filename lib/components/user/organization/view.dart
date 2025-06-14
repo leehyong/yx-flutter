@@ -533,6 +533,8 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
       ),
       items:
           OrganizationJoinStrategy.values
+              // 目前只有公开的组织可以注册, 后续再支持其他类型的组织
+              .where((item) => item == OrganizationJoinStrategy.public)
               .map(
                 (item) =>
                     DropdownMenuItem(value: item, child: Text(item.i18name)),
