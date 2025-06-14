@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,7 +21,6 @@ class TaskContentHistoryView extends StatefulWidget {
 
 class TaskContentHistoryViewState extends State<TaskContentHistoryView>
     with CommonEasyRefresherMixin {
-
   @override
   TaskContentHistoryViewState get widgetState => this;
 
@@ -61,97 +58,92 @@ class TaskContentHistoryViewState extends State<TaskContentHistoryView>
       controller: scrollController,
       itemCount: contents!.length + 1,
       itemBuilder: (context, index) {
-        if(index == contents!.length){
+        if (index == contents!.length) {
           return buildLoadMoreTipAction(context, _hasMore, loadData);
         }
         final thisContent = contents![index];
-        final colorIdx =
-            Random(thisContent.content.id.toInt()).nextInt(10000) %
-            loadingColors.length;
-        // 把颜色做成随机透明的
-        // 区分编辑和只读
-        return Container(
+        return buildRandomColorfulBox(
+          _buildHistoryItem(context, thisContent),
+          thisContent.content.id.toInt(),
           margin: EdgeInsets.symmetric(vertical: 4),
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: loadingColors[colorIdx].withAlpha(50),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            // spacing: 8,
-            children: [
-              Tooltip(
-                message: thisContent.content.name,
-                child: Text(
-                  thisContent.content.name,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      setTaskCurrentHistory(
-                        TaskSubmitAction.detailHistory,
-                        contents![index],
-                        context,
-                      );
-                    },
-                    icon: Text(
-                      '详情',
-                      style: TextStyle(
-                        color: Colors.purple.withAlpha(220),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {
-                      setTaskCurrentHistory(
-                        TaskSubmitAction.modifyHistory,
-                        contents![index],
-                        context,
-                      );
-                    },
-                    icon: Text(
-                      '修改',
-                      style: TextStyle(
-                        color: Colors.blue.withAlpha(220),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-
-                  const Text('创建时间:', style: TextStyle(fontSize: 12)),
-                  const SizedBox(width: 4),
-                  Text(
-                    defaultDateTimeFormat.format(
-                      DateTime.fromMillisecondsSinceEpoch(
-                        contents![index].content.createdAt.toInt(),
-                      ),
-                    ),
-                    style: TextStyle(
-                      color: Colors.purple.withAlpha(120),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          borderRadius: BorderRadius.circular(4),
         );
       },
     );
   }
+
+  Widget _buildHistoryItem(
+    BuildContext context,
+    CusYooWorkContent thisContent,
+  ) => Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    // spacing: 8,
+    children: [
+      Tooltip(
+        message: thisContent.content.name,
+        child: Text(
+          thisContent.content.name,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+      const SizedBox(height: 6),
+      Row(
+        children: [
+          IconButton(
+            onPressed: () {
+              setTaskCurrentHistory(
+                TaskSubmitAction.detailHistory,
+                thisContent,
+                context,
+              );
+            },
+            icon: Text(
+              '详情',
+              style: TextStyle(
+                color: Colors.purple.withAlpha(220),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () {
+              setTaskCurrentHistory(
+                TaskSubmitAction.modifyHistory,
+                thisContent,
+                context,
+              );
+            },
+            icon: Text(
+              '修改',
+              style: TextStyle(
+                color: Colors.blue.withAlpha(220),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const Spacer(),
+
+          const Text('创建时间:', style: TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
+          Text(
+            defaultDateTimeFormat.format(
+              DateTime.fromMillisecondsSinceEpoch(
+                thisContent.content.createdAt.toInt(),
+              ),
+            ),
+            style: TextStyle(color: Colors.purple.withAlpha(120), fontSize: 12),
+          ),
+        ],
+      ),
+    ],
+  );
 
   void setTaskCurrentHistory(
     TaskSubmitAction action,

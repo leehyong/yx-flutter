@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
@@ -12,6 +11,7 @@ import 'package:yx/api/user_api.dart' as user_api;
 import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
+import 'package:yx/utils/common_widget.dart';
 
 import '../data.dart';
 
@@ -247,20 +247,10 @@ class SelectTaskUserState extends State<SelectTaskPersonView> {
         if (node.key == INode.ROOT_KEY) {
           return SizedBox.shrink();
         }
-        final colorIdx =
-            Random(node.data!.id.toInt()).nextInt(10000) % loadingColors.length;
-        // 把颜色做成随机透明的
-        return node.data!.hidden
-            ? SizedBox.shrink()
-            : Container(
-              margin: EdgeInsets.symmetric(vertical: 2),
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              decoration: BoxDecoration(
-                color: loadingColors[colorIdx].withAlpha(40),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: _buildReadonlyItem(context, node),
-            );
+        return buildRandomColorfulBox(
+          _buildReadonlyItem(context, node),
+          node.data!.id.toInt(),
+        );
       },
       onItemTap: (node) {
         debugPrint("${node.level}");

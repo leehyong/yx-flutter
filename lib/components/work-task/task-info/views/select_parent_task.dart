@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:flutter/material.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
-import 'package:yx/types.dart';
+import 'package:yx/utils/common_widget.dart';
 
 import '../data.dart';
 
@@ -16,7 +16,9 @@ class SelectParentTaskView extends StatefulWidget {
 
 class SelectParentTaskState extends State<SelectParentTaskView> {
   final TreeNode<CheckableWorkTask> _checkableTree =
-      TreeNode<CheckableWorkTask>.root(data: CheckableWorkTask(newFakeEmptyWorkTask()));
+      TreeNode<CheckableWorkTask>.root(
+        data: CheckableWorkTask(newFakeEmptyWorkTask()),
+      );
 
   WorkTask? curCheckedTask;
 
@@ -79,43 +81,42 @@ class SelectParentTaskState extends State<SelectParentTaskView> {
 
   Widget _buildSearchableTask(BuildContext context) {
     // return maybeOneThirdCenterHorizontal(
-    return
-      Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _searchNameController,
-              onChanged: (v) {
-                if (v.isEmpty) {
-                  _recursiveSearchTaskNameByDfs(
-                    _checkableTree,
-                    _searchNameController.text.trim(),
-                  );
-                }
-              },
-              decoration: InputDecoration(
-                labelText: "请输入任务名称",
-                icon: Icon(Icons.password),
-              ),
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _searchNameController,
+            onChanged: (v) {
+              if (v.isEmpty) {
+                _recursiveSearchTaskNameByDfs(
+                  _checkableTree,
+                  _searchNameController.text.trim(),
+                );
+              }
+            },
+            decoration: InputDecoration(
+              labelText: "请输入任务名称",
+              icon: Icon(Icons.password),
             ),
           ),
-          ElevatedButton.icon(
-            onPressed: () {
-              _recursiveSearchTaskNameByDfs(
-                _checkableTree,
-                _searchNameController.text.trim(),
-              );
-            },
-            label: Row(children: [const Icon(Icons.search), const Text("搜索")]),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              _searchNameController.text = '';
-              _recursiveSearchTaskNameByDfs(_checkableTree, '');
-            },
-            label: Row(children: [const Icon(Icons.search), const Text("重置")]),
-          ),
-        ],
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            _recursiveSearchTaskNameByDfs(
+              _checkableTree,
+              _searchNameController.text.trim(),
+            );
+          },
+          label: Row(children: [const Icon(Icons.search), const Text("搜索")]),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            _searchNameController.text = '';
+            _recursiveSearchTaskNameByDfs(_checkableTree, '');
+          },
+          label: Row(children: [const Icon(Icons.search), const Text("重置")]),
+        ),
+      ],
     );
   }
 
@@ -137,20 +138,12 @@ class SelectParentTaskState extends State<SelectParentTaskView> {
         if (node.key == INode.ROOT_KEY) {
           return SizedBox.shrink();
         }
-        final colorIdx =
-            Random(node.data!.task.id.toInt()).nextInt(10000) %
-            loadingColors.length;
         // 把颜色做成随机透明的
         return node.data!.hidden
             ? SizedBox.shrink()
-            : Container(
-              margin: EdgeInsets.symmetric(vertical: 2),
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              decoration: BoxDecoration(
-                color: loadingColors[colorIdx].withAlpha(40),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: _buildReadonlyItemHeader(context, node),
+            : buildRandomColorfulBox(
+              _buildReadonlyItemHeader(context, node),
+              node.data!.task.id.toInt(),
             );
       },
       onItemTap: (node) {
@@ -189,19 +182,10 @@ class SelectParentTaskState extends State<SelectParentTaskView> {
       ],
     );
     final cnt = node.childrenAsList
-        .map(
-          (e) =>
-      (e as TreeNode<CheckableWorkTask>).data!.hidden
-          ? 0
-          : 1,
-    )
+        .map((e) => (e as TreeNode<CheckableWorkTask>).data!.hidden ? 0 : 1)
         .fold(0, (prev, cur) => prev + cur);
     return cnt == 0
         ? item
-        : Badge.count(
-          alignment: Alignment.topLeft,
-          count: cnt,
-          child: item,
-        );
+        : Badge.count(alignment: Alignment.topLeft, count: cnt, child: item);
   }
 }

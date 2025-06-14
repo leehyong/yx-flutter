@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
@@ -227,3 +229,27 @@ Widget buildLoadMoreTipAction(
         : const Center(
           child: Text("没有更多数据了", style: TextStyle(color: Colors.grey)),
         );
+
+Widget buildRandomColorfulBox(
+  Widget target,
+  int seed, {
+  EdgeInsets? margin,
+  EdgeInsets? padding,
+  BorderRadiusGeometry? borderRadius,
+}) {
+  // 把颜色做成随机透明的
+  final rand = Random(seed);
+  final colorIdx = rand.nextInt(1000000) % loadingColors.length;
+  final alpha = rand.nextInt(70) + 30;
+  return RepaintBoundary(
+    child: Container(
+      margin: margin ?? EdgeInsets.symmetric(vertical: 2),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      decoration: BoxDecoration(
+        color: loadingColors[colorIdx].withAlpha(alpha),
+        borderRadius: borderRadius ?? BorderRadius.circular(16),
+      ),
+      child: target,
+    ),
+  );
+}

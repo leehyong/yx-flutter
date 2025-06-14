@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:fixnum/fixnum.dart';
@@ -32,7 +30,7 @@ class JoinableOrganizationView extends StatefulWidget {
 }
 
 class JoinableOrganizationViewState extends State<JoinableOrganizationView>
-    with CommonUserCenterView, CommonEasyRefresherMixin{
+    with CommonUserCenterView, CommonEasyRefresherMixin {
   final PageReq _pageReq = PageReq();
   var _initLoading = false;
   var _checkedOrganizationId = Int64.ZERO;
@@ -154,27 +152,16 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
         // 不显示根节点
         if (node.key == INode.ROOT_KEY) {
           return SizedBox.shrink();
-        } else
-          if (node.key == hasMoreData || node.key == noMoreData) {
+        } else if (node.key == hasMoreData || node.key == noMoreData) {
           return buildLoadMoreTipAction(
             context,
             _pageReq.hasMore,
             () => _loadData(),
           );
         }
-        final colorIdx =
-            Random(node.data!.data.id.toInt()).nextInt(10000) %
-            loadingColors.length;
-        // 把颜色做成随机透明的
-        // 区分编辑和只读
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 2),
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          decoration: BoxDecoration(
-            color: loadingColors[colorIdx].withAlpha(40),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: _buildOrganizationItem(context, node.data!.data),
+        return buildRandomColorfulBox(
+          _buildOrganizationItem(context, node.data!.data),
+          node.data!.data.id.toInt(),
         );
       },
       onItemTap: (node) {
@@ -246,6 +233,7 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
       return false;
     }
   }
+
   @override
   Future<void> loadData() async {
     _loadData().then((success) {
@@ -404,16 +392,19 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
     BuildContext context,
     SwitchableOrganization org,
   ) {
-    return RadioListTile(
-      title: _buildTitle(context, '名称', org.organization.name, 16.0),
-      subtitle: _buildTitle(context, '角色', org.role.name, 12.0),
-      value: org,
-      groupValue: _checkedSwitchOrg,
-      onChanged: (v) {
-        setState(() {
-          _checkedSwitchOrg = v;
-        });
-      },
+    return buildRandomColorfulBox(
+      RadioListTile(
+        title: _buildTitle(context, '名称', org.organization.name, 16.0),
+        subtitle: _buildTitle(context, '角色', org.role.name, 12.0),
+        value: org,
+        groupValue: _checkedSwitchOrg,
+        onChanged: (v) {
+          setState(() {
+            _checkedSwitchOrg = v;
+          });
+        },
+      ),
+      org.organization.id.toInt() + org.role.id.toInt(),
     );
   }
 

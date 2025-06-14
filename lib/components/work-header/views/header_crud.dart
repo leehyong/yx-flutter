@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -232,55 +230,45 @@ class PublishItemsViewSimpleCrudState
   Widget build(BuildContext context) {
     if (_isLoadingSubmitItem) {
       return buildLoading(context);
-    }else if(widget.rootSubmitItemAnimatedTreeData.childrenAsList.isEmpty){
+    } else if (widget.rootSubmitItemAnimatedTreeData.childrenAsList.isEmpty) {
       return emptyWidget(context);
     }
     return TreeView.simpleTyped<WorkHeader, TreeNode<WorkHeader>>(
-          showRootNode: false,
-          // focusToNewNode: true,
-          tree: widget.rootSubmitItemAnimatedTreeData,
-          expansionBehavior: ExpansionBehavior.collapseOthers,
-          expansionIndicatorBuilder:
-              (ctx, node) =>
-                  _isEditingNode == node
-                      ? NoExpansionIndicator(tree: node)
-                      : ChevronIndicator.rightDown(
-                        tree: node,
-                        alignment: Alignment.centerLeft,
-                        color: Colors.red,
-                      ),
-          shrinkWrap: true,
-          indentation: const Indentation(style: IndentStyle.roundJoint),
-          builder: (context, node) {
-            // 不显示根节点
-            if (node.key == INode.ROOT_KEY) {
-              return SizedBox.shrink();
-            }
-            final colorIdx =
-                Random(node.data!.id.toInt()).nextInt(10000) %
-                loadingColors.length;
-            // 把颜色做成随机透明的
-            // 区分编辑和只读
-            return Container(
-              margin: EdgeInsets.symmetric(vertical: 2),
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              decoration: BoxDecoration(
-                color: loadingColors[colorIdx].withAlpha(40),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child:
-                  _isEditingNode == node
-                      ? _buildWritingItemHeader(context, node)
-                      : _buildItemHeaderMaybeWithAction(context, node),
-            );
-          },
-          onItemTap: (node) {
-            debugPrint("${node.level}");
-          },
-          onTreeReady: (treeController) {
-            treeViewController = treeController;
-          },
+      showRootNode: false,
+      // focusToNewNode: true,
+      tree: widget.rootSubmitItemAnimatedTreeData,
+      expansionBehavior: ExpansionBehavior.collapseOthers,
+      expansionIndicatorBuilder:
+          (ctx, node) =>
+              _isEditingNode == node
+                  ? NoExpansionIndicator(tree: node)
+                  : ChevronIndicator.rightDown(
+                    tree: node,
+                    alignment: Alignment.centerLeft,
+                    color: Colors.red,
+                  ),
+      shrinkWrap: true,
+      indentation: const Indentation(style: IndentStyle.roundJoint),
+      builder: (context, node) {
+        // 不显示根节点
+        if (node.key == INode.ROOT_KEY) {
+          return SizedBox.shrink();
+        }
+        // 区分编辑和只读
+        return buildRandomColorfulBox(
+          _isEditingNode == node
+              ? _buildWritingItemHeader(context, node)
+              : _buildItemHeaderMaybeWithAction(context, node),
+          node.data!.id.toInt(),
         );
+      },
+      onItemTap: (node) {
+        debugPrint("${node.level}");
+      },
+      onTreeReady: (treeController) {
+        treeViewController = treeController;
+      },
+    );
   }
 
   Widget _buildItemHeaderMaybeWithAction(

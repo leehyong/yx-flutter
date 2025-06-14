@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:fixnum/fixnum.dart';
@@ -156,19 +155,8 @@ class SelectSubmitItemViewState extends State<SelectSubmitItemView> {
             if (node.key == INode.ROOT_KEY) {
               return SizedBox.shrink();
             }
-            final colorIdx =
-                Random(node.data!.header.id.toInt()).nextInt(10000) %
-                loadingColors.length;
-            // 把颜色做成随机透明的
-            // 区分编辑和只读
-            return Container(
-              margin: EdgeInsets.symmetric(vertical: 2),
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              decoration: BoxDecoration(
-                color: loadingColors[colorIdx].withAlpha(40),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: _buildReadonlyItemHeader(context, node),
+            return buildRandomColorfulBox( _buildReadonlyItemHeader(context, node),
+                node.data!.header.id.toInt()
             );
           },
           onItemTap: (node) {
