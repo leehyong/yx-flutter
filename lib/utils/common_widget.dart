@@ -213,9 +213,9 @@ Widget buildLoadMoreTipAction(
   VoidCallback cb,
 ) =>
     hasMore
-        ? IconButton(
+        ? TextButton(
           onPressed: cb,
-          icon: const Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 4,
             children: [

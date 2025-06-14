@@ -478,3 +478,6 @@ enum UserApplyOrganizationJoinStrategy {
   invite, // 邀请加入
   register, // 注册加入
 }
+
+ final String noMoreData = 'noMoreData';
+ final String hasMoreData = 'hasMoreData';

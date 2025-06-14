@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -32,24 +31,23 @@ class JoinableOrganizationView extends StatefulWidget {
 }
 
 class JoinableOrganizationViewState extends State<JoinableOrganizationView>
-    with CommonUserCenterView, CommonEasyRefresherMixin {
+    with CommonUserCenterView {
   final PageReq _pageReq = PageReq();
   var _initLoading = false;
   var _checkedOrganizationId = Int64.ZERO;
   var _isEmpty = false;
-  late final TreeNode<CusYooOrganizationTree> _rootTreeData;
+  final TreeNode<CusYooOrganizationTree> _rootTreeData =
+      TreeNode<CusYooOrganizationTree>.root();
 
   @override
   void initState() {
     super.initState();
-    _rootTreeData = TreeNode<CusYooOrganizationTree>.root();
     setState(() {
       _initLoading = true;
     });
-    loadData().whenComplete(() {
-      setState(() {
-        _initLoading = false;
-      });
+    _loadData().whenComplete(() {
+      _initLoading = false;
+      setState(() {});
     });
   }
 
@@ -94,7 +92,7 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
     if (_initLoading) {
       return buildLoading(context);
     }
-    return buildEasyRefresher(context);
+    return _buildOrganizationTreeBox(context);
   }
 
   @override
@@ -141,12 +139,27 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
       // focusToNewNode: true,
       tree: _rootTreeData,
       expansionBehavior: ExpansionBehavior.collapseOthers,
+      // expansionIndicatorBuilder:
+      //     (cxt, node) =>
+      //         node.childrenAsList.isEmpty
+      //             ? NoExpansionIndicator(tree: node)
+      //             : ChevronIndicator.rightDown(
+      //               tree: node,
+      //               padding: EdgeInsets.all(8),
+      //             ),
       shrinkWrap: true,
       indentation: const Indentation(style: IndentStyle.roundJoint),
       builder: (context, node) {
         // 不显示根节点
         if (node.key == INode.ROOT_KEY) {
           return SizedBox.shrink();
+        } else
+          if (node.key == hasMoreData || node.key == noMoreData) {
+          return buildLoadMoreTipAction(
+            context,
+            _pageReq.hasMore,
+            () => _loadData(),
+          );
         }
         final colorIdx =
             Random(node.data!.data.id.toInt()).nextInt(10000) %
@@ -169,8 +182,7 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
     );
   }
 
-  @override
-  Widget buildRefresherChildDataBox(BuildContext context) {
+  Widget _buildOrganizationTreeBox(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -190,6 +202,7 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
   ) {
     final headerId = childData.data.id;
     final node = TreeNode(key: treeNodeKey(headerId), data: childData);
+    parent.add(node);
     for (var child in childData.children) {
       _buildTreeData(node, child);
     }
@@ -206,50 +219,31 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
       );
       if (data.error == null || data.error!.isEmpty) {
         final trees = data.data ?? <CusYooOrganizationTree>[];
-        for (var child in trees) {
-          _buildTreeData(_rootTreeData, child);
-        }
         _isEmpty = trees.isEmpty;
         assert(_pageReq.limit == data.limit);
         _pageReq.hasMore = _pageReq.page < data.totalPages;
         _pageReq.page++;
+        for (var child in trees) {
+          _buildTreeData(_rootTreeData, child);
+        }
+        TreeNode<CusYooOrganizationTree> tmp;
+        if (_pageReq.hasMore) {
+          tmp = TreeNode(
+            data: CusYooOrganizationTree(data: Organization(name: '加载更多')),
+            key: hasMoreData,
+          );
+        } else {
+          tmp = TreeNode(
+            data: CusYooOrganizationTree(data: Organization(name: '没有更多数据了')),
+            key: noMoreData,
+          );
+        }
+        _rootTreeData.add(tmp);
         return true;
       }
       return false;
     }
   }
-
-  @override
-  Future<void> loadData() async {
-    _loadData().then((success) {
-      setState(() {});
-      if (success) {
-        refreshController.finishLoad(
-          _pageReq.hasMore ? IndicatorResult.noMore : IndicatorResult.success,
-        );
-      } else {
-        refreshController.finishLoad(IndicatorResult.fail);
-      }
-    });
-  }
-
-  @override
-  Future<void> refreshData() async {
-    _loadData().then((success) {
-      setState(() {});
-      if (success) {
-        refreshController.finishRefresh(
-          _pageReq.hasMore ? IndicatorResult.noMore : IndicatorResult.success,
-        );
-      } else {
-        refreshController.finishRefresh(IndicatorResult.fail);
-      }
-      refreshController.resetFooter();
-    });
-  }
-
-  @override
-  JoinableOrganizationViewState get widgetState => this;
 }
 
 class SwitchableOrganizationView extends StatefulWidget {
@@ -354,13 +348,32 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
     );
   }
 
+  Widget _buildTitle(
+    BuildContext context,
+    String name,
+    String title,
+    double fontSize,
+  ) => Row(
+    spacing: 4,
+    children: [
+      Text('$name:'),
+      Tooltip(
+        message: title,
+        child: Text(
+          title,
+          style: TextStyle(fontSize: fontSize, overflow: TextOverflow.ellipsis),
+        ),
+      ),
+    ],
+  );
+
   Widget _buildOrganizationItem(
     BuildContext context,
     SwitchableOrganization org,
   ) {
     return RadioListTile(
-      title: Text(org.organization.name, style: TextStyle(fontSize: 16)),
-      subtitle: Text(org.role.name, style: TextStyle(fontSize: 12)),
+      title: _buildTitle(context, '名称', org.organization.name, 16.0),
+      subtitle: _buildTitle(context, '角色', org.role.name, 12.0),
       value: org,
       groupValue: _checkedSwitchOrg,
       onChanged: (v) {
