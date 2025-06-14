@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:animated_tree_view/animated_tree_view.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,7 +32,7 @@ class JoinableOrganizationView extends StatefulWidget {
 }
 
 class JoinableOrganizationViewState extends State<JoinableOrganizationView>
-    with CommonUserCenterView {
+    with CommonUserCenterView, CommonEasyRefresherMixin{
   final PageReq _pageReq = PageReq();
   var _initLoading = false;
   var _checkedOrganizationId = Int64.ZERO;
@@ -45,7 +46,7 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
     setState(() {
       _initLoading = true;
     });
-    _loadData().whenComplete(() {
+    loadData().whenComplete(() {
       _initLoading = false;
       setState(() {});
     });
@@ -92,7 +93,7 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
     if (_initLoading) {
       return buildLoading(context);
     }
-    return _buildOrganizationTreeBox(context);
+    return buildEasyRefresher(context);
   }
 
   @override
@@ -182,7 +183,8 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
     );
   }
 
-  Widget _buildOrganizationTreeBox(BuildContext context) {
+  @override
+  Widget buildRefresherChildDataBox(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -244,6 +246,37 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
       return false;
     }
   }
+  @override
+  Future<void> loadData() async {
+    _loadData().then((success) {
+      setState(() {});
+      if (success) {
+        refreshController.finishLoad(
+          _pageReq.hasMore ? IndicatorResult.noMore : IndicatorResult.success,
+        );
+      } else {
+        refreshController.finishLoad(IndicatorResult.fail);
+      }
+    });
+  }
+
+  @override
+  Future<void> refreshData() async {
+    _loadData().then((success) {
+      setState(() {});
+      if (success) {
+        refreshController.finishRefresh(
+          _pageReq.hasMore ? IndicatorResult.noMore : IndicatorResult.success,
+        );
+      } else {
+        refreshController.finishRefresh(IndicatorResult.fail);
+      }
+      refreshController.resetFooter();
+    });
+  }
+
+  @override
+  JoinableOrganizationViewState get widgetState => this;
 }
 
 class SwitchableOrganizationView extends StatefulWidget {
