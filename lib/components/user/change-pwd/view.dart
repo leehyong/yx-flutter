@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yx/components/user/change-pwd/controller/change_pwd.dart';
+import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/types.dart';
 
 import '../mixin.dart';
@@ -37,7 +38,7 @@ class ChangePwdVIewState extends State<ChangePwdVIew>
   Widget build(BuildContext context) => buildScaffold(context);
 
   @override
-  Widget buildBody(BuildContext context) => ChangePwdCompView();
+  Widget buildBody(BuildContext context) => ChangePwdCompView(cancelRouteId: NestedNavigatorKeyId.userCenterId);
 
   @override
   UserCenterPageParams get pageParams => widget.params;

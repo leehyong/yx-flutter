@@ -3,9 +3,10 @@ import 'package:get/get.dart';
 
 import '../controller/change_pwd.dart';
 
-
 class ChangePwdCompView extends GetView<ChangePwdController> {
-  const ChangePwdCompView({super.key});
+  const ChangePwdCompView({super.key, this.cancelRouteId});
+
+  final int? cancelRouteId;
 
   Widget buildOldPasswordTextField(BuildContext context) {
     return TextFormField(
@@ -36,6 +37,7 @@ class ChangePwdCompView extends GetView<ChangePwdController> {
       ),
     );
   }
+
   Widget buildNewPasswordTextField(BuildContext context) {
     return TextFormField(
       obscureText: !controller.showNewPwd.value, // 是否显示文字
@@ -65,6 +67,7 @@ class ChangePwdCompView extends GetView<ChangePwdController> {
       ),
     );
   }
+
   Widget buildCheckPasswordTextField(BuildContext context) {
     return TextFormField(
       obscureText: !controller.showCheckPwd.value, // 是否显示文字
@@ -95,36 +98,71 @@ class ChangePwdCompView extends GetView<ChangePwdController> {
     );
   }
 
-  Widget buildConfirmButton(BuildContext context) {
-    return Align(
-      child: SizedBox(
-        height: 45,
-        width: 270,
-        child: ElevatedButton(
-          style: ButtonStyle(
-            // 设置圆角
-            shape: WidgetStateProperty.all(
-              const StadiumBorder(side: BorderSide(style: BorderStyle.none)),
-            ),
-          ),
-          child: Text('确定', style: TextStyle(fontSize: 24)),
-          onPressed: () async {
-            var state = controller.formKey.currentState as FormState;
-            if (state.validate()) {
-              var res = await  controller.changePwd();
-              if (res.isEmpty) {
-                Get.offAndToNamed("/");
-              }
-              // 执行确认方法
-              // AuthService.to.login();
-              // var res = await  controller.login();
-              // if (res) {
-              //   Get.offAndToNamed("/");
-              // }
-            }
-          },
+  Widget _buildButton(
+    BuildContext context, {
+    required String name,
+    required VoidCallback onPressed,
+    Color? bgColor,
+    Color? color,
+  }) {
+    return ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: bgColor != null ? WidgetStateProperty.all(bgColor) : null,
+        // 设置圆角
+        shape: WidgetStateProperty.all(
+          const StadiumBorder(side: BorderSide(style: BorderStyle.none)),
         ),
       ),
+      onPressed: onPressed,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Text(name, style: TextStyle(fontSize: 24, color: color)),
+      ),
+    );
+  }
+
+  Widget buildConfirmButton(BuildContext context) {
+    return _buildButton(
+      context,
+      name: '确定',
+      onPressed: () {
+        var state = controller.formKey.currentState as FormState;
+        if (state.validate()) {
+          controller.changePwd().then((res) {
+            if (res.isEmpty) {
+              Get.offAndToNamed("/");
+            }
+          });
+          // 执行确认方法
+          // AuthService.to.login();
+          // var res = await  controller.login();
+          // if (res) {
+          //   Get.offAndToNamed("/");
+          // }
+        }
+      },
+    );
+  }
+
+  Widget buildCancelButton(BuildContext context) {
+    return _buildButton(
+      context,
+      name: '取消',
+      bgColor: Colors.grey.shade200,
+      color: Colors.blueAccent.shade100,
+      onPressed: () {
+        if (cancelRouteId != null) {
+          Get.back(id: cancelRouteId);
+        }
+      },
+    );
+  }
+
+  Widget _buildCCBtns(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 20,
+      children: [buildCancelButton(context), buildConfirmButton(context)],
     );
   }
 
@@ -145,7 +183,7 @@ class ChangePwdCompView extends GetView<ChangePwdController> {
             const SizedBox(height: 30),
             buildCheckPasswordTextField(context), // 输入密码
             const SizedBox(height: 50),
-            buildConfirmButton(context), // 登录按钮
+            _buildCCBtns(context), // 登录按钮
             const SizedBox(height: 30),
             // buildRegisterText(context), // 注册
           ],
