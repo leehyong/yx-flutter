@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:yx/root/nest_nav_key.dart';
 import 'package:yx/routes/app_pages.dart';
+import 'package:yx/services/auth_service.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
+import 'package:yx/utils/toast.dart';
 
 class PersonalCenterView extends StatefulWidget {
   const PersonalCenterView({super.key});
@@ -20,9 +22,142 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
   final verticalPadding = 20.0;
   final borderRadiusAll20 = BorderRadius.all(Radius.circular(20));
   final messageCount = 10;
-  final credits = 10.0;
+  double credits = 10.0;
+
+  Widget _buildUserProfile(BuildContext context) {
+    return // 头像、用户名等信息
+    Row(
+      spacing: 8,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ClipOval(
+          child: Image.network(
+            'https://cdn.pixabay.com/photo/2025/06/10/19/28/musk-mallow-9652831_1280.jpg',
+            // 实际替换成你的头像地址
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+          ),
+        ),
+        SizedBox(
+          width: 140,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AuthService.instance.user?.username ?? '游客，您好',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '儒生 北京市 高三理',
+                style: TextStyle(fontSize: 14, overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          ),
+        ),
+        TextButton(
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          onPressed: () {
+            // todo 获取积分记录列表
+            if (!AuthService.instance.isLoggedInValue) {
+              warnToast('当前还没登录，请登录!');
+              return;
+            }
+          },
+          child: Row(
+            spacing: 10,
+            children: [
+              Text(
+                AuthService.instance.isLoggedInValue ? '$credits' : "0",
+                style: TextStyle(fontSize: 18, color: Colors.purple),
+              ),
+              Icon(Icons.diamond, color: Colors.purple, size: 22),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildMyselfProfile(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        _buildUserProfile(context),
+        AuthService.instance.isLoggedInValue
+            ? _buildOrganizationProfile(context)
+            : _buildVisitorProfile(context),
+      ],
+    );
+  }
+
+  Widget _buildOrganizationProfile(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text('欢迎加入'),
+        TextButton(
+          // 短按展示企业信息
+          onPressed: () {
+            debugPrint('地球村');
+          },
+          // 长按复杂企业名称
+          onLongPress: () {},
+          child: Row(
+            spacing: 4,
+            children: [
+              Text(
+                AuthService.instance.user?.orgName ?? '地球村',
+                // '地球村',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              Icon(Icons.copy, size: 14),
+            ],
+          ),
+        ),
+        const Text('大家庭'),
+        Icon(Icons.tag_faces, color: Colors.blue),
+      ],
+    );
+  }
+
+  Widget _buildVisitorProfile(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TextButton(
+          // 短按展示企业信息
+          onPressed: () {
+            Get.offAndToNamed(Routes.login);
+          },
+          // 长按复杂企业名称
+          onLongPress: () {},
+          child: Row(
+            spacing: 10,
+            children: [
+              Icon(Icons.login, size: 22),
+              Text(
+                '立即登录',
+                // '地球村',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMyselfProfileBox(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -32,97 +167,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
         vertical: verticalPadding,
         // horizontal: horizontalPadding,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // 头像、用户名等信息
-          Row(
-            spacing: 8,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ClipOval(
-                child: Image.network(
-                  'https://cdn.pixabay.com/photo/2025/06/10/19/28/musk-mallow-9652831_1280.jpg',
-                  // 实际替换成你的头像地址
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(
-                width: 140,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      '奋斗的青春',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      '儒生 北京市 高三理',
-                      style: TextStyle(
-                        fontSize: 14,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              TextButton(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                onPressed: () {
-                  // 获取积分列表
-                },
-                child: Row(
-                  spacing: 4,
-                  children: [
-                    Text(
-                      '$credits',
-                      style: TextStyle(fontSize: 18, color: Colors.purple),
-                    ),
-                    Icon(Icons.diamond, color: Colors.purple, size: 22),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('欢迎加入'),
-              TextButton(
-                // 短按展示企业信息
-                onPressed: () {
-                  debugPrint('地球村');
-                },
-                // 长按复杂企业名称
-                onLongPress: () {},
-                child: Row(
-                  spacing: 4,
-                  children: [
-                    const Text(
-                      '地球村',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    Icon(Icons.copy, size: 14),
-                  ],
-                ),
-              ),
-              const Text('大家庭'),
-              Icon(Icons.tag_faces, color: Colors.blue),
-            ],
-          ),
-        ],
-      ),
+      child: _buildMyselfProfile(context),
     );
   }
 
@@ -144,6 +189,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             context,
             icon: Icons.layers,
             title: '加入组织',
+            checkedLogin: true,
             onTap: () {
               Get.toNamed(
                 UserProfileRoutes.organization,
@@ -158,6 +204,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             context,
             icon: Icons.swap_horiz,
             title: '切换组织',
+            checkedLogin: true,
             onTap: () {
               Get.toNamed(
                 UserProfileRoutes.organization,
@@ -172,6 +219,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             context,
             icon: Icons.add,
             title: '注册组织',
+            checkedLogin: true,
             onTap: () {
               Get.toNamed(
                 UserProfileRoutes.registerOrganization,
@@ -186,42 +234,50 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             context,
             icon: Icons.update,
             title: '修改秘密',
+            checkedLogin: true,
             onTap: () {
               Get.toNamed(
                 UserProfileRoutes.changePwd,
-                arguments: UserCenterPageParams(
-                  UserCenterAction.changePwd,
-                ),
+                arguments: UserCenterPageParams(UserCenterAction.changePwd),
                 id: NestedNavigatorKeyId.userCenterId,
               );
             },
           ),
-          _buildListTileItem(
-            context,
-            icon: Icons.logout,
-            title: '退出登录',
-            onTap: () {
-              showGeneralDialog(
-                context: context,
-                pageBuilder: (
-                  BuildContext buildContext,
-                  Animation<double> animation,
-                  Animation<double> secondaryAnimation,
-                ) {
-                  return TDAlertDialog(
-                    title: "确定退出吗？",
-                    leftBtnAction: () {
-                      Navigator.of(buildContext).pop();
-                    },
-                    rightBtnAction: () {
-                      Navigator.of(buildContext).pop();
-                      Get.toNamed(Routes.login);
+          AuthService.instance.isLoggedInValue
+              ? _buildListTileItem(
+                context,
+                icon: Icons.logout,
+                title: '退出登录',
+                onTap: () {
+                  showGeneralDialog(
+                    context: context,
+                    pageBuilder: (
+                      BuildContext buildContext,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                    ) {
+                      return TDAlertDialog(
+                        title: "确定退出吗？",
+                        leftBtnAction: () {
+                          Navigator.of(buildContext).pop();
+                        },
+                        rightBtnAction: () {
+                          Navigator.of(buildContext).pop();
+                          Get.offAndToNamed(Routes.login);
+                        },
+                      );
                     },
                   );
                 },
-              );
-            },
-          ),
+              )
+              : _buildListTileItem(
+                context,
+                icon: Icons.login,
+                title: '立即登录',
+                onTap: () {
+                  Get.offAndToNamed(Routes.login);
+                },
+              ),
         ],
       ),
     );
@@ -255,9 +311,16 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    bool checkedLogin = false,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        if (checkedLogin && !AuthService.instance.isLoggedInValue) {
+          warnToast('当前还没登录，请登录!');
+          return;
+        }
+        onTap();
+      },
       child: ListTile(
         leading: Icon(icon),
         title: Text(title),
@@ -299,7 +362,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
                 width: cons.maxWidth - hp * 2,
                 top: profileBoxMarginBottom * 2,
                 // height: cons.maxHeight,
-                child: _buildMyselfProfile(context),
+                child: _buildMyselfProfileBox(context),
               ),
             ],
           );
