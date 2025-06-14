@@ -253,3 +253,19 @@ Widget buildRandomColorfulBox(
     ),
   );
 }
+
+Widget buildCreatorMyself({
+  BorderRadiusGeometry? borderRadius,
+  double? fontSize,
+  EdgeInsets? padding,
+}) => Container(
+  padding: padding ?? EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+  decoration: BoxDecoration(
+    color: Colors.blue,
+    borderRadius: borderRadius ?? BorderRadius.circular(4),
+  ),
+  child: Text(
+    '本人创建',
+    style: TextStyle(color: Colors.white, fontSize: fontSize ?? 10.0),
+  ),
+);

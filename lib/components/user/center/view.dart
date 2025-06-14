@@ -42,7 +42,7 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
             children: [
               ClipOval(
                 child: Image.network(
-                  'https://mms-graph.cdn.bcebos.com/home-pc/human.jpg',
+                  'https://cdn.pixabay.com/photo/2025/06/10/19/28/musk-mallow-9652831_1280.jpg',
                   // 实际替换成你的头像地址
                   width: 80,
                   height: 80,

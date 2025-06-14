@@ -10,6 +10,7 @@ import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/organization_api.dart' as organization_api;
 import 'package:yx/components/common.dart';
 import 'package:yx/root/nest_nav_key.dart';
+import 'package:yx/services/auth_service.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/common_widget.dart';
@@ -78,7 +79,21 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
             // 文字颜色
           ),
           onPressed: () {
-            Get.back(id: NestedNavigatorKeyId.userCenterId);
+            if (confirming) {
+              warnToast("正在处理，请稍后再试");
+              return;
+            }
+            confirming = true;
+            organization_api
+                .applyJoinOrganization(_checkedOrganizationId)
+                .then((success) {
+                  if (success) {
+                    Get.back(id: NestedNavigatorKeyId.userCenterId);
+                  }
+                })
+                .whenComplete(() {
+                  confirming = false;
+                });
           },
           child: Text('确认'),
         ),
@@ -99,6 +114,11 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
 
   Widget _buildOrganizationItem(BuildContext context, Organization data) {
     return RadioListTile(
+      secondary:
+          // buildCreatorMyself(),
+          data.creator == AuthService.instance.user?.userId
+              ? buildCreatorMyself()
+              : null,
       title: Text(
         data.name,
         style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 16),
@@ -325,7 +345,12 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
             // 文字颜色
           ),
           onPressed: () {
+            if (confirming) {
+              warnToast("正在处理，请稍后再试");
+              return;
+            }
             if (_checkedSwitchOrg != null) {
+              confirming = true;
               organization_api
                   .switchOrganization(
                     _checkedSwitchOrg!.organization.id,
@@ -335,6 +360,9 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
                     if (success) {
                       Get.back(id: NestedNavigatorKeyId.userCenterId);
                     }
+                  })
+                  .whenComplete(() {
+                    confirming = false;
                   });
             } else {
               Get.back(id: NestedNavigatorKeyId.userCenterId);
@@ -403,13 +431,17 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
   ) {
     return buildRandomColorfulBox(
       RadioListTile(
+        secondary:
+            org.organization.creator == AuthService.instance.user?.userId
+                ? buildCreatorMyself()
+                : null,
         title: _buildTitle(context, '名称', org.organization.name, 16.0),
         subtitle: Container(
           margin: EdgeInsets.only(top: 8),
           child: _buildTitle(
             context,
             '角色',
-            org.role.name,
+            org.role.remark,
             12.0,
             color: Colors.red,
           ),
@@ -533,10 +565,15 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
             // 文字颜色
           ),
           onPressed: () {
+            if (confirming) {
+              warnToast("正在处理，请稍后再试");
+              return;
+            }
             Int64 parentId = Int64.ZERO;
             if (_whetherRelateCurrentOrganization) {
               parentId = Int64(-1);
             }
+            confirming = true;
             organization_api
                 .registerOrganization(
                   parentId,
@@ -552,6 +589,9 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
                     // 注册成功后，再回退
                     Get.back(id: NestedNavigatorKeyId.userCenterId);
                   }
+                })
+                .whenComplete(() {
+                  confirming = false;
                 });
           },
           child: Text('确认'),

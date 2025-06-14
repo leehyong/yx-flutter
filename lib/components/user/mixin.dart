@@ -5,7 +5,7 @@ import 'package:yx/utils/common_util.dart';
 
 mixin CommonUserCenterView {
   UserCenterPageParams get pageParams;
-
+  var confirming = false;
   Widget buildBody(BuildContext context);
 
   Widget buildScaffold(BuildContext context) {

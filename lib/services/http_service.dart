@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:toastification/toastification.dart';
 import 'package:yt_dart/login.pb.dart';
 import 'package:yx/services/auth_service.dart';
 import 'package:yx/types.dart';
 import 'package:yx/utils/common_util.dart';
 import 'package:yx/utils/proto.dart';
+import 'package:yx/utils/toast.dart';
 
 import '../config.dart';
 import 'adapter/web.dart' if (dart.library.io) 'adapter/native.dart';
@@ -112,9 +112,12 @@ class HttpDioService extends GetxService {
   }
 }
 
-String handleTokenResponse(Response<String> res, {bool check=false}) {
+String handleTokenResponse(Response<String> res, {bool check = false, String toastMsg = ''}) {
   final result = decodeCommonVoDataFromResponse(res);
   if (result.$2 != null) {
+    if (toastMsg.isNotEmpty) {
+      okToast(toastMsg);
+    }
     if (result.$2!.data.hasValue()) {
       final loginVoData = result.$2!.data.unpackInto(LoginResponseVo());
       // 检查条件是否满足
@@ -136,6 +139,9 @@ String handleTokenResponse(Response<String> res, {bool check=false}) {
     }
     return '';
   } else {
+    if (toastMsg.isNotEmpty) {
+      errToast(result.$1!);
+    }
     AuthService.instance.resetLoginInfo();
     return result.$1!;
   }
@@ -144,11 +150,7 @@ String handleTokenResponse(Response<String> res, {bool check=false}) {
 String handleUserLoginTokenToast(ResponseHandler handler) {
   String err = handler();
   if (err.isNotEmpty) {
-    toastification.show(
-      type: ToastificationType.error,
-      title: Text(err),
-      autoCloseDuration: const Duration(seconds: 3),
-    );
+    errToast(err);
   }
   return err;
 }

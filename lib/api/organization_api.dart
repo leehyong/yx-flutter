@@ -113,7 +113,7 @@ Future<bool> switchOrganization(Int64 orgId, Int64 roleId) async {
     );
     // 如果切换成功， 那就需要重新设置用户token
     return handleUserLoginTokenToast(
-      () => handleTokenResponse(resp, check: true),
+      () => handleTokenResponse(resp, check: true, toastMsg: '组织切换成功'),
     ).isEmpty;
   } catch (e) {
     debugPrint('接口 switchOrganization 调用失败：$e');
@@ -128,7 +128,7 @@ Future<bool> applyJoinOrganization(Int64 orgId) async {
       "$apiContextPath/organization/apply/join/$orgId",
     );
     return handleProtoCommonInstanceVo(resp, toastSuccess: true)?.isEmpty ??
-        false;
+        true;
   } catch (e) {
     debugPrint('接口 switchOrganization 调用失败：$e');
     return false;
