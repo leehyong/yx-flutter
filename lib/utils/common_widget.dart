@@ -269,3 +269,71 @@ Widget buildCreatorMyself({
     style: TextStyle(color: Colors.white, fontSize: fontSize ?? 10.0),
   ),
 );
+
+Widget buildButton(
+  BuildContext context, {
+  required String name,
+  required VoidCallback onPressed,
+  VoidCallback? onLongPress,
+  Color? bgColor,
+  Color? fgColor,
+  Color? color,
+  EdgeInsetsGeometry? padding,
+  TextStyle? nameStyle,
+}) {
+  return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: bgColor,
+      foregroundColor: fgColor,
+    ),
+    onPressed: onPressed,
+    onLongPress: onLongPress,
+    child: Padding(
+      padding: padding ?? EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      child: Text(
+        name,
+        style: nameStyle ?? TextStyle(fontSize: 24, color: color),
+      ),
+    ),
+  );
+}
+
+enum ConfirmCancelButtonDirection { row, column }
+
+Widget buildConfirmCancelButtons(
+  BuildContext context, {
+  required VoidCallback confirmPressed,
+  required VoidCallback cancelPressed,
+  MainAxisAlignment mainAlignment = MainAxisAlignment.center,
+  CrossAxisAlignment crossAlignment = CrossAxisAlignment.center,
+  ConfirmCancelButtonDirection direction = ConfirmCancelButtonDirection.row,
+  double spacing = 20,
+}) {
+  final children = [
+    buildButton(
+      context,
+      name: '取消',
+      bgColor: Colors.grey.shade200,
+      color: Colors.blueAccent.shade100,
+      onPressed: cancelPressed,
+    ),
+    buildButton(context, name: '确定', onPressed: confirmPressed),
+  ];
+
+  switch (direction) {
+    case ConfirmCancelButtonDirection.row:
+      return Row(
+        spacing: spacing,
+        mainAxisAlignment: mainAlignment,
+        crossAxisAlignment: crossAlignment,
+        children: children,
+      );
+    case ConfirmCancelButtonDirection.column:
+      return Column(
+        spacing: spacing,
+        mainAxisAlignment: mainAlignment,
+        crossAxisAlignment: crossAlignment,
+        children: children,
+      );
+  }
+}

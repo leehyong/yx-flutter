@@ -61,43 +61,28 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
   Widget build(BuildContext context) => buildScaffold(context);
 
   Widget _buildOrganizationActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            Get.back(id: NestedNavigatorKeyId.userCenterId);
-          },
-          child: Text('取消'),
-        ),
-        const SizedBox(width: 30),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue, // 背景色
-            foregroundColor: Colors.white,
-            // padding: EdgeInsets.all(4),
-            // 文字颜色
-          ),
-          onPressed: () {
-            if (confirming) {
-              warnToast("正在处理，请稍后再试");
-              return;
-            }
-            confirming = true;
-            organization_api
-                .applyJoinOrganization(_checkedOrganizationId)
-                .then((success) {
-                  if (success) {
-                    Get.back(id: NestedNavigatorKeyId.userCenterId);
-                  }
-                })
-                .whenComplete(() {
-                  confirming = false;
-                });
-          },
-          child: Text('确认'),
-        ),
-      ],
+    return buildConfirmCancelButtons(
+      context,
+      cancelPressed: () {
+        Get.back(id: NestedNavigatorKeyId.userCenterId);
+      },
+      confirmPressed: () {
+        if (confirming) {
+          warnToast("正在处理，请稍后再试");
+          return;
+        }
+        confirming = true;
+        organization_api
+            .applyJoinOrganization(_checkedOrganizationId)
+            .then((success) {
+              if (success) {
+                Get.back(id: NestedNavigatorKeyId.userCenterId);
+              }
+            })
+            .whenComplete(() {
+              confirming = false;
+            });
+      },
     );
   }
 
@@ -203,7 +188,7 @@ class JoinableOrganizationViewState extends State<JoinableOrganizationView>
           child:
               _isEmpty ? emptyWidget(context) : _buildOrganizationTree(context),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         _buildOrganizationActions(context),
       ],
     );
@@ -327,50 +312,35 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
   Widget build(BuildContext context) => buildScaffold(context);
 
   Widget _buildOrganizationActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            Get.back(id: NestedNavigatorKeyId.userCenterId);
-          },
-          child: Text('取消'),
-        ),
-        const SizedBox(width: 30),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue, // 背景色
-            foregroundColor: Colors.white,
-            // padding: EdgeInsets.all(4),
-            // 文字颜色
-          ),
-          onPressed: () {
-            if (confirming) {
-              warnToast("正在处理，请稍后再试");
-              return;
-            }
-            if (_checkedSwitchOrg != null) {
-              confirming = true;
-              organization_api
-                  .switchOrganization(
-                    _checkedSwitchOrg!.organization.id,
-                    _checkedSwitchOrg!.role.id,
-                  )
-                  .then((success) {
-                    if (success) {
-                      Get.back(id: NestedNavigatorKeyId.userCenterId);
-                    }
-                  })
-                  .whenComplete(() {
-                    confirming = false;
-                  });
-            } else {
-              Get.back(id: NestedNavigatorKeyId.userCenterId);
-            }
-          },
-          child: Text('确认'),
-        ),
-      ],
+    return buildConfirmCancelButtons(
+      context,
+      cancelPressed: () {
+        Get.back(id: NestedNavigatorKeyId.userCenterId);
+      },
+      confirmPressed: () {
+        if (confirming) {
+          warnToast("正在处理，请稍后再试");
+          return;
+        }
+        if (_checkedSwitchOrg != null) {
+          confirming = true;
+          organization_api
+              .switchOrganization(
+                _checkedSwitchOrg!.organization.id,
+                _checkedSwitchOrg!.role.id,
+              )
+              .then((success) {
+                if (success) {
+                  Get.back(id: NestedNavigatorKeyId.userCenterId);
+                }
+              })
+              .whenComplete(() {
+                confirming = false;
+              });
+        } else {
+          Get.back(id: NestedNavigatorKeyId.userCenterId);
+        }
+      },
     );
   }
 
@@ -396,6 +366,7 @@ class SwitchableOrganizationViewState extends State<SwitchableOrganizationView>
                   ? emptyWidget(context)
                   : _buildOrganizationList(context),
         ),
+        const SizedBox(height: 10,),
         _buildOrganizationActions(context),
       ],
     );
@@ -549,56 +520,41 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
   }
 
   Widget _buildOrganizationActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            Get.back(id: NestedNavigatorKeyId.userCenterId);
-          },
-          child: Text('取消'),
-        ),
-        const SizedBox(width: 30),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue, // 背景色
-            foregroundColor: Colors.white,
-            // padding: EdgeInsets.all(4),
-            // 文字颜色
-          ),
-          onPressed: () {
-            if (confirming) {
-              warnToast("正在处理，请稍后再试");
-              return;
-            }
-            Int64 parentId = Int64.ZERO;
-            if (_whetherRelateCurrentOrganization) {
-              parentId = Int64(-1);
-            }
-            confirming = true;
-            organization_api
-                .registerOrganization(
-                  parentId,
-                  NewOrganization(
-                    name: _nameTxtController.text,
-                    address: _addressTxtController.text,
-                    remark: _remarkTxtController.text,
-                    joinStrategy: _joinStrategy.index,
-                  ),
-                )
-                .then((v) {
-                  if (v) {
-                    // 注册成功后，再回退
-                    Get.back(id: NestedNavigatorKeyId.userCenterId);
-                  }
-                })
-                .whenComplete(() {
-                  confirming = false;
-                });
-          },
-          child: Text('确认'),
-        ),
-      ],
+    return buildConfirmCancelButtons(
+      context,
+      cancelPressed: () {
+        Get.back(id: NestedNavigatorKeyId.userCenterId);
+      },
+      confirmPressed: () {
+        if (confirming) {
+          warnToast("正在处理，请稍后再试");
+          return;
+        }
+        Int64 parentId = Int64.ZERO;
+        if (_whetherRelateCurrentOrganization) {
+          parentId = Int64(-1);
+        }
+        confirming = true;
+        organization_api
+            .registerOrganization(
+              parentId,
+              NewOrganization(
+                name: _nameTxtController.text,
+                address: _addressTxtController.text,
+                remark: _remarkTxtController.text,
+                joinStrategy: _joinStrategy.index,
+              ),
+            )
+            .then((v) {
+              if (v) {
+                // 注册成功后，再回退
+                Get.back(id: NestedNavigatorKeyId.userCenterId);
+              }
+            })
+            .whenComplete(() {
+              confirming = false;
+            });
+      },
     );
   }
 
@@ -641,7 +597,7 @@ class RegisterOrganizationViewState extends State<RegisterOrganizationView>
           _buildJoinStrategy(context),
           const SizedBox(height: 10),
           _buildWhetherCurrentOrganization(context),
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
           _buildOrganizationActions(context),
         ],
       ),
