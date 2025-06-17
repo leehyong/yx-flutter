@@ -447,6 +447,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: title,
           actions:
@@ -520,7 +521,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
                                       maxHeight:
-                                      !isBigScreen(context) ? 500 : 800,
+                                          !isBigScreen(context) ? 500 : 800,
                                     ),
                                     child: RepaintBoundary(
                                       child: TaskContentHistoryView(
@@ -779,7 +780,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
         if (!readOnly && noParent)
           Align(
             alignment:
-            !isBigScreen(context)
+                !isBigScreen(context)
                     ? Alignment.centerRight
                     : Alignment.topLeft,
             child: ElevatedButton(
@@ -866,7 +867,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
               child: LayoutBuilder(
                 builder: (context, constrains) {
                   final width =
-                  isBigScreen(context)
+                      isBigScreen(context)
                           ? min(500.0, constrains.maxWidth)
                           : constrains.maxWidth;
                   return SizedBox(
@@ -1164,7 +1165,8 @@ class TaskInfoViewState extends State<TaskInfoView> {
             ),
             child: Tooltip(
               message: p,
-              triggerMode: !isBigScreen(context) ? TooltipTriggerMode.tap : null,
+              triggerMode:
+                  !isBigScreen(context) ? TooltipTriggerMode.tap : null,
               preferBelow: false,
               child: Text(
                 p.substring(0, min(5, p.length)),

@@ -31,8 +31,8 @@ class PersonalCenterViewState extends State<PersonalCenterView> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ClipOval(
-          child: Image.network(
-            'https://cdn.pixabay.com/photo/2025/06/10/19/28/musk-mallow-9652831_1280.jpg',
+          child: ImageWidget.asset(
+            'assets/images/girl.jpeg',
             // 实际替换成你的头像地址
             width: 80,
             height: 80,

@@ -150,9 +150,9 @@ extension ReceiveTaskStrategyExtension on ReceiveTaskStrategy {
       case ReceiveTaskStrategy.twoWaySelection:
         return '双向选择'; // 除了双向选择的人，其他人还可以领取
       case ReceiveTaskStrategy.onlyForceDelegation:
-        return '只允许强制委派的人';
+        return '仅强制委派';
       case ReceiveTaskStrategy.onlyTwoWaySelection:
-        return '只允许双向选择的人';
+        return '仅双向选择';
     }
   }
 }
