@@ -305,7 +305,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
       ),
       common: CommonYooWorkTask(
         parentTaskId: parentId,
-        headerIds: publishSubmitItemsCrudViewState.currentState!.taskHeaderIds,
+        headerIds: publishSubmitItemsCrudViewState.currentState?.taskHeaderIds,
         userIds: checkedTaskUsers?.map((user) => user.id).toList(),
       ),
     );
@@ -338,7 +338,7 @@ class TaskInfoViewState extends State<TaskInfoView> {
 
       common: CommonYooWorkTask(
         parentTaskId: parentId,
-        headerIds: publishSubmitItemsCrudViewState.currentState!.taskHeaderIds,
+        headerIds: publishSubmitItemsCrudViewState.currentState?.taskHeaderIds ??[],
         userIds: checkedTaskUsers?.map((user) => user.id).toList(),
       ),
     );

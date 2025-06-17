@@ -7,7 +7,6 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:yt_dart/generate_sea_orm_query.pb.dart';
 import 'package:yx/api/task_api.dart' as task_api;
-import 'package:yx/components/common.dart';
 import 'package:yx/root/controller.dart';
 import 'package:yx/types.dart';
 
@@ -184,7 +183,7 @@ class OneTaskCardController extends GetxController {
     isHandling.value = true;
     _commonDialog(
       context,
-      "确定$title}吗？",
+      "确定$title吗？",
       task.name,
       leftBtnAction: () async {
         isHandling.value = false;
