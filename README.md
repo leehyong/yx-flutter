@@ -1,7 +1,13 @@
-# 绩效考核系统
+# 悦享管系统
 
 基于flutter3.29.0和Get的绩效考核系统，涵盖web、ios、android
 #  https://fluttericon.cn/   flutter icon 地址
+
+## 系统演示
+### 安卓app演示
+![安卓版](安卓版演示.mov-compressed.gif)
+### web版演示
+![web版](web版演示.mov-compressed.gif)
 
 ## 开发问题
 ### 运行到安卓环境失败
